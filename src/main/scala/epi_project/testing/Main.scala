@@ -169,32 +169,46 @@ object Main extends LazyLogging {
 
   private def testing(implicit context: Context):Unit = {
     var TestingStartedAt = 0
-    val InterventionName = "testing_symptoms"
+    val InterventionName = "get_tested"
     val ActivationCondition = (context:Context) => getRecoveredCount(context) >= 2000
     val FirstTimeExecution = (context:Context) => TestingStartedAt = context.getCurrentStep
     val DeactivationCondition = (context:Context) => getSusceptibleCount(context) < 1000
 
     // TODO: change Deactivation condition to infected count, as more realistic
 
+    val perTickAction = (context:Context) => {
 
-    val Testing = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution,
-      context => {
+      val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
 
-//        val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
-        //println(Disease.numberOfTestsDoneAtEachTick,getRecoveredCount(context))
+      populationIterable.foreach(node => {
+        val person = node.as[Person]
 
-        Disease.numberOfTestsDoneAtEachTick = 0
-      }
-    )
+        if (person.isEligibleForTesting){
+          person.updateParam("lastTestDay", context.getCurrentStep/Disease.numberOfTicksInADay)
+          person.updateParam("beingTested",1)
+          if (biasedCoinToss(Disease.testSensitivity)){
+            person.updateParam("testStatus","p")
+          }
+          else {
+            person.updateParam("testStatus","n")
+          }
+        }
+      })
+      println(Disease.numberOfTestsDoneAtEachTick)
 
+      Disease.numberOfTestsDoneAtEachTick = 0
+    }
+
+    val Testing = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution,perTickAction)
 
     val QuarantinedSchedule = (myDay,myTick).add[House](0,2)
+
     registerIntervention(Testing)
 
     registerSchedules(
       (QuarantinedSchedule,(agent:Agent, _:Context) => {
-        val isQuarantined = context.activeInterventionNames.contains(InterventionName)
-        isQuarantined && agent.asInstanceOf[Person].Tested
+        val Intervention = context.activeInterventionNames.contains(InterventionName)
+        Intervention && agent.asInstanceOf[Person].isPositive
       },
       1
       ))
