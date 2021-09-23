@@ -25,6 +25,12 @@ object Disease {
   var numberOfTestsDoneAtEachTick:Int = 0
   val numberOfTestsAvailable:Int = 100
 
+  val daysAfterWhichEligibleForTestingAgain:Int = 7
+
+  val testDelay:Int = 2
+
+  val testSensitivity:Double = 0.9
+
   final val ageStratifiedBetaMultiplier = HashMap(
     9 -> 0.34,
     19 -> 0.67,
@@ -37,6 +43,9 @@ object Disease {
     89 -> 1.47,
     99 -> 1.47
   )
-
-
 }
+
+// BeingTested = 0 -> Hasn't been tested before/can be eligible to get tested again
+// BeingTested = 1 -> Has been tested recently and is awaiting result
+// BeingTested = 2 -> Tested positive and is in quarantine
+
