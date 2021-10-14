@@ -15,6 +15,7 @@ case class RecoveredState() extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",Recovered)
+
   }
 
 }

@@ -22,31 +22,29 @@ import com.typesafe.scalalogging.LazyLogging
 import java.util.Date
 
 object Main extends LazyLogging {
-  private val initialInfectedFraction = 0.03
+  private val initialInfectedFraction = 0.001
 
   private val myTick: ScheduleUnit = new ScheduleUnit(1)
-  private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 3)
+  private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 2)
 
   def main(args: Array[String]): Unit = {
     var beforeCount = 1
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("D:\\Soumil\\Project\\COVID-19_epi_project\\src\\main\\dummy10k.csv", csvDataExtractor)
+      ingestCSVData("D:\\Soumil\\Project\\COVID-19_epi_project\\src\\main\\dummy10k_hospitals.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
     simulation.defineSimulation(implicit context => {
 
-      //addLockdown
-      //addLockdown_below60
       testing
       create12HourSchedules()
 
       registerAction(
         StopSimulation,
         (c: Context) => {
-          c.getCurrentStep == 500
+          c.getCurrentStep == 400
         }
       )
 
@@ -66,7 +64,7 @@ object Main extends LazyLogging {
       val currentTime = new Date().getTime
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("src/main/" + "test1" + ".csv", new SEIROutputSpec(context))
+        new CsvOutputGenerator("src/main/" + "test_DTR_0.1%" + ".csv", new SEIROutputSpec(context))
       )
     })
 
@@ -85,24 +83,30 @@ object Main extends LazyLogging {
     val employeeSchedule = (myDay, myTick)
       .add[House](0, 0)
       .add[Office](1, 1)
-      .add[House](2,2)
 
     val studentSchedule = (myDay, myTick)
       .add[House](0, 0)
       .add[School](1, 1)
-      .add[House](2,2)
 
 //    val quarantinedSchedule = (myDay,myTick)
 //      .add[House](0, 2)
 
     val hospitalizedSchedule = (myDay,myTick)
-      .add[Hospital](0,2)
+      .add[Hospital](0,1)
+
+    //to-do - add hospital Ids for hospitalized people
+
+
+    val healthCareWorkerSchedule = (myDay,myTick)
+      .add[House](0,0)
+      .add[Hospital](1,1)
 
     registerSchedules(
       //(quarantinedSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isPresymptomatic, 1),
       (hospitalizedSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].isHospitalized,1),
-      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 25, 2),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25, 3)
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 25 && agent.asInstanceOf[Person].essentialWorker == 0, 2),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25, 3),
+      (healthCareWorkerSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].essentialWorker == 1,4)
     )
   }
 
@@ -114,13 +118,15 @@ object Main extends LazyLogging {
 
     val citizenId = map("Agent_ID").toLong
     val age = map("Age").toInt
-    val initialInfectionState = if (biasedCoinToss(initialInfectedFraction)) "Presymptomatic" else "Susceptible"
+    val initialInfectionState = if (biasedCoinToss(initialInfectedFraction)) "Asymptomatic" else "Susceptible"
 
 
-    val homeId = map("HHID").toLong
+    val homeId = map("HID").toLong
     val schoolId = map("school_id").toLong
     val officeId = map("WorkPlaceID").toLong
+    val hospitalId = map("Hospital ID").toLong
 
+    val essentialWorker = map("essential_worker").toInt
 //    val betaMultiplier : Double =
 //      Disease.ageStratifiedBetaMultiplier.getOrElse(roundToAgeRange(age),Disease.ageStratifiedBetaMultiplier(99))
 
@@ -129,13 +135,15 @@ object Main extends LazyLogging {
       age,
       InfectionStatus.withName(initialInfectionState),
       0,
+      essentialWorker
     )
+
 
     if (initialInfectionState == "Susceptible"){
       citizen.setInitialState(SusceptibleState())
     }
-    else if (initialInfectionState=="Presymptomatic"){
-      citizen.setInitialState(PresymptomaticState())
+    else if (initialInfectionState=="Asymptomatic"){
+      citizen.setInitialState(AsymptomaticState())
     }
 
     val home = House(homeId)
@@ -147,7 +155,7 @@ object Main extends LazyLogging {
     graphData.addNode(homeId, home)
     graphData.addRelations(staysAt, memberOf)
 
-    if (age >= 25) {
+    if (age >= 25 && essentialWorker == 0) {
       val office = Office(officeId)
       val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
       val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
@@ -163,89 +171,70 @@ object Main extends LazyLogging {
       graphData.addRelations(studiesAt, studentOf)
     }
 
+
+    val hospital = Hospital(hospitalId)
+    val worksIn = Relation[Person,Hospital](citizenId,"WORKS_IN/ADMITTED",hospitalId)
+    val employs = Relation[Hospital,Person](hospitalId,"EMPLOYS/PROVIDES_CARE",citizenId)
+
+    graphData.addNode(hospitalId,hospital)
+    graphData.addRelations(worksIn,employs)
+
+
+
+
     graphData
   }
 
 
   private def testing(implicit context: Context):Unit = {
     var TestingStartedAt = 0
-    val InterventionName = "testing_symptoms"
-    val ActivationCondition = (context:Context) => getRecoveredCount(context) >= 2000
+    val InterventionName = "get_tested"
+    val ActivationCondition = (context:Context) => getRecoveredCount(context) > 2000
     val FirstTimeExecution = (context:Context) => TestingStartedAt = context.getCurrentStep
-    val DeactivationCondition = (context:Context) => getSusceptibleCount(context) < 1000
+    val DeactivationCondition = (context:Context) => context.getCurrentStep == 400
 
     // TODO: change Deactivation condition to infected count, as more realistic
 
+    val perTickAction = (context:Context) => {
 
-    val Testing = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution,
-      context => {
+      val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person", "isScheduledForTesting" equ true)
 
-//        val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
-        //println(Disease.numberOfTestsDoneAtEachTick,getRecoveredCount(context))
+      populationIterable.foreach(node => {
+        val person = node.as[Person]
 
-        Disease.numberOfTestsDoneAtEachTick = 0
-      }
-    )
+        //println("Testing happens")
+        person.updateParam("lastTestDay", context.getCurrentStep/Disease.numberOfTicksInADay)
+        person.updateParam("beingTested",1)
+        person.updateParam("isScheduledForTesting",false)
 
+        if (biasedCoinToss(Disease.testSensitivity)){
+          person.updateParam("lastTestResult","p")
+        }
+        else {
+          person.updateParam("lastTestResult","n")
+        }
 
-    val QuarantinedSchedule = (myDay,myTick).add[House](0,2)
+      })
+      //TO-DO: Increment tests here
+      //println(Disease.numberOfTestsDoneAtEachTick)
+
+      Disease.numberOfTestsDoneAtEachTick = 0
+    }
+
+    val Testing = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution,perTickAction)
+
+    val QuarantinedSchedule = (myDay,myTick).add[House](0,1)
+
     registerIntervention(Testing)
 
     registerSchedules(
       (QuarantinedSchedule,(agent:Agent, _:Context) => {
-        val isQuarantined = context.activeInterventionNames.contains(InterventionName)
-        isQuarantined && agent.asInstanceOf[Person].Tested
+        val Intervention = context.activeInterventionNames.contains(InterventionName)
+        Intervention && agent.asInstanceOf[Person].isQuarantined
       },
       1
       ))
   }
-
-
-//  private def addLockdown(implicit context: Context): Unit={
-//    var LockdownActivatedAt = 0
-//    val InterventionName = "lockdown_above60"
-//    val ActivationCondition = (context:Context) => getInfectedCount(context) >= 1000
-//    val FirstTimeExecution = (context:Context) => LockdownActivatedAt = context.getCurrentStep
-//    val DeactivationCondition = (context:Context) => {
-//      context.getCurrentStep == LockdownActivatedAt + 63
-//    }
-//    val lockdown_above60 = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution)
-//    val LockdownSchedule = (myDay,myTick).add[House](0,2)
-//
-//    registerIntervention(lockdown_above60)
-//    registerSchedules(
-//      (LockdownSchedule,(agent: Agent, _: Context) => {
-//        val isLockdown = context.activeInterventionNames.contains(InterventionName)
-//        isLockdown
-//      },
-//      1
-//    ))
-//  }
-
-  //private def addLockdown_below60(implicit context: Context): Unit = {
-    //var LockdownActivatedAt = 0
-    //val InterventionName = "lockdown_below60"
-    //val FirstTimeExecution = (context:Context) => LockdownActivatedAt = context.getCurrentStep
-    //val ActivationCondition = (context:Context) => getInfectedCount(context) >= 1000
-    //val DeactivationCondition = (context:Context) => {
-      //context.getCurrentStep == LockdownActivatedAt + 21
-    //}
-
-    //val lockdown_below60 = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution)
-    //val LockdownSchedule = (myDay,myTick).add[House](0,2)
-
-    //registerIntervention(lockdown_below60)
-    //registerSchedules(
-      //(LockdownSchedule,(agent: Agent, _: Context) => {
-        //val isBelow60 = agent.asInstanceOf[Person].age < 60
-        //val isLockdown = context.activeInterventionNames.contains(InterventionName)
-        //isLockdown && isBelow60
-      //},
-        //1
-      //))
-  //}
-
-
 
   private def printStats(beforeCount: Int)(implicit context: Context): Unit = {
     val afterCountSusceptible = getSusceptibleCount(context)
@@ -263,7 +252,7 @@ object Main extends LazyLogging {
   }
 
   private def getInfectedCount(context: Context): Int = {
-    context.graphProvider.fetchCount("Person", "infectionState" equ Presymptomatic)
+    context.graphProvider.fetchCount("Person", "infectionState" equ Asymptomatic)
   }
 
   private def getRecoveredCount(context: Context) = {

@@ -57,6 +57,7 @@ case class SusceptibleState() extends State {
       val ExposureProb: Double = Disease.lambdaS * Disease.dt * InfectedFraction
       val InfectionState = biasedCoinToss(ExposureProb)
 
+
       if (InfectionState){
         if (biasedCoinToss(1- Disease.gamma)) {
           return true
@@ -68,24 +69,46 @@ case class SusceptibleState() extends State {
   }
 
 
-
-
   def fetchInfectedFraction(node: Node,placeType: String, context: Context): Double = {
 
     val cache = context.perTickCache
-    val key = (placeType,node.internalId)
+    val key = (placeType, node.internalId)
 
-    cache.getOrUpdate(key, ()=> calculateNew(node)).asInstanceOf[Double]
+    cache.getOrUpdate(key,() => calculateInfectedFraction(node, placeType,context)).asInstanceOf[Double]
   }
 
-  def calculateNew(node: Node): Double = {
 
-    val total = node.getConnectionCount(node.getRelation[Person]().get)
-    val infected = node.getConnectionCount(node.getRelation[Person]().get,"infectionState" equ Asymptomatic) + node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ Presymptomatic)+ node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ MildlyInfected) + node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ SeverelyInfected) + node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ Hospitalized)
+  def calculateInfectedFraction(node: Node,placeType : String, context: Context): Double = {
 
-    infected.toDouble/total.toDouble
+
+    //val total = node.getConnectionCount(node.getRelation[Person]().get, "currentLocation" equ placeType)
+
+    val sus_or_rec = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType ) and  (("infectionState" equ Susceptible) or ("infectionState" equ Recovered)))
+    val hos = node.getConnectionCount(node.getRelation[Person]().get, ("infectionState" equ Hospitalized) and ("currentLocation" equ placeType ))
+    val infected = node.getConnectionCount(node.getRelation[Person]().get, (("infectionState" equ Asymptomatic) or ("infectionState" equ Presymptomatic) or ("infectionState" equ MildlyInfected) or ("infectionState" equ SeverelyInfected)) and ("currentLocation" equ placeType))
+      //node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ Presymptomatic)+ node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ MildlyInfected) + node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ SeverelyInfected) + node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ Hospitalized)
+
+    val infected_and_quarantined: Double = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType) and ("beingTested" equ 2))
+
+    val totalCount:Double = sus_or_rec + infected + Disease.contactProbability*hos
+    val infectedCount:Double = infected + hos - (1- Disease.contactProbability)*infected_and_quarantined
+
+    infectedCount/totalCount
+
   }
 
+
+//  def calculateInfectedFraction_Hospital(node:Node,placeType:String,context: Context):Double = {
+//
+//    if (placeType == "HOSPITAL"){
+//      val totalHCW = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType) and ("essentialWorker" equ 1))
+//      val patients = node.getConnectionCount(node.getRelation[Person]().get,"infectionState" equ Hospitalized)
+//
+//      val total = totalHCW + 0.1*patients
+//
+//      return patients.toDouble/total.toDouble
+//    }
+//  }
 
   addTransition(
     when = isAsymptomatic,

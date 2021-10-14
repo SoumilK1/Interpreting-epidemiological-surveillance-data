@@ -5,7 +5,7 @@ import com.bharatsim.engine.distributions.Exponential
 import scala.collection.immutable.HashMap
 
 object Disease {
-  final val lambdaS: Double = 1d/4
+  final val lambdaS: Double = 0.222
   final val gamma: Double = 1d/2
   final val lambdaA : Double = 0.143
 
@@ -19,11 +19,21 @@ object Disease {
 
   final val lambdaH: Double = 0.1
 
-  final val numberOfTicksInADay: Int = 3
+  val contactProbability:Double = 0.1
+
+  final val numberOfTicksInADay: Int = 2
   final val dt:Double = 1d/numberOfTicksInADay
 
   var numberOfTestsDoneAtEachTick:Int = 0
-  val numberOfTestsAvailable:Int = 100
+  val numberOfTestsAvailable:Int = 5
+
+  val daysAfterWhichEligibleForTestingAgain:Int = 7
+
+  val testDelay:Int = 2
+
+  val testSensitivity:Double = 0.9
+
+  val quarantineDuration:Int = 14
 
   final val ageStratifiedBetaMultiplier = HashMap(
     9 -> 0.34,
@@ -37,6 +47,9 @@ object Disease {
     89 -> 1.47,
     99 -> 1.47
   )
-
-
 }
+
+// BeingTested = 0 -> Hasn't been tested before/can be eligible to get tested again
+// BeingTested = 1 -> Has been tested recently and is awaiting result
+// BeingTested = 2 -> Tested positive and is in quarantine
+
