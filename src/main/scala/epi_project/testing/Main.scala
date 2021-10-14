@@ -189,7 +189,11 @@ object Main extends LazyLogging {
   private def testing(implicit context: Context):Unit = {
     var TestingStartedAt = 0
     val InterventionName = "get_tested"
+<<<<<<< HEAD
     val ActivationCondition = (context:Context) => getRecoveredCount(context) > 2000
+=======
+    val ActivationCondition = (context:Context) => getRecoveredCount(context) >= 2000
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
     val FirstTimeExecution = (context:Context) => TestingStartedAt = context.getCurrentStep
     val DeactivationCondition = (context:Context) => context.getCurrentStep == 400
 
@@ -197,11 +201,16 @@ object Main extends LazyLogging {
 
     val perTickAction = (context:Context) => {
 
+<<<<<<< HEAD
       val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person", "isScheduledForTesting" equ true)
+=======
+      val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
 
       populationIterable.foreach(node => {
         val person = node.as[Person]
 
+<<<<<<< HEAD
         //println("Testing happens")
         person.updateParam("lastTestDay", context.getCurrentStep/Disease.numberOfTicksInADay)
         person.updateParam("beingTested",1)
@@ -218,19 +227,44 @@ object Main extends LazyLogging {
       //TO-DO: Increment tests here
       //println(Disease.numberOfTestsDoneAtEachTick)
 
+=======
+        if (person.isEligibleForTesting){
+          person.updateParam("lastTestDay", context.getCurrentStep/Disease.numberOfTicksInADay)
+          person.updateParam("beingTested",1)
+          if (biasedCoinToss(Disease.testSensitivity)){
+            person.updateParam("testStatus","p")
+          }
+          else {
+            person.updateParam("testStatus","n")
+          }
+        }
+      })
+      println(Disease.numberOfTestsDoneAtEachTick)
+
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
       Disease.numberOfTestsDoneAtEachTick = 0
     }
 
     val Testing = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution,perTickAction)
+<<<<<<< HEAD
 
     val QuarantinedSchedule = (myDay,myTick).add[House](0,1)
 
+=======
+
+    val QuarantinedSchedule = (myDay,myTick).add[House](0,2)
+
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
     registerIntervention(Testing)
 
     registerSchedules(
       (QuarantinedSchedule,(agent:Agent, _:Context) => {
         val Intervention = context.activeInterventionNames.contains(InterventionName)
+<<<<<<< HEAD
         Intervention && agent.asInstanceOf[Person].isQuarantined
+=======
+        Intervention && agent.asInstanceOf[Person].isPositive
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
       },
       1
       ))

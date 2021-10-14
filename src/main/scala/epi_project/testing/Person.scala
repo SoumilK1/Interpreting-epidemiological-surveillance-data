@@ -10,6 +10,7 @@ import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing.InfectionStatus._
 import epi_project.testing.Main.testing
 
+<<<<<<< HEAD
 case class Person(id: Long,
                   age: Int,
                   infectionState: InfectionStatus,
@@ -21,13 +22,16 @@ case class Person(id: Long,
                   lastTestDay:Int = -20000,
                   currentLocation:String = "House",
                   quarantineStartedAt:Int = 0) extends StatefulAgent {
+=======
+case class Person(id: Long, age: Int, infectionState: InfectionStatus, infectionDur: Int, beingTested:Int = 0,isEligible:Boolean = false, testStatus:String = "n", lastTestDay:Int = 0) extends StatefulAgent {
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
 
   private val incrementInfectionDay: Context => Unit = (context: Context) => {
-    if (isPresymptomatic && context.getCurrentStep % Disease.numberOfTicksInADay == 0) {
+    if (isPresymptomatic && context.getCurrentStep % Disease.numberOfTicksInADay == 0)
       updateParam("infectionDur", infectionDur + 1)
-    }
   }
 
+<<<<<<< HEAD
   private val checkCurrentLocation: Context => Unit = (context: Context) => {
     val schedule = context.fetchScheduleFor(this).get
     val locationNextTick: String = schedule.getForStep(context.getCurrentStep + 1)
@@ -45,6 +49,11 @@ case class Person(id: Long,
       (!isBeingTested) &&
       (isEligibleForTestingAgain(context))){
       updateParam("isScheduledForTesting",true)
+=======
+  private val checkEligibilityForTesting:Context => Unit = (context:Context) => {
+    if (getRecoveredCount(context)>2000 && Disease.numberOfTestsDoneAtEachTick < Disease.numberOfTestsAvailable && isSymptomatic && !isBeingTested && !isPositive && isEligibleForTestingAgain(context)){
+      updateParam("isEligible",true)
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
       Disease.numberOfTestsDoneAtEachTick = Disease.numberOfTestsDoneAtEachTick + 1
       //println(Disease.numberOfTestsDoneAtEachTick)
     }
@@ -69,6 +78,21 @@ case class Person(id: Long,
     }
   }
 
+<<<<<<< HEAD
+=======
+  private val declarationOfResults:Context => Unit = (context:Context) => {
+    if (beingTested == 1 && isDelayPeriodOver(context)){
+      if (testStatus == "p"){
+        updateParam("beingTested",2)
+      }
+      if (testStatus == "n"){
+        updateParam("beingTested",0)
+      }
+    }
+  }
+
+
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
 
   def isSusceptible: Boolean = infectionState == Susceptible
 
@@ -84,6 +108,7 @@ case class Person(id: Long,
 
   def isBeingTested:Boolean = beingTested == 1 || beingTested == 2
 
+<<<<<<< HEAD
   def isAwaitingResult:Boolean = beingTested == 1
 
   def isSymptomatic: Boolean = infectionState == MildlyInfected || infectionState == SeverelyInfected
@@ -97,6 +122,17 @@ case class Person(id: Long,
   def isDelayPeriodOver(context: Context):Boolean = (context.getCurrentStep/Disease.numberOfTicksInADay) - lastTestDay >= Disease.testDelay
 
   
+=======
+  def isSymptomatic: Boolean = infectionState == MildlyInfected || infectionState == SeverelyInfected
+
+  def isPositive:Boolean = testStatus == "p"
+
+  def isEligibleForTesting:Boolean = isEligible
+
+  def isEligibleForTestingAgain(context: Context):Boolean = ((context.getCurrentStep)/Disease.numberOfTicksInADay - lastTestDay >= Disease.daysAfterWhichEligibleForTestingAgain) && lastTestDay != 0
+
+  def isDelayPeriodOver(context: Context):Boolean = (context.getCurrentStep)/Disease.numberOfTicksInADay - lastTestDay >= Disease.testDelay && lastTestDay != 0
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
 
   private def getRecoveredCount(context: Context) = {
     context.graphProvider.fetchCount("Person", "infectionState" equ Recovered)
@@ -114,10 +150,15 @@ case class Person(id: Long,
   }
 
   addBehaviour(incrementInfectionDay)
+<<<<<<< HEAD
   addBehaviour(checkCurrentLocation)
   addBehaviour(checkEligibilityForTesting)
   addBehaviour(declarationOfResults)
   addBehaviour(quarantinePeriodOver)
+=======
+  addBehaviour(checkEligibilityForTesting)
+  addBehaviour(declarationOfResults)
+>>>>>>> 1db83b647150178fc192d3230657413f70180851
 
 
   addRelation[House]("STAYS_AT")

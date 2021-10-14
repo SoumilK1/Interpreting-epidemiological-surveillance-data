@@ -35,6 +35,12 @@ object Disease {
 
   val quarantineDuration:Int = 14
 
+  val daysAfterWhichEligibleForTestingAgain:Int = 7
+
+  val testDelay:Int = 2
+
+  val testSensitivity:Double = 0.9
+
   final val ageStratifiedBetaMultiplier = HashMap(
     9 -> 0.34,
     19 -> 0.67,
