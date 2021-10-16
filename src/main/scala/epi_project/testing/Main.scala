@@ -1,4 +1,4 @@
-package epi_project.testing
+package com.bharatsim.examples.epidemiology.testing_latest
 
 import com.bharatsim.engine.ContextBuilder._
 import com.bharatsim.engine._
@@ -14,9 +14,9 @@ import com.bharatsim.engine.intervention.SingleInvocationIntervention
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import epi_project.testing.Disease
-import epi_project.testing.DiseaseState._
-import epi_project.testing.InfectionStatus._
+import com.bharatsim.examples.epidemiology.testing_latest.Disease
+import com.bharatsim.examples.epidemiology.testing_latest.DiseaseState._
+import com.bharatsim.examples.epidemiology.testing_latest.InfectionStatus._
 import com.typesafe.scalalogging.LazyLogging
 
 import java.util.Date
@@ -27,18 +27,21 @@ object Main extends LazyLogging {
   private val myTick: ScheduleUnit = new ScheduleUnit(1)
   private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 2)
 
-  var testing_begins_at:Double = 0.5
+  var testing_begins_at:Double = 0.2
   val total_population = 10000
-
+  var filename ="dummy"
 
   def main(args: Array[String]): Unit = {
 
+    testing_begins_at = args(0).toDouble
+    Disease.numberOfTestsAvailable = args(1).toInt
+    filename = args(0)
 
     var beforeCount = 1
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("D:\\Soumil\\Project\\COVID-19_epi_project\\src\\main\\dummy10k_hospitals.csv", csvDataExtractor)
+      ingestCSVData("D:\\Soumil\\Project\\BharatSim-master\\dummy10k_hospitals.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
@@ -64,13 +67,13 @@ object Main extends LazyLogging {
       registerState[MildlyInfectedState]
       registerState[SeverelyInfectedState]
       registerState[HospitalizedState]
-
+//      registerState[DeadState]
 
 
       val currentTime = new Date().getTime
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("src/main/" + "test1" + ".csv", new SEIROutputSpec(context))
+        new CsvOutputGenerator("src/main/" + filename + ".csv", new SEIROutputSpec(context))
       )
     })
 
@@ -94,18 +97,21 @@ object Main extends LazyLogging {
       .add[House](0, 0)
       .add[School](1, 1)
 
-
+//    val quarantinedSchedule = (myDay,myTick)
+//      .add[House](0, 2)
 
     val hospitalizedSchedule = (myDay,myTick)
       .add[Hospital](0,1)
 
-    
+    //to-do - add hospital Ids for hospitalized people
+
 
     val healthCareWorkerSchedule = (myDay,myTick)
       .add[House](0,0)
       .add[Hospital](1,1)
 
     registerSchedules(
+      //(quarantinedSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isPresymptomatic, 1),
       (hospitalizedSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].isHospitalized,1),
       (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 25 && agent.asInstanceOf[Person].essentialWorker == 0, 2),
       (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25, 3),
@@ -130,6 +136,8 @@ object Main extends LazyLogging {
     val hospitalId = map("Hospital ID").toLong
 
     val essentialWorker = map("essential_worker").toInt
+//    val betaMultiplier : Double =
+//      Disease.ageStratifiedBetaMultiplier.getOrElse(roundToAgeRange(age),Disease.ageStratifiedBetaMultiplier(99))
 
     val citizen: Person = Person(
       citizenId,
@@ -196,7 +204,8 @@ object Main extends LazyLogging {
     val FirstTimeExecution = (context:Context) => TestingStartedAt = context.getCurrentStep
     val DeactivationCondition = (context:Context) => context.getCurrentStep == 400
 
-   
+    // TODO: change Deactivation condition to infected count, as more realistic
+
     val perTickAction = (context:Context) => {
 
 
@@ -219,7 +228,11 @@ object Main extends LazyLogging {
         }
 
       })
-    
+      //TO-DO: Increment tests here
+      //println(Disease.numberOfTestsDoneAtEachTick)
+
+      //println(Disease.numberOfTestsDoneAtEachTick)
+
       Disease.numberOfTestsDoneAtEachTick = 0
     }
 

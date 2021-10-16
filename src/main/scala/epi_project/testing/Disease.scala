@@ -1,4 +1,4 @@
-package epi_project.testing
+package com.bharatsim.examples.epidemiology.testing_latest
 
 import com.bharatsim.engine.distributions.Exponential
 
@@ -26,8 +26,6 @@ object Disease {
 
   var numberOfTestsDoneAtEachTick:Int = 0
   var numberOfTestsAvailable:Int = 5
-
-  var numberOfTestsDoneEachDay:Int = numberOfTestsDoneAtEachTick*numberOfTicksInADay
 
   val daysAfterWhichEligibleForTestingAgain:Int = 7
 

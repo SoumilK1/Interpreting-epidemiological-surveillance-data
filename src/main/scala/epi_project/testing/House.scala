@@ -1,4 +1,4 @@
-package epi_project.testing
+package com.bharatsim.examples.epidemiology.testing_latest
 
 import com.bharatsim.engine.models.Network
 
