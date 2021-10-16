@@ -17,7 +17,7 @@ case class SusceptibleState() extends State {
     agent.updateParam("infectionState",Susceptible)
   }
 
-  def isAsymptomatic(context: Context,agent: StatefulAgent):Boolean = {
+  def shouldBeInfected(context: Context,agent: StatefulAgent):Boolean = {
     val schedule = context.fetchScheduleFor(agent).get
 
     val currentStep = context.getCurrentStep
@@ -32,42 +32,30 @@ case class SusceptibleState() extends State {
       val ExposureProb: Double = Disease.lambdaS * Disease.dt * InfectedFraction
       val InfectionState = biasedCoinToss(ExposureProb)
 
-      if (InfectionState){
-        if (biasedCoinToss(Disease.gamma)) {
-          return true
-        }
+      return InfectionState
+    }
+    false
+  }
+
+
+
+  def isAsymptomatic(context: Context,agent: StatefulAgent):Boolean = {
+    if (shouldBeInfected(context,agent)){
+      if (biasedCoinToss(Disease.gamma)){
+        return true
       }
-      false
     }
     false
   }
 
   def isPresymptomatic(context: Context,agent: StatefulAgent):Boolean = {
-    val schedule = context.fetchScheduleFor(agent).get
-
-    val currentStep = context.getCurrentStep
-    val placeType: String = schedule.getForStep(currentStep)
-
-    val places = agent.getConnections(agent.getRelation(placeType).get).toList
-    if (places.nonEmpty) {
-      val place = places.head
-      val decodedPlace = agent.asInstanceOf[Person].decodeNode(placeType, place)
-
-      val InfectedFraction: Double = fetchInfectedFraction(decodedPlace, placeType, context)
-      val ExposureProb: Double = Disease.lambdaS * Disease.dt * InfectedFraction
-      val InfectionState = biasedCoinToss(ExposureProb)
-
-
-      if (InfectionState){
-        if (biasedCoinToss(1- Disease.gamma)) {
-          return true
-        }
+    if (shouldBeInfected(context,agent)){
+      if (biasedCoinToss( 1 - Disease.gamma)){
+        return true
       }
-      false
     }
     false
   }
-
 
   def fetchInfectedFraction(node: Node,placeType: String, context: Context): Double = {
 
@@ -91,7 +79,7 @@ case class SusceptibleState() extends State {
     val infected_and_quarantined: Double = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType) and ("beingTested" equ 2))
 
     val totalCount:Double = sus_or_rec + infected + Disease.contactProbability*hos
-    val infectedCount:Double = infected + hos - (1- Disease.contactProbability)*infected_and_quarantined
+    val infectedCount:Double = infected + Disease.contactProbability*hos - (1- Disease.contactProbability)*infected_and_quarantined
 
     infectedCount/totalCount
 
