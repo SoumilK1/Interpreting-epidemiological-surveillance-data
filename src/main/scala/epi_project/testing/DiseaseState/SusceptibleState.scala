@@ -49,23 +49,7 @@ case class SusceptibleState() extends State {
   def goToPresymptomatic(context: Context,agent: StatefulAgent):Boolean = shouldBeInfected(context,agent) && !isAsymptomatic(context,agent)
 
 
-//  def isAsymptomatic(context: Context,agent: StatefulAgent):Boolean = {
-//    if (shouldBeInfected(context,agent)){
-//      if (biasedCoinToss(Disease.gamma)) {
-//        return true
-//      }
-//    }
-//    false
-//  }
-//
-//  def isPresymptomatic(context: Context,agent: StatefulAgent):Boolean = {
-//    if (shouldBeInfected(context,agent)){
-//      if (biasedCoinToss( 1 - Disease.gamma)){
-//        return true
-//      }
-//    }
-//    false
-//  }
+
 
 
   def fetchInfectedFraction(node: Node,placeType: String, context: Context): Double = {
@@ -97,17 +81,7 @@ case class SusceptibleState() extends State {
   }
 
 
-//  def calculateInfectedFraction_Hospital(node:Node,placeType:String,context: Context):Double = {
-//
-//    if (placeType == "HOSPITAL"){
-//      val totalHCW = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType) and ("essentialWorker" equ 1))
-//      val patients = node.getConnectionCount(node.getRelation[Person]().get,"infectionState" equ Hospitalized)
-//
-//      val total = totalHCW + 0.1*patients
-//
-//      return patients.toDouble/total.toDouble
-//    }
-//  }
+
 
   addTransition(
     when = goToAsymptomatic,
