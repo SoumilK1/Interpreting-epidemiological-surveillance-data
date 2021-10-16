@@ -27,7 +27,13 @@ object Main extends LazyLogging {
   private val myTick: ScheduleUnit = new ScheduleUnit(1)
   private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 2)
 
+  var testing_begins_at:Double = 0.5
+  val total_population = 10000
+
+
   def main(args: Array[String]): Unit = {
+
+
     var beforeCount = 1
     val simulation = Simulation()
 
@@ -64,7 +70,7 @@ object Main extends LazyLogging {
       val currentTime = new Date().getTime
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("src/main/" + "test_DTR_0.1%" + ".csv", new SEIROutputSpec(context))
+        new CsvOutputGenerator("src/main/" + "test1" + ".csv", new SEIROutputSpec(context))
       )
     })
 
@@ -189,11 +195,9 @@ object Main extends LazyLogging {
   private def testing(implicit context: Context):Unit = {
     var TestingStartedAt = 0
     val InterventionName = "get_tested"
-<<<<<<< HEAD
-    val ActivationCondition = (context:Context) => getRecoveredCount(context) > 2000
-=======
-    val ActivationCondition = (context:Context) => getRecoveredCount(context) >= 2000
->>>>>>> 1db83b647150178fc192d3230657413f70180851
+
+    val ActivationCondition = (context:Context) => getRecoveredCount(context) >= testing_begins_at*total_population
+
     val FirstTimeExecution = (context:Context) => TestingStartedAt = context.getCurrentStep
     val DeactivationCondition = (context:Context) => context.getCurrentStep == 400
 
@@ -201,16 +205,13 @@ object Main extends LazyLogging {
 
     val perTickAction = (context:Context) => {
 
-<<<<<<< HEAD
+
       val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person", "isScheduledForTesting" equ true)
-=======
-      val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
->>>>>>> 1db83b647150178fc192d3230657413f70180851
 
       populationIterable.foreach(node => {
         val person = node.as[Person]
 
-<<<<<<< HEAD
+
         //println("Testing happens")
         person.updateParam("lastTestDay", context.getCurrentStep/Disease.numberOfTicksInADay)
         person.updateParam("beingTested",1)
@@ -227,44 +228,23 @@ object Main extends LazyLogging {
       //TO-DO: Increment tests here
       //println(Disease.numberOfTestsDoneAtEachTick)
 
-=======
-        if (person.isEligibleForTesting){
-          person.updateParam("lastTestDay", context.getCurrentStep/Disease.numberOfTicksInADay)
-          person.updateParam("beingTested",1)
-          if (biasedCoinToss(Disease.testSensitivity)){
-            person.updateParam("testStatus","p")
-          }
-          else {
-            person.updateParam("testStatus","n")
-          }
-        }
-      })
-      println(Disease.numberOfTestsDoneAtEachTick)
+      //println(Disease.numberOfTestsDoneAtEachTick)
 
->>>>>>> 1db83b647150178fc192d3230657413f70180851
       Disease.numberOfTestsDoneAtEachTick = 0
     }
 
     val Testing = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution,perTickAction)
-<<<<<<< HEAD
 
     val QuarantinedSchedule = (myDay,myTick).add[House](0,1)
 
-=======
-
-    val QuarantinedSchedule = (myDay,myTick).add[House](0,2)
-
->>>>>>> 1db83b647150178fc192d3230657413f70180851
     registerIntervention(Testing)
 
     registerSchedules(
       (QuarantinedSchedule,(agent:Agent, _:Context) => {
         val Intervention = context.activeInterventionNames.contains(InterventionName)
-<<<<<<< HEAD
+
         Intervention && agent.asInstanceOf[Person].isQuarantined
-=======
-        Intervention && agent.asInstanceOf[Person].isPositive
->>>>>>> 1db83b647150178fc192d3230657413f70180851
+
       },
       1
       ))
