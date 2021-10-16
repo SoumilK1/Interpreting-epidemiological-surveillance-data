@@ -1,5 +1,6 @@
-package epi_project.testing.DiseaseState
+package com.bharatsim.examples.epidemiology.testing_latest.DiseaseState
 
+import akka.actor.setup.ActorSystemSetup.empty
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
@@ -7,8 +8,8 @@ import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.models.{Network, Node, StatefulAgent}
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import epi_project.testing.InfectionStatus._
-import epi_project.testing.{Disease, Person}
+import com.bharatsim.examples.epidemiology.testing_latest.InfectionStatus._
+import com.bharatsim.examples.epidemiology.testing_latest.{Disease, Person}
 import org.apache.commons.math3.ml.neuralnet.Network
 
 case class SusceptibleState() extends State {
@@ -37,25 +38,35 @@ case class SusceptibleState() extends State {
     false
   }
 
-
-
   def isAsymptomatic(context: Context,agent: StatefulAgent):Boolean = {
-    if (shouldBeInfected(context,agent)){
-      if (biasedCoinToss(Disease.gamma)){
-        return true
-      }
+    if (biasedCoinToss(Disease.gamma)){
+      return true
     }
     false
   }
 
-  def isPresymptomatic(context: Context,agent: StatefulAgent):Boolean = {
-    if (shouldBeInfected(context,agent)){
-      if (biasedCoinToss( 1 - Disease.gamma)){
-        return true
-      }
-    }
-    false
-  }
+  def goToAsymptomatic(context: Context,agent: StatefulAgent):Boolean = shouldBeInfected(context,agent) && isAsymptomatic(context,agent)
+  def goToPresymptomatic(context: Context,agent: StatefulAgent):Boolean = shouldBeInfected(context,agent) && !isAsymptomatic(context,agent)
+
+
+//  def isAsymptomatic(context: Context,agent: StatefulAgent):Boolean = {
+//    if (shouldBeInfected(context,agent)){
+//      if (biasedCoinToss(Disease.gamma)) {
+//        return true
+//      }
+//    }
+//    false
+//  }
+//
+//  def isPresymptomatic(context: Context,agent: StatefulAgent):Boolean = {
+//    if (shouldBeInfected(context,agent)){
+//      if (biasedCoinToss( 1 - Disease.gamma)){
+//        return true
+//      }
+//    }
+//    false
+//  }
+
 
   def fetchInfectedFraction(node: Node,placeType: String, context: Context): Double = {
 
@@ -79,7 +90,7 @@ case class SusceptibleState() extends State {
     val infected_and_quarantined: Double = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType) and ("beingTested" equ 2))
 
     val totalCount:Double = sus_or_rec + infected + Disease.contactProbability*hos
-    val infectedCount:Double = infected + Disease.contactProbability*hos - (1- Disease.contactProbability)*infected_and_quarantined
+    val infectedCount:Double = (infected - infected_and_quarantined) + Disease.contactProbability*hos + Disease.contactProbability*infected_and_quarantined
 
     infectedCount/totalCount
 
@@ -99,12 +110,12 @@ case class SusceptibleState() extends State {
 //  }
 
   addTransition(
-    when = isAsymptomatic,
-      to = context => AsymptomaticState()
+    when = goToAsymptomatic,
+      to = AsymptomaticState()
   )
 
   addTransition(
-    when = isPresymptomatic,
+    when = goToPresymptomatic,
     to = PresymptomaticState()
   )
 }

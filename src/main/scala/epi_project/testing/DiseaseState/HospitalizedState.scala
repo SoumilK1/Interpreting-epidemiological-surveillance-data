@@ -1,4 +1,4 @@
-package epi_project.testing.DiseaseState
+package com.bharatsim.examples.epidemiology.testing_latest.DiseaseState
 
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
@@ -7,8 +7,8 @@ import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.models.{Network, Node, StatefulAgent}
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import epi_project.testing.InfectionStatus._
-import epi_project.testing.{Disease, Person}
+import com.bharatsim.examples.epidemiology.testing_latest.InfectionStatus._
+import com.bharatsim.examples.epidemiology.testing_latest.{Disease, Person}
 
 
 
