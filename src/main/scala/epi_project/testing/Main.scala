@@ -67,7 +67,7 @@ object Main extends LazyLogging {
       registerState[MildlyInfectedState]
       registerState[SeverelyInfectedState]
       registerState[HospitalizedState]
-//      registerState[DeadState]
+
 
 
       val currentTime = new Date().getTime
@@ -97,13 +97,9 @@ object Main extends LazyLogging {
       .add[House](0, 0)
       .add[School](1, 1)
 
-//    val quarantinedSchedule = (myDay,myTick)
-//      .add[House](0, 2)
 
     val hospitalizedSchedule = (myDay,myTick)
       .add[Hospital](0,1)
-
-    //to-do - add hospital Ids for hospitalized people
 
 
     val healthCareWorkerSchedule = (myDay,myTick)
@@ -111,7 +107,6 @@ object Main extends LazyLogging {
       .add[Hospital](1,1)
 
     registerSchedules(
-      //(quarantinedSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isPresymptomatic, 1),
       (hospitalizedSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].isHospitalized,1),
       (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 25 && agent.asInstanceOf[Person].essentialWorker == 0, 2),
       (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25, 3),
@@ -136,8 +131,6 @@ object Main extends LazyLogging {
     val hospitalId = map("Hospital ID").toLong
 
     val essentialWorker = map("essential_worker").toInt
-//    val betaMultiplier : Double =
-//      Disease.ageStratifiedBetaMultiplier.getOrElse(roundToAgeRange(age),Disease.ageStratifiedBetaMultiplier(99))
 
     val citizen: Person = Person(
       citizenId,
@@ -204,7 +197,7 @@ object Main extends LazyLogging {
     val FirstTimeExecution = (context:Context) => TestingStartedAt = context.getCurrentStep
     val DeactivationCondition = (context:Context) => context.getCurrentStep == 400
 
-    // TODO: change Deactivation condition to infected count, as more realistic
+   
 
     val perTickAction = (context:Context) => {
 
@@ -228,11 +221,7 @@ object Main extends LazyLogging {
         }
 
       })
-      //TO-DO: Increment tests here
-      //println(Disease.numberOfTestsDoneAtEachTick)
-
-      //println(Disease.numberOfTestsDoneAtEachTick)
-
+     
       Disease.numberOfTestsDoneAtEachTick = 0
     }
 
