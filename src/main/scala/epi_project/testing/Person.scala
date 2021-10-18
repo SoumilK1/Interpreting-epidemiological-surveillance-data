@@ -1,14 +1,12 @@
-package com.bharatsim.examples.epidemiology.testing_latest
+package epi_project.testing
 
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
-import com.bharatsim.engine.models.{Agent, Node, StatefulAgent}
-import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import com.bharatsim.examples.epidemiology.testing_latest.InfectionStatus._
-import com.bharatsim.examples.epidemiology.testing_latest.Main.testing
+import com.bharatsim.engine.models.{Node, StatefulAgent}
+import epi_project.testing.InfectionStatus._
 
 case class Person(id: Long,
                   age: Int,

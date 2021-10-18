@@ -1,16 +1,14 @@
-package com.bharatsim.examples.epidemiology.testing_latest.DiseaseState
+package epi_project.testing.DiseaseState
 
-import akka.actor.setup.ActorSystemSetup.empty
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
-import com.bharatsim.engine.models.{Network, Node, StatefulAgent}
+import com.bharatsim.engine.models.{Node, StatefulAgent}
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import com.bharatsim.examples.epidemiology.testing_latest.InfectionStatus._
-import com.bharatsim.examples.epidemiology.testing_latest.{Disease, Person}
-import org.apache.commons.math3.ml.neuralnet.Network
+import epi_project.testing.InfectionStatus._
+import epi_project.testing._
 
 case class SusceptibleState() extends State {
 

@@ -1,13 +1,10 @@
-package com.bharatsim.examples.epidemiology.testing_latest
+package epi_project.testing
 
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
-import com.bharatsim.engine.graph.GraphNode
-import com.bharatsim.engine.models.{Agent, Node}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.listeners.CSVSpecs
-import com.bharatsim.examples.epidemiology.testing_latest.InfectionStatus._
+import epi_project.testing.InfectionStatus._
 
 class SEIROutputSpec(context: Context) extends CSVSpecs {
   override def getHeaders: List[String] =
