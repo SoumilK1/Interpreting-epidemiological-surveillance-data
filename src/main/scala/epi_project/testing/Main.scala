@@ -1,4 +1,4 @@
-package com.bharatsim.examples.epidemiology.testing_latest
+package epi_project.testing
 
 import com.bharatsim.engine.ContextBuilder._
 import com.bharatsim.engine._
@@ -14,10 +14,9 @@ import com.bharatsim.engine.intervention.SingleInvocationIntervention
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import com.bharatsim.examples.epidemiology.testing_latest.Disease
-import com.bharatsim.examples.epidemiology.testing_latest.DiseaseState._
-import com.bharatsim.examples.epidemiology.testing_latest.InfectionStatus._
 import com.typesafe.scalalogging.LazyLogging
+import epi_project.testing.DiseaseState._
+import epi_project.testing.InfectionStatus._
 
 import java.util.Date
 
@@ -41,7 +40,7 @@ object Main extends LazyLogging {
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("D:\\Soumil\\Project\\BharatSim-master\\dummy10k_hospitals.csv", csvDataExtractor)
+      ingestCSVData("inputcsv/"+"dummy10k_hospitals.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
@@ -73,7 +72,7 @@ object Main extends LazyLogging {
       val currentTime = new Date().getTime
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("src/main/" + filename + ".csv", new SEIROutputSpec(context))
+        new CsvOutputGenerator("csv/" + filename + ".csv", new SEIROutputSpec(context))
       )
     })
 

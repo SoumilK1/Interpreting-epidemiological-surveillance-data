@@ -1,4 +1,4 @@
-package com.bharatsim.examples.epidemiology.testing_latest.DiseaseState
+package epi_project.testing.DiseaseState
 
 class DeadState {
 

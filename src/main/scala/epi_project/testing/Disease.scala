@@ -1,6 +1,4 @@
-package com.bharatsim.examples.epidemiology.testing_latest
-
-import com.bharatsim.engine.distributions.Exponential
+package epi_project.testing
 
 import scala.collection.immutable.HashMap
 
