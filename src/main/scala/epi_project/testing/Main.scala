@@ -40,7 +40,7 @@ object Main extends LazyLogging {
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("src/main/dummy10k_hospitals.csv", csvDataExtractor)
+      ingestCSVData("inputcsv/"+"dummy10k_hospitals.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
@@ -72,7 +72,7 @@ object Main extends LazyLogging {
       val currentTime = new Date().getTime
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("csv" + filename + ".csv", new SEIROutputSpec(context))
+        new CsvOutputGenerator("csv/" + filename + ".csv", new SEIROutputSpec(context))
       )
     })
 
