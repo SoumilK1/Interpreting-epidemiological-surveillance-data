@@ -12,7 +12,8 @@ To run the simulation,  type the following command on the sbt shell
 
 `run "testingbeginsat" "numberoftestsavailable"`
 
-testtingbeginsat is a float between 0 and 1
-numberoftestsavailable is an int(chosen as 0.1%/0.2%/0.5% of the population)
+`testtingbeginsat` is a float between 0 and 1
+
+`numberoftestsavailable` is an int(chosen as 0.1%/0.2%/0.5% of the population)
 
 
