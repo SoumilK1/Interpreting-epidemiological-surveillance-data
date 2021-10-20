@@ -22,14 +22,19 @@ object Disease {
   var numberOfTicksInADay: Int = 2
   final val dt:Double = 1d/numberOfTicksInADay
 
-  var numberOfTestsDoneAtEachTick:Int = 0
-  var numberOfTestsAvailable:Int = 5
+  var numberOfRTPCRTestsDoneAtEachTick:Int = 0
+  var numberOfRTPCRTestsAvailable:Int = 5
+
+  var numberOfRATTestsDoneAtEachTick:Int = 0
+  var numberOfRATTestsAvailable:Int = 5
 
   val daysAfterWhichEligibleForTestingAgain:Int = 7
 
   val testDelay:Int = 2
 
-  val testSensitivity:Double = 0.9
+  val RTPCRTestSensitivity:Double = 0.9
+
+  val RATTestSensitivity:Double = 0.7
 
   val quarantineDuration:Int = 14
 

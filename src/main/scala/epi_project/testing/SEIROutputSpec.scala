@@ -18,8 +18,10 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       "SeverelyInfected",
       "Hospitalized",
       "Recovered",
-      "Number of people eligible for testing",
-      "Number of tests conducted"
+      "RTPCRScheduled",
+      "RATScheduled",
+      "NumberOfRTPCRTestsConducted",
+      "NumberOfRATTestsConducted"
     )
 
   override def getRows(): List[List[Any]] = {
@@ -37,8 +39,10 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       graphProvider.fetchCount(label, "infectionState" equ SeverelyInfected),
       graphProvider.fetchCount(label, "infectionState" equ Hospitalized),
       graphProvider.fetchCount(label, "infectionState" equ Recovered),
-      graphProvider.fetchCount(label, "isScheduledForTesting" equ true),
-      Disease.numberOfTestsDoneAtEachTick
+      graphProvider.fetchCount(label, "isScheduledForRTPCRTesting" equ true)+graphProvider.fetchCount(label,"isScheduledForRandomRTPCRTesting" equ true),
+      graphProvider.fetchCount(label,"isScheduledForRATTesting" equ true)+graphProvider.fetchCount(label,"isScheduledForRandomRATTesting" equ true),
+      Disease.numberOfRTPCRTestsDoneAtEachTick,
+      Disease.numberOfRATTestsDoneAtEachTick
     )
     List(row)
   }

@@ -29,12 +29,17 @@ object Main extends LazyLogging {
   var testing_begins_at:Double = 0.2
   val total_population = 10000
   var filename ="dummy"
+  var filename_1 = "dummy2"
+  var filename_2 = "dummy3"
 
   def main(args: Array[String]): Unit = {
 
     testing_begins_at = args(0).toDouble
-    Disease.numberOfTestsAvailable = args(1).toInt
+    Disease.numberOfRTPCRTestsAvailable = args(1).toInt
+    Disease.numberOfRATTestsAvailable = args(1).toInt
     filename = args(0)
+    filename_1 = args(1)
+    filename_2 = args(2)
 
     var beforeCount = 1
     val simulation = Simulation()
@@ -72,7 +77,7 @@ object Main extends LazyLogging {
       val currentTime = new Date().getTime
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("csv/" + filename + ".csv", new SEIROutputSpec(context))
+        new CsvOutputGenerator("csv/" + filename + filename_1 + filename_2 + ".csv", new SEIROutputSpec(context))
       )
     })
 
@@ -208,20 +213,55 @@ object Main extends LazyLogging {
 
 
         //println("Testing happens")
-        person.updateParam("lastTestDay", context.getCurrentStep/Disease.numberOfTicksInADay)
+        person.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
         person.updateParam("beingTested",1)
-        person.updateParam("isScheduledForTesting",false)
 
-        if (biasedCoinToss(Disease.testSensitivity)){
-          person.updateParam("lastTestResult","p")
+        if(person.isScheduledForRTPCRTesting) {
+          person.updateParam("isScheduledForRTPCRTesting",false)
+          if (biasedCoinToss(Disease.RTPCRTestSensitivity)){
+            person.updateParam("lastTestResult",true)
+          }
+          else {
+            person.updateParam("lastTestResult",false)
+          }
         }
-        else {
-          person.updateParam("lastTestResult","n")
+        if(person.isScheduledForRATTesting){
+          person.updateParam("isScheduledForRATTesting",false)
+          if(biasedCoinToss(Disease.RATTestSensitivity)){
+            person.updateParam("lastTestResult",true)
+          }
+          else{
+            person.updateParam("lastTestResult",false)
+          }
+        if(person.isScheduledForRandomRTPCRTesting){
+          person.updateParam("isScheduledForRandomRTPCRTesting",false)
+          if((person.isAsymptomatic)|| (person.isPresymptomatic)){
+            if(biasedCoinToss(Disease.RTPCRTestSensitivity)){
+              person.updateParam("lastTestResult",true)
+            }
+          else{
+              person.updateParam("lastTestResult",false)
+            }
+          }
+        }
+        if(person.isScheduledForRATTesting){
+          person.updateParam("isScheduledForRandomRATTesting",false)
+          if((person.isAsymptomatic)|| (person.isPresymptomatic)){
+            if(biasedCoinToss(Disease.RATTestSensitivity)){
+              person.updateParam("lastTestResult",true)
+            }
+            else{
+              person.updateParam("lastTestResult",false)
+            }
+          }
+        }
+
         }
 
       })
      
-      Disease.numberOfTestsDoneAtEachTick = 0
+      Disease.numberOfRTPCRTestsDoneAtEachTick = 0
+      Disease.numberOfRATTestsDoneAtEachTick = 0
     }
 
     val Testing = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution,perTickAction)
@@ -263,6 +303,7 @@ object Main extends LazyLogging {
   private def getRecoveredCount(context: Context) = {
     context.graphProvider.fetchCount("Person", "infectionState" equ Recovered)
   }
+
 
 }
 

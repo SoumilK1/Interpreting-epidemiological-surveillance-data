@@ -1,2 +1,5 @@
 /.idea/
 /.bsp/
+/target/
+/csv/
+*.log
