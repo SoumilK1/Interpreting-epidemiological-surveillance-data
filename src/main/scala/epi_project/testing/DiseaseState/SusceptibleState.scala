@@ -10,11 +10,18 @@ import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing.InfectionStatus._
 import epi_project.testing._
 
-case class SusceptibleState() extends State {
+case class SusceptibleState(toBeAsymptomatic:Boolean = biasedCoinToss(Disease.gamma)) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",Susceptible)
   }
+
+  var leavingSusceptible:Boolean = false
+
+  override def perTickAction(context: Context, agent: StatefulAgent): Unit = {
+    leavingSusceptible = shouldBeInfected(context,agent)
+  }
+
 
   def shouldBeInfected(context: Context,agent: StatefulAgent):Boolean = {
     val schedule = context.fetchScheduleFor(agent).get
@@ -36,15 +43,16 @@ case class SusceptibleState() extends State {
     false
   }
 
-  def isAsymptomatic(context: Context,agent: StatefulAgent):Boolean = {
-    if (biasedCoinToss(Disease.gamma)){
-      return true
-    }
-    false
-  }
 
-  def goToAsymptomatic(context: Context,agent: StatefulAgent):Boolean = shouldBeInfected(context,agent) && isAsymptomatic(context,agent)
-  def goToPresymptomatic(context: Context,agent: StatefulAgent):Boolean = shouldBeInfected(context,agent) && !isAsymptomatic(context,agent)
+//  def isAsymptomatic(context: Context,agent: StatefulAgent):Boolean = {
+//    if (biasedCoinToss(Disease.gamma)){
+//      return true
+//    }
+//    false
+//  }
+
+  def goToAsymptomatic(context: Context,agent: StatefulAgent):Boolean = leavingSusceptible && toBeAsymptomatic
+  def goToPresymptomatic(context: Context,agent: StatefulAgent):Boolean = leavingSusceptible && !toBeAsymptomatic
 
 
 

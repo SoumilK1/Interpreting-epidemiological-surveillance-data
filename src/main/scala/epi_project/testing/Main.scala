@@ -21,12 +21,12 @@ import epi_project.testing.InfectionStatus._
 import java.util.Date
 
 object Main extends LazyLogging {
-  private val initialInfectedFraction = 0.001
+  private val initialInfectedFraction = 0.01
 
   private val myTick: ScheduleUnit = new ScheduleUnit(1)
   private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 2)
 
-  var testing_begins_at:Double = 0.2
+  var testing_begins_at:Double = 0.01
   val total_population = 10000
   var filename ="dummy"
   var filename_1 = "dummy2"
@@ -34,12 +34,12 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-    testing_begins_at = args(0).toDouble
-    Disease.numberOfRTPCRTestsAvailable = args(1).toInt
-    Disease.numberOfRATTestsAvailable = args(1).toInt
-    filename = args(0)
-    filename_1 = args(1)
-    filename_2 = args(2)
+//    testing_begins_at = args(0).toDouble
+//    Disease.numberOfRTPCRTestsAvailable = args(1).toInt
+//    Disease.numberOfRATTestsAvailable = args(1).toInt
+//    filename = args(0)
+//    filename_1 = args(1)
+//    filename_2 = args(2)
 
     var beforeCount = 1
     val simulation = Simulation()
@@ -146,7 +146,7 @@ object Main extends LazyLogging {
 
 
     if (initialInfectionState == "Susceptible"){
-      citizen.setInitialState(SusceptibleState())
+      citizen.setInitialState(SusceptibleState(toBeAsymptomatic = biasedCoinToss(Disease.gamma)))
     }
     else if (initialInfectionState=="Asymptomatic"){
       citizen.setInitialState(AsymptomaticState())
@@ -206,7 +206,11 @@ object Main extends LazyLogging {
     val perTickAction = (context:Context) => {
 
 
-      val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person", "isScheduledForTesting" equ true)
+      val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
+        ("isScheduledForRTPCRTesting" equ true)
+        or ("isScheduledForRATTesting" equ true)
+        or ("isScheduledForRandomRTPCRTesting" equ true)
+        or ("isScheduledForRandomRATTesting" equ true))
 
       populationIterable.foreach(node => {
         val person = node.as[Person]
@@ -225,6 +229,7 @@ object Main extends LazyLogging {
             person.updateParam("lastTestResult",false)
           }
         }
+
         if(person.isScheduledForRATTesting){
           person.updateParam("isScheduledForRATTesting",false)
           if(biasedCoinToss(Disease.RATTestSensitivity)){
@@ -233,6 +238,7 @@ object Main extends LazyLogging {
           else{
             person.updateParam("lastTestResult",false)
           }
+
         if(person.isScheduledForRandomRTPCRTesting){
           person.updateParam("isScheduledForRandomRTPCRTesting",false)
           if((person.isAsymptomatic)|| (person.isPresymptomatic)){
@@ -244,7 +250,8 @@ object Main extends LazyLogging {
             }
           }
         }
-        if(person.isScheduledForRATTesting){
+
+        if(person.isScheduledForRandomRATTesting){
           person.updateParam("isScheduledForRandomRATTesting",false)
           if((person.isAsymptomatic)|| (person.isPresymptomatic)){
             if(biasedCoinToss(Disease.RATTestSensitivity)){
@@ -255,7 +262,6 @@ object Main extends LazyLogging {
             }
           }
         }
-
         }
 
       })

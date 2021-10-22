@@ -9,41 +9,37 @@ import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing.Disease
 import epi_project.testing.InfectionStatus._
 
-case class SeverelyInfectedState() extends State {
+case class SeverelyInfectedState(toBeHospitalized:Boolean = biasedCoinToss(Disease.sigma)) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",SeverelyInfected)
   }
 
-  def isRecovered(context: Context,agent: StatefulAgent):Boolean = {
-    val exitSI = Disease.lambdaSI*Disease.dt
-    val InfectionState = biasedCoinToss(exitSI)
-    val enterR = biasedCoinToss(1 - Disease.sigma)
+  var leaveSeverelyInfected:Boolean = false
 
-    if (InfectionState && enterR){
-      return true
-    }
-    false
+  override def perTickAction(context: Context, agent: StatefulAgent): Unit = {
+    leaveSeverelyInfected = shouldLeaveSI(context,agent)
   }
 
-  def isHospitalized(context: Context,agent: StatefulAgent):Boolean = {
+
+  def shouldLeaveSI(context: Context,agent: StatefulAgent):Boolean = {
     val exitSI = Disease.lambdaSI*Disease.dt
     val InfectionState = biasedCoinToss(exitSI)
-    val enterH = biasedCoinToss(Disease.sigma)
 
-    if (InfectionState && enterH){
-      return true
-    }
-    false
+    InfectionState
   }
+
+  def goToHospitalized(context: Context,agent: StatefulAgent):Boolean = leaveSeverelyInfected && toBeHospitalized
+  def goToRecovered(context: Context,agent: StatefulAgent):Boolean = leaveSeverelyInfected && !toBeHospitalized
+
 
   addTransition(
-    when = isRecovered,
+    when = goToRecovered,
      to = RecoveredState()
   )
 
   addTransition(
-    when = isHospitalized,
+    when = goToHospitalized,
       to = HospitalizedState()
   )
 }

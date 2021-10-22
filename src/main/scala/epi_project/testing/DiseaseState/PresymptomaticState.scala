@@ -9,41 +9,36 @@ import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing._
 import epi_project.testing.InfectionStatus._
 
-case class PresymptomaticState() extends State {
+case class PresymptomaticState(toBeMildlyInfected:Boolean = biasedCoinToss(Disease.delta)) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",Presymptomatic)
   }
 
-  def isMildlyInfected(context: Context,agent: StatefulAgent):Boolean = {
-    val exitPSM = Disease.lambdaP*Disease.dt
-    val InfectionState = biasedCoinToss(exitPSM)
-    val enterMI = biasedCoinToss(Disease.delta)
+  var leavingPresymptomatic:Boolean = false
 
-    if (InfectionState && enterMI){
-      return true
-    }
-    false
+  override def perTickAction(context: Context, agent: StatefulAgent): Unit ={
+    leavingPresymptomatic = shouldExitPresymptomatic(context,agent)
   }
 
-  def isSeverelyInfected(context: Context,agent: StatefulAgent):Boolean = {
+
+  def shouldExitPresymptomatic(context: Context,agent: StatefulAgent):Boolean = {
     val exitPSM = Disease.lambdaP*Disease.dt
     val InfectionState = biasedCoinToss(exitPSM)
-    val enterSI = biasedCoinToss(1 - Disease.delta)
 
-    if (InfectionState && enterSI){
-      return true
-    }
-    false
+    InfectionState
   }
+
+  def goToMildlyInfected(context: Context,agent: StatefulAgent):Boolean = leavingPresymptomatic && toBeMildlyInfected
+  def goToSeverelyInfected(context: Context,agent: StatefulAgent):Boolean = leavingPresymptomatic && !toBeMildlyInfected
 
   addTransition(
-    when = isMildlyInfected,
+    when = goToMildlyInfected,
       to = MildlyInfectedState()
   )
 
   addTransition(
-    when = isSeverelyInfected,
+    when = goToSeverelyInfected,
     to = SeverelyInfectedState()
   )
 }

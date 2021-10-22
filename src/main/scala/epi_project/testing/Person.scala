@@ -6,6 +6,7 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.models.{Node, StatefulAgent}
 import epi_project.testing.InfectionStatus._
+import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 
 case class Person(id: Long,
                   age: Int,
@@ -47,6 +48,7 @@ case class Person(id: Long,
       Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick + 1
     }
   }
+
   private val checkEligibilityForTargetedRATTesting:Context => Unit = (context:Context) => {
     //println(isEligibleForTestingAgain(context))
     if ((context.activeInterventionNames.contains("get_tested"))&&
@@ -54,43 +56,53 @@ case class Person(id: Long,
       (Disease.numberOfRATTestsDoneAtEachTick < Disease.numberOfRATTestsAvailable) &&
       (isSymptomatic) &&
       (!isBeingTested) &&
-      (!isScheduledForRTPCRTesting))
-    {
+      (!isScheduledForRTPCRTesting)&&
+      (Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.numberOfRTPCRTestsAvailable)) {
       updateParam("isScheduledForRATTesting", true)
       Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick + 1
     }
   }
-  private val checkEligibilityForRandomTesting:Context => Unit = (context:Context) =>{
+
+  private val checkEligibilityForRandomRTPCRTesting:Context => Unit = (context:Context) =>{
     if ((context.activeInterventionNames.contains("get_tested"))&&
       (context.getCurrentStep%Disease.numberOfTicksInADay==0)){
       if((Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.numberOfRTPCRTestsAvailable) &&
          (!isScheduledForRATTesting)&&
          (!isScheduledForRTPCRTesting)&&
-         (beingTested!=2)&&
-         (!isHospitalized)){
+         (!isBeingTested)&&
+         (isSusceptible || isAsymptomatic || isPresymptomatic)&&
+         (getSymptomaticCount(context) < Disease.numberOfRTPCRTestsAvailable)){
         updateParam("isScheduledForRandomRTPCRTesting",true)
         Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick+1
       }
-      else if((Disease.numberOfRATTestsDoneAtEachTick < Disease.numberOfRATTestsAvailable)&&
-        (!isScheduledForRATTesting)&&
-        (!isScheduledForRTPCRTesting)&&
-        (!isScheduledForRandomRTPCRTesting)&&
-        (beingTested!=2)&&
-        (!isHospitalized)){
-        updateParam("isScheduledForRandomRATTesting",true)
-        Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick + 1
-      }
+    }
+  }
 
+  private val checkEligibilityForRandomRATTesting: Context => Unit = (context:Context) => {
+    if ((context.activeInterventionNames.contains("get_tested")) &&
+      (context.getCurrentStep % Disease.numberOfTicksInADay == 0)) {
+      if ((Disease.numberOfRATTestsDoneAtEachTick < Disease.numberOfRATTestsAvailable) &&
+        (!isScheduledForRATTesting) &&
+        (!isScheduledForRTPCRTesting) &&
+        (!isScheduledForRandomRTPCRTesting) &&
+        (!isBeingTested) &&
+        (isSusceptible || isAsymptomatic || isPresymptomatic) &&
+        (getSymptomaticCount(context) < Disease.numberOfRATTestsAvailable + Disease.numberOfRTPCRTestsAvailable)) {
+        updateParam("isScheduledForRandomRATTesting", true)
+        Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick + 1
+
+
+      }
     }
   }
 
   private val declarationOfResults:Context => Unit = (context:Context) => {
     if (beingTested == 1 && isDelayPeriodOver(context)){
-      if (lastTestResult == true){
+      if (lastTestResult){
         updateParam("beingTested",2)
         updateParam("quarantineStartedAt",(context.getCurrentStep*Disease.dt).toInt)
       }
-      if (lastTestResult == false){
+      if (!lastTestResult){
         updateParam("beingTested",0)
       }
     }
@@ -134,6 +146,10 @@ case class Person(id: Long,
   def isScheduledForTesting:Boolean = isScheduledForRATTesting || isScheduledForRTPCRTesting
 
 
+  def getSymptomaticCount(context: Context): Int = {
+    context.graphProvider.fetchCount("Person", ("infectionState" equ MildlyInfected) or ("infectionState" equ SeverelyInfected))
+  }
+
 
 
 
@@ -152,7 +168,8 @@ case class Person(id: Long,
   addBehaviour(checkCurrentLocation)
   addBehaviour(checkEligibilityForTargetedRTPCRTesting)
   addBehaviour(checkEligibilityForTargetedRATTesting)
-  addBehaviour(checkEligibilityForRandomTesting)
+  addBehaviour(checkEligibilityForRandomRTPCRTesting)
+  addBehaviour(checkEligibilityForRandomRATTesting)
   addBehaviour(declarationOfResults)
   addBehaviour(quarantinePeriodOver)
 
