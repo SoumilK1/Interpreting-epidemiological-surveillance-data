@@ -14,10 +14,8 @@ case class Person(id: Long,
                   infectionDur: Int,
                   essentialWorker:Int,
                   beingTested:Int = 0,
-                  isScheduledForRTPCRTesting:Boolean = false,
-                  isScheduledForRATTesting:Boolean = false,
-                  isScheduledForRandomRTPCRTesting:Boolean = false,
-                  isScheduledForRandomRATTesting:Boolean = false,
+                  isEligibleForTargetedTesting:Boolean = false,
+                  isEligibleForRandomTesting:Boolean = false,
                   lastTestResult:Boolean = false,
                   lastTestDay:Int = -20000,
                   currentLocation:String = "House",
@@ -37,71 +35,88 @@ case class Person(id: Long,
     }
   }
 
-  private val checkEligibilityForTargetedRTPCRTesting:Context => Unit = (context:Context) => {
-    //println(isEligibleForTestingAgain(context))
-    if ((context.activeInterventionNames.contains("get_tested"))&&
-      (context.getCurrentStep%Disease.numberOfTicksInADay==0)&&
-      (Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.numberOfRTPCRTestsAvailable) &&
-      (isSymptomatic) &&
-      (!isBeingTested)) {
-      updateParam("isScheduledForRTPCRTesting", true)
-      Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick + 1
+//  private val checkEligibilityForTargetedRTPCRTesting:Context => Unit = (context:Context) => {
+//    //println(isEligibleForTestingAgain(context))
+//    if ((context.activeInterventionNames.contains("get_tested"))&&
+//      (context.getCurrentStep%Disease.numberOfTicksInADay==0)&&
+//      (Disease.numberOfRTPCRTestsDoneOnEachDay < Disease.numberOfRTPCRTestsAvailable) &&
+//      (isSymptomatic) &&
+//      (!isBeingTested)) {
+//      updateParam("isScheduledForRTPCRTesting", true)
+//      Disease.numberOfRTPCRTestsDoneOnEachDay = Disease.numberOfRTPCRTestsDoneOnEachDay + 1
+//    }
+//  }
+//
+//  private val checkEligibilityForTargetedRATTesting:Context => Unit = (context:Context) => {
+//    //println(isEligibleForTestingAgain(context))
+//    if ((context.activeInterventionNames.contains("get_tested"))&&
+//      (context.getCurrentStep%Disease.numberOfTicksInADay==0)&&
+//      (Disease.numberOfRATTestsDoneOnEachDay < Disease.numberOfRATTestsAvailable) &&
+//      (isSymptomatic) &&
+//      (!isBeingTested) &&
+//      (!isScheduledForRTPCRTesting)&&
+//      (Disease.numberOfRTPCRTestsDoneOnEachDay >= Disease.numberOfRTPCRTestsAvailable)) {
+//      updateParam("isScheduledForRATTesting", true)
+//      Disease.numberOfRATTestsDoneOnEachDay = Disease.numberOfRATTestsDoneOnEachDay + 1
+//    }
+//  }
+//
+//  private val checkEligibilityForRandomRTPCRTesting:Context => Unit = (context:Context) =>{
+//    if ((context.activeInterventionNames.contains("get_tested"))&&
+//      (context.getCurrentStep%Disease.numberOfTicksInADay==0)){
+//      if((Disease.numberOfRTPCRTestsDoneOnEachDay < Disease.numberOfRTPCRTestsAvailable) &&
+//         (!isScheduledForRATTesting)&&
+//         (!isScheduledForRTPCRTesting)&&
+//         (!isBeingTested)&&
+//         (isSusceptible || isAsymptomatic || isPresymptomatic)&&
+//         (getSymptomaticCount(context) < Disease.numberOfRTPCRTestsAvailable)){
+//        updateParam("isScheduledForRandomRTPCRTesting",true)
+//        Disease.numberOfRTPCRTestsDoneOnEachDay = Disease.numberOfRTPCRTestsDoneOnEachDay+1
+//      }
+//    }
+//  }
+
+//  private val checkEligibilityForRandomRATTesting: Context => Unit = (context:Context) => {
+//    if ((context.activeInterventionNames.contains("get_tested")) &&
+//      (context.getCurrentStep % Disease.numberOfTicksInADay == 0)) {
+//      if ((Disease.numberOfRATTestsDoneOnEachDay < Disease.numberOfRATTestsAvailable) &&
+//        (!isScheduledForRATTesting) &&
+//        (!isScheduledForRTPCRTesting) &&
+//        (!isScheduledForRandomRTPCRTesting) &&
+//        (!isBeingTested) &&
+//        (isSusceptible || isAsymptomatic || isPresymptomatic) &&
+//        (getSymptomaticCount(context) < Disease.numberOfRATTestsAvailable + Disease.numberOfRTPCRTestsAvailable)) {
+//        updateParam("isScheduledForRandomRATTesting", true)
+//        Disease.numberOfRATTestsDoneOnEachDay = Disease.numberOfRATTestsDoneOnEachDay + 1
+//
+//
+//      }
+//    }
+//  }
+
+  private val checkEligibilityForTargetedTesting:Context => Unit = (context: Context)=>{
+    if((context.activeInterventionNames.contains("get_tested"))&&
+      (isSymptomatic)&&
+      (!isBeingTested)){
+      updateParam("isEligibleForTargetedTesting",true)
+    }
+  }
+  private val checkEligibilityForRandomTesting:Context => Unit = (context: Context)=>{
+    if((context.activeInterventionNames.contains("get_tested"))&&
+      (!isHospitalized)&&
+      (!isBeingTested)){
+      updateParam("isEligibleForRandomTesting",true)
     }
   }
 
-  private val checkEligibilityForTargetedRATTesting:Context => Unit = (context:Context) => {
-    //println(isEligibleForTestingAgain(context))
-    if ((context.activeInterventionNames.contains("get_tested"))&&
-      (context.getCurrentStep%Disease.numberOfTicksInADay==0)&&
-      (Disease.numberOfRATTestsDoneAtEachTick < Disease.numberOfRATTestsAvailable) &&
-      (isSymptomatic) &&
-      (!isBeingTested) &&
-      (!isScheduledForRTPCRTesting)&&
-      (Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.numberOfRTPCRTestsAvailable)) {
-      updateParam("isScheduledForRATTesting", true)
-      Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick + 1
-    }
-  }
-
-  private val checkEligibilityForRandomRTPCRTesting:Context => Unit = (context:Context) =>{
-    if ((context.activeInterventionNames.contains("get_tested"))&&
-      (context.getCurrentStep%Disease.numberOfTicksInADay==0)){
-      if((Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.numberOfRTPCRTestsAvailable) &&
-         (!isScheduledForRATTesting)&&
-         (!isScheduledForRTPCRTesting)&&
-         (!isBeingTested)&&
-         (isSusceptible || isAsymptomatic || isPresymptomatic)&&
-         (getSymptomaticCount(context) < Disease.numberOfRTPCRTestsAvailable)){
-        updateParam("isScheduledForRandomRTPCRTesting",true)
-        Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick+1
-      }
-    }
-  }
-
-  private val checkEligibilityForRandomRATTesting: Context => Unit = (context:Context) => {
-    if ((context.activeInterventionNames.contains("get_tested")) &&
-      (context.getCurrentStep % Disease.numberOfTicksInADay == 0)) {
-      if ((Disease.numberOfRATTestsDoneAtEachTick < Disease.numberOfRATTestsAvailable) &&
-        (!isScheduledForRATTesting) &&
-        (!isScheduledForRTPCRTesting) &&
-        (!isScheduledForRandomRTPCRTesting) &&
-        (!isBeingTested) &&
-        (isSusceptible || isAsymptomatic || isPresymptomatic) &&
-        (getSymptomaticCount(context) < Disease.numberOfRATTestsAvailable + Disease.numberOfRTPCRTestsAvailable)) {
-        updateParam("isScheduledForRandomRATTesting", true)
-        Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick + 1
-
-
-      }
-    }
-  }
 
   private val declarationOfResults:Context => Unit = (context:Context) => {
     if (beingTested == 1 && isDelayPeriodOver(context)){
-      if (lastTestResult){
-        updateParam("beingTested",2)
-        updateParam("quarantineStartedAt",(context.getCurrentStep*Disease.dt).toInt)
+      if (lastTestResult) {
+        updateParam("beingTested", 2)
+        updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
       }
+      //TODO RAT tests don't have delay
       if (!lastTestResult){
         updateParam("beingTested",0)
       }
@@ -137,13 +152,12 @@ case class Person(id: Long,
 
   def isQuarantined:Boolean = beingTested == 2
 
-  def isEligibleForRTPCR:Boolean = isScheduledForRTPCRTesting
+  def isEligibleForRTPCR:Boolean = isEligibleForTargetedTesting
 
 //  def isEligibleForTestingAgain(context: Context):Boolean = (context.getCurrentStep/Disease.numberOfTicksInADay) - lastTestDay >= Disease.daysAfterWhichEligibleForTestingAgain
 
   def isDelayPeriodOver(context: Context):Boolean = ((context.getCurrentStep*Disease.dt).toInt) - lastTestDay >= Disease.testDelay
 
-  def isScheduledForTesting:Boolean = isScheduledForRATTesting || isScheduledForRTPCRTesting
 
 
   def getSymptomaticCount(context: Context): Int = {
@@ -166,10 +180,8 @@ case class Person(id: Long,
 
   addBehaviour(incrementInfectionDay)
   addBehaviour(checkCurrentLocation)
-  addBehaviour(checkEligibilityForTargetedRTPCRTesting)
-  addBehaviour(checkEligibilityForTargetedRATTesting)
-  addBehaviour(checkEligibilityForRandomRTPCRTesting)
-  addBehaviour(checkEligibilityForRandomRATTesting)
+  addBehaviour(checkEligibilityForTargetedTesting)
+  addBehaviour(checkEligibilityForRandomTesting)
   addBehaviour(declarationOfResults)
   addBehaviour(quarantinePeriodOver)
 
