@@ -10,7 +10,7 @@ import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing.InfectionStatus._
 import epi_project.testing._
 
-case class SusceptibleState(toBeAsymptomatic:Boolean = biasedCoinToss(Disease.gamma)) extends State {
+case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",Susceptible)
@@ -96,7 +96,7 @@ case class SusceptibleState(toBeAsymptomatic:Boolean = biasedCoinToss(Disease.ga
 
   addTransition(
     when = goToPresymptomatic,
-    to = PresymptomaticState()
+    to = PresymptomaticState(toBeMildlyInfected = biasedCoinToss(Disease.delta))
   )
 }
 

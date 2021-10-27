@@ -39,8 +39,8 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       graphProvider.fetchCount(label, "infectionState" equ SeverelyInfected),
       graphProvider.fetchCount(label, "infectionState" equ Hospitalized),
       graphProvider.fetchCount(label, "infectionState" equ Recovered),
-      graphProvider.fetchCount(label, "isScheduledForRTPCRTesting" equ true)+graphProvider.fetchCount(label,"isEligibleForTargetedTesting" equ true),
-      graphProvider.fetchCount(label,"isScheduledForRATTesting" equ true)+graphProvider.fetchCount(label,"isEligibleForRandomTesting" equ true),
+      graphProvider.fetchCount(label,"isEligibleForTargetedTesting" equ true),
+      graphProvider.fetchCount(label,"isEligibleForRandomTesting" equ true),
       Disease.numberOfRTPCRTestsDoneOnEachDay,
       Disease.numberOfRATTestsDoneOnEachDay
     )

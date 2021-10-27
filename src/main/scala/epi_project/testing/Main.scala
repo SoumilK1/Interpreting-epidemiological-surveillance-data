@@ -34,12 +34,12 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-    testing_begins_at = args(0).toDouble
-    Disease.numberOfRTPCRTestsAvailable = args(1).toInt
-    Disease.numberOfRATTestsAvailable = args(1).toInt
-    filename = args(0)
-    filename_1 = args(1)
-    filename_2 = args(2)
+//    testing_begins_at = args(0).toDouble
+//    Disease.numberOfRTPCRTestsAvailable = args(1).toInt
+//    Disease.numberOfRATTestsAvailable = args(1).toInt
+//    filename = args(0)
+//    filename_1 = args(1)
+//    filename_2 = args(2)
 
     var beforeCount = 1
     val simulation = Simulation()
@@ -113,7 +113,7 @@ object Main extends LazyLogging {
     registerSchedules(
       (hospitalizedSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].isHospitalized,1),
       (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 25 && agent.asInstanceOf[Person].essentialWorker == 0, 2),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25, 3),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25 && agent.asInstanceOf[Person].essentialWorker == 0, 3),
       (healthCareWorkerSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].essentialWorker == 1,4)
     )
   }
@@ -138,6 +138,7 @@ object Main extends LazyLogging {
 
     val citizen: Person = Person(
       citizenId,
+      homeId,
       age,
       InfectionStatus.withName(initialInfectionState),
       0,
@@ -168,7 +169,10 @@ object Main extends LazyLogging {
 
       graphData.addNode(officeId, office)
       graphData.addRelations(worksAt, employerOf)
-    } else {
+    }
+
+    if (age < 25 && essentialWorker == 0){
+
       val school = School(schoolId)
       val studiesAt = Relation[Person, School](citizenId, "STUDIES_AT", schoolId)
       val studentOf = Relation[School, Person](schoolId, "TEACHES", citizenId)
@@ -204,7 +208,7 @@ object Main extends LazyLogging {
    
 
     val perTickAction = (context:Context) => {
-      if(context.getCurrentStep%Disease.numberOfTicksInADay==0){
+      if(context.getCurrentStep % Disease.numberOfTicksInADay==0){
         val populationIterableForTargetedTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
           ("isEligibleForTargetedTesting" equ true))
 
@@ -216,6 +220,7 @@ object Main extends LazyLogging {
             person.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             person.updateParam("beingTested",1)
             person.updateParam("isEligibleForTargetedTesting",false)
+            person.updateParam("isEligibleForRandomTesting",false)
 //            println("testHappens")
             if(biasedCoinToss(Disease.RTPCRTestSensitivity)){
               person.updateParam("lastTestResult",true)
@@ -225,12 +230,14 @@ object Main extends LazyLogging {
             }
             Disease.numberOfRTPCRTestsDoneOnEachDay = Disease.numberOfRTPCRTestsDoneOnEachDay+1
           }
-          else if((Disease.numberOfRTPCRTestsDoneOnEachDay >= Disease.numberOfRTPCRTestsAvailable) &&
+
+          if((Disease.numberOfRTPCRTestsDoneOnEachDay >= Disease.numberOfRTPCRTestsAvailable) &&
             (Disease.numberOfRATTestsDoneOnEachDay<Disease.numberOfRATTestsAvailable)&&
-            (person.beingTested!=1)){
+            (person.beingTested == 0)){
             person.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             person.updateParam("beingTested",1)
             person.updateParam("isEligibleForTargetedTesting",false)
+            person.updateParam("isEligibleForRandomTesting",false)
 //            println("testHappens")
             if(biasedCoinToss(Disease.RATTestSensitivity)){
               person.updateParam("lastTestResult",true)
@@ -242,19 +249,19 @@ object Main extends LazyLogging {
           }
 
         })
+
         val populationIterableForRandomTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
           ("isEligibleForRandomTesting" equ true))
 
         populationIterableForRandomTesting.foreach(node => {
           val randomPerson = node.as[Person]
 
-
-
           if(Disease.numberOfRTPCRTestsDoneOnEachDay < Disease.numberOfRTPCRTestsAvailable&&
-            (randomPerson.beingTested!=1)){
+            (randomPerson.beingTested == 0)){
             randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             randomPerson.updateParam("beingTested",1)
             randomPerson.updateParam("isEligibleForRandomTesting",false)
+            randomPerson.updateParam("isEligibleForTargetedTesting",false)
 //            println("testHappens")
             if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RTPCRTestSensitivity)){
               randomPerson.updateParam("lastTestResult",true)
@@ -264,11 +271,13 @@ object Main extends LazyLogging {
             }
             Disease.numberOfRTPCRTestsDoneOnEachDay = Disease.numberOfRTPCRTestsDoneOnEachDay+1
           }
-          else if((Disease.numberOfRTPCRTestsDoneOnEachDay >= Disease.numberOfRTPCRTestsAvailable) &&
+
+          if((Disease.numberOfRTPCRTestsDoneOnEachDay >= Disease.numberOfRTPCRTestsAvailable) &&
             (Disease.numberOfRATTestsDoneOnEachDay<Disease.numberOfRATTestsAvailable)&&
-            (randomPerson.beingTested!=1)){
+            (randomPerson.beingTested == 0)){
             randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             randomPerson.updateParam("beingTested",1)
+            randomPerson.updateParam("isEligibleForRandomTesting",false)
             randomPerson.updateParam("isEligibleForTargetedTesting",false)
 //            println("testHappens")
             if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RATTestSensitivity)){

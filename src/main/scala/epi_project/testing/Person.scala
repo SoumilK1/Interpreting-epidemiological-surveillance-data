@@ -9,6 +9,7 @@ import epi_project.testing.InfectionStatus._
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 
 case class Person(id: Long,
+                  houseId:Long,
                   age: Int,
                   infectionState: InfectionStatus,
                   infectionDur: Int,
@@ -101,11 +102,26 @@ case class Person(id: Long,
       updateParam("isEligibleForTargetedTesting",true)
     }
   }
+
   private val checkEligibilityForRandomTesting:Context => Unit = (context: Context)=>{
+    //println(!isBeingTested)
     if((context.activeInterventionNames.contains("get_tested"))&&
       (!isHospitalized)&&
       (!isBeingTested)){
       updateParam("isEligibleForRandomTesting",true)
+    }
+  }
+
+  private val checkForContacts:Context => Unit = (context:Context) => {
+    if (isDelayPeriodOver(context)){
+      if (lastTestResult){
+//        val family = this.getConnections(houseId.toString).toList
+        val house = this.houseId
+        println(house)
+        if (this.houseId == house){
+          updateParam("isAContact",true)
+        }
+      }
     }
   }
 
@@ -184,6 +200,7 @@ case class Person(id: Long,
   addBehaviour(checkEligibilityForRandomTesting)
   addBehaviour(declarationOfResults)
   addBehaviour(quarantinePeriodOver)
+  addBehaviour(checkForContacts)
 
 
   addRelation[House]("STAYS_AT")

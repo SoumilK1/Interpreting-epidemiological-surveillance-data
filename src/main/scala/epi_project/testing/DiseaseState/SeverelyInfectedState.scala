@@ -9,7 +9,7 @@ import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing.Disease
 import epi_project.testing.InfectionStatus._
 
-case class SeverelyInfectedState(toBeHospitalized:Boolean = biasedCoinToss(Disease.sigma)) extends State {
+case class SeverelyInfectedState(toBeHospitalized:Boolean) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",SeverelyInfected)
