@@ -44,3 +44,5 @@ assembly / assemblyMergeStrategy   := {
 }
 
 assembly / mainClass := Some("epi_project.testing.Main")
+
+//mainClass in (Compile, run) := Some("epi_project.testing.Main")

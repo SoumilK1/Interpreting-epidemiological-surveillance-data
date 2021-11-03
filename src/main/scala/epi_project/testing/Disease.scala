@@ -3,7 +3,7 @@ package epi_project.testing
 import scala.collection.immutable.HashMap
 
 object Disease {
-  final val lambdaS: Double = 0.222
+  final val lambdaS: Double = 0.25
   final val gamma: Double = 1d/2
   final val lambdaA : Double = 0.143
 
@@ -22,19 +22,26 @@ object Disease {
   var numberOfTicksInADay: Int = 2
   final val dt:Double = 1d/numberOfTicksInADay
 
-  var numberOfRTPCRTestsDoneOnEachDay:Int = 0
-  var numberOfRTPCRTestsAvailable:Int = 50
 
-  var numberOfRATTestsDoneOnEachDay:Int = 0
-  var numberOfRATTestsAvailable:Int = 50
+  var numberOfDailyTests: Int = 50
+  var RTPCRTestFraction:Double = 0.5
+  var RATTestFraction:Double = 1 - RTPCRTestFraction
+
+  var numberOfRTPCRTestsDoneOnEachDay:Double = 0
+  var numberOfRTPCRTestsAvailable:Double = numberOfDailyTests * RTPCRTestFraction
+
+  var numberOfRATTestsDoneOnEachDay:Double = 0
+  var numberOfRATTestsAvailable:Double = numberOfDailyTests * RATTestFraction
+
+
 
   val daysAfterWhichEligibleForTestingAgain:Int = 7
 
-  val testDelay:Int = 2
+  val testDelay:Int = 0
 
-  val RTPCRTestSensitivity:Double = 0.9
+  var RTPCRTestSensitivity:Double = 1.0
 
-  val RATTestSensitivity:Double = 0.7
+  var RATTestSensitivity:Double = 0.7
 
   val quarantineDuration:Int = 14
 

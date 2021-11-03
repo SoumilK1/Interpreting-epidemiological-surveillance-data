@@ -21,31 +21,48 @@ import epi_project.testing.InfectionStatus._
 import java.util.Date
 
 object Main extends LazyLogging {
-  private val initialInfectedFraction = 0.01
+  private val initialInfectedFraction = 0.001
 
   private val myTick: ScheduleUnit = new ScheduleUnit(1)
   private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 2)
 
-  var testing_begins_at:Double = 0.01
+  var testing_begins_at:Double = 0.2
   val total_population = 10000
-  var filename ="dummy"
-  var filename_1 = "dummy2"
-  var filename_2 = "dummy3_halp"
+
+//  var arg0: Double = testing_begins_at
+//  var arg1: Int = Disease.numberOfDailyTests
+//  var arg2: Double = Disease.RATTestSensitivity
+//  var arg3: Double = Disease.RATTestFraction
+//  var arg4: Double = Disease.RTPCRTestSensitivity
+//  var arg5: Double = Disease.RTPCRTestFraction
+
+  var filename = "dummy"
+
 
   def main(args: Array[String]): Unit = {
 
-//    testing_begins_at = args(0).toDouble
-//    Disease.numberOfRTPCRTestsAvailable = args(1).toInt
-//    Disease.numberOfRATTestsAvailable = args(1).toInt
-//    filename = args(0)
+    testing_begins_at = args(0).toDouble
+    Disease.numberOfDailyTests = args(1).toInt
+    Disease.RATTestSensitivity = args(2).toDouble
+    Disease.RATTestFraction = args(3).toDouble
+    Disease.RTPCRTestSensitivity = args(4).toDouble
+    Disease.RTPCRTestFraction = args(5).toDouble
+
+    filename = args(6)
+
+
+
 //    filename_1 = args(1)
 //    filename_2 = args(2)
+//    filename_3 = args(3)
+//    filename_4 = args(4).toString
+
 
     var beforeCount = 1
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("inputcsv/"+"dummy10k_hospitals.csv", csvDataExtractor)
+      ingestCSVData("inputcsv/"+"dummy10k_paper.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
@@ -77,7 +94,7 @@ object Main extends LazyLogging {
       val currentTime = new Date().getTime
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("csv/" + filename + filename_1 + filename_2 + ".csv", new SEIROutputSpec(context))
+        new CsvOutputGenerator("csv/" + filename + ".csv", new SEIROutputSpec(context))
       )
     })
 
@@ -97,9 +114,9 @@ object Main extends LazyLogging {
       .add[House](0, 0)
       .add[Office](1, 1)
 
-    val studentSchedule = (myDay, myTick)
-      .add[House](0, 0)
-      .add[School](1, 1)
+//    val studentSchedule = (myDay, myTick)
+//      .add[House](0, 0)
+//      .add[School](1, 1)
 
 
     val hospitalizedSchedule = (myDay,myTick)
@@ -112,9 +129,9 @@ object Main extends LazyLogging {
 
     registerSchedules(
       (hospitalizedSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].isHospitalized,1),
-      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 25 && agent.asInstanceOf[Person].essentialWorker == 0, 2),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25 && agent.asInstanceOf[Person].essentialWorker == 0, 3),
-      (healthCareWorkerSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].essentialWorker == 1,4)
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].essentialWorker == 0, 2),
+      //(studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25 && agent.asInstanceOf[Person].essentialWorker == 0, 3),
+      (healthCareWorkerSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].essentialWorker == 1,3)
     )
   }
 
@@ -129,10 +146,10 @@ object Main extends LazyLogging {
     val initialInfectionState = if (biasedCoinToss(initialInfectedFraction)) "Asymptomatic" else "Susceptible"
 
 
-    val homeId = map("HID").toLong
-    val schoolId = map("school_id").toLong
+    val homeId = map("HouseID").toLong
+    //val schoolId = map("school_id").toLong
     val officeId = map("WorkPlaceID").toLong
-    val hospitalId = map("Hospital ID").toLong
+    val hospitalId = map("HospitalID").toLong
 
     val essentialWorker = map("essential_worker").toInt
 
@@ -162,7 +179,7 @@ object Main extends LazyLogging {
     graphData.addNode(homeId, home)
     graphData.addRelations(staysAt, memberOf)
 
-    if (age >= 25 && essentialWorker == 0) {
+    if (essentialWorker == 0) {
       val office = Office(officeId)
       val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
       val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
@@ -171,15 +188,15 @@ object Main extends LazyLogging {
       graphData.addRelations(worksAt, employerOf)
     }
 
-    if (age < 25 && essentialWorker == 0){
-
-      val school = School(schoolId)
-      val studiesAt = Relation[Person, School](citizenId, "STUDIES_AT", schoolId)
-      val studentOf = Relation[School, Person](schoolId, "TEACHES", citizenId)
-
-      graphData.addNode(schoolId, school)
-      graphData.addRelations(studiesAt, studentOf)
-    }
+//    if (age < 25 && essentialWorker == 0){
+//
+//      val school = School(schoolId)
+//      val studiesAt = Relation[Person, School](citizenId, "STUDIES_AT", schoolId)
+//      val studentOf = Relation[School, Person](schoolId, "TEACHES", citizenId)
+//
+//      graphData.addNode(schoolId, school)
+//      graphData.addRelations(studiesAt, studentOf)
+//    }
 
 
     val hospital = Hospital(hospitalId)
@@ -188,8 +205,6 @@ object Main extends LazyLogging {
 
     graphData.addNode(hospitalId,hospital)
     graphData.addRelations(worksIn,employs)
-
-
 
 
     graphData
@@ -292,6 +307,7 @@ object Main extends LazyLogging {
         })
 
       }
+
       if(context.getCurrentStep%Disease.numberOfTicksInADay==1){
         Disease.numberOfRTPCRTestsDoneOnEachDay = 0
         Disease.numberOfRATTestsDoneOnEachDay = 0

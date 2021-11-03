@@ -188,7 +188,7 @@ case class Person(id: Long,
     classType match {
       case "House" => node.as[House]
       case "Office" => node.as[Office]
-      case "School" => node.as[School]
+      //case "School" => node.as[School]
       case "Hospital" => node.as[Hospital]
     }
   }
@@ -200,12 +200,12 @@ case class Person(id: Long,
   addBehaviour(checkEligibilityForRandomTesting)
   addBehaviour(declarationOfResults)
   addBehaviour(quarantinePeriodOver)
-  addBehaviour(checkForContacts)
+  //addBehaviour(checkForContacts)
 
 
   addRelation[House]("STAYS_AT")
   addRelation[Office]("WORKS_AT")
-  addRelation[School]("STUDIES_AT")
+  //addRelation[School]("STUDIES_AT")
   addRelation[Hospital]("WORKS_IN/ADMITTED")
 
 }
