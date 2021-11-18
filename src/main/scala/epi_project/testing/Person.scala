@@ -6,10 +6,12 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.models.{Node, StatefulAgent}
 import epi_project.testing.InfectionStatus._
+import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 
 case class Person(id: Long,
                   houseId:Long,
+                  officeId:Long,
                   age: Int,
                   infectionState: InfectionStatus,
                   infectionDur: Int,
@@ -20,7 +22,9 @@ case class Person(id: Long,
                   lastTestResult:Boolean = false,
                   lastTestDay:Int = -20000,
                   currentLocation:String = "House",
-                  quarantineStartedAt:Int = 0) extends StatefulAgent {
+                  quarantineStartedAt:Int = 0,
+                  isAContact:Boolean = false) extends StatefulAgent {
+
 
   private val incrementInfectionDay: Context => Unit = (context: Context) => {
     if (isPresymptomatic && context.getCurrentStep % Disease.numberOfTicksInADay == 0)
@@ -35,65 +39,6 @@ case class Person(id: Long,
       //println(currentLocation)
     }
   }
-
-//  private val checkEligibilityForTargetedRTPCRTesting:Context => Unit = (context:Context) => {
-//    //println(isEligibleForTestingAgain(context))
-//    if ((context.activeInterventionNames.contains("get_tested"))&&
-//      (context.getCurrentStep%Disease.numberOfTicksInADay==0)&&
-//      (Disease.numberOfRTPCRTestsDoneOnEachDay < Disease.numberOfRTPCRTestsAvailable) &&
-//      (isSymptomatic) &&
-//      (!isBeingTested)) {
-//      updateParam("isScheduledForRTPCRTesting", true)
-//      Disease.numberOfRTPCRTestsDoneOnEachDay = Disease.numberOfRTPCRTestsDoneOnEachDay + 1
-//    }
-//  }
-//
-//  private val checkEligibilityForTargetedRATTesting:Context => Unit = (context:Context) => {
-//    //println(isEligibleForTestingAgain(context))
-//    if ((context.activeInterventionNames.contains("get_tested"))&&
-//      (context.getCurrentStep%Disease.numberOfTicksInADay==0)&&
-//      (Disease.numberOfRATTestsDoneOnEachDay < Disease.numberOfRATTestsAvailable) &&
-//      (isSymptomatic) &&
-//      (!isBeingTested) &&
-//      (!isScheduledForRTPCRTesting)&&
-//      (Disease.numberOfRTPCRTestsDoneOnEachDay >= Disease.numberOfRTPCRTestsAvailable)) {
-//      updateParam("isScheduledForRATTesting", true)
-//      Disease.numberOfRATTestsDoneOnEachDay = Disease.numberOfRATTestsDoneOnEachDay + 1
-//    }
-//  }
-//
-//  private val checkEligibilityForRandomRTPCRTesting:Context => Unit = (context:Context) =>{
-//    if ((context.activeInterventionNames.contains("get_tested"))&&
-//      (context.getCurrentStep%Disease.numberOfTicksInADay==0)){
-//      if((Disease.numberOfRTPCRTestsDoneOnEachDay < Disease.numberOfRTPCRTestsAvailable) &&
-//         (!isScheduledForRATTesting)&&
-//         (!isScheduledForRTPCRTesting)&&
-//         (!isBeingTested)&&
-//         (isSusceptible || isAsymptomatic || isPresymptomatic)&&
-//         (getSymptomaticCount(context) < Disease.numberOfRTPCRTestsAvailable)){
-//        updateParam("isScheduledForRandomRTPCRTesting",true)
-//        Disease.numberOfRTPCRTestsDoneOnEachDay = Disease.numberOfRTPCRTestsDoneOnEachDay+1
-//      }
-//    }
-//  }
-
-//  private val checkEligibilityForRandomRATTesting: Context => Unit = (context:Context) => {
-//    if ((context.activeInterventionNames.contains("get_tested")) &&
-//      (context.getCurrentStep % Disease.numberOfTicksInADay == 0)) {
-//      if ((Disease.numberOfRATTestsDoneOnEachDay < Disease.numberOfRATTestsAvailable) &&
-//        (!isScheduledForRATTesting) &&
-//        (!isScheduledForRTPCRTesting) &&
-//        (!isScheduledForRandomRTPCRTesting) &&
-//        (!isBeingTested) &&
-//        (isSusceptible || isAsymptomatic || isPresymptomatic) &&
-//        (getSymptomaticCount(context) < Disease.numberOfRATTestsAvailable + Disease.numberOfRTPCRTestsAvailable)) {
-//        updateParam("isScheduledForRandomRATTesting", true)
-//        Disease.numberOfRATTestsDoneOnEachDay = Disease.numberOfRATTestsDoneOnEachDay + 1
-//
-//
-//      }
-//    }
-//  }
 
   private val checkEligibilityForTargetedTesting:Context => Unit = (context: Context)=>{
     if((context.activeInterventionNames.contains("get_tested"))&&
@@ -113,25 +58,49 @@ case class Person(id: Long,
   }
 
   private val checkForContacts:Context => Unit = (context:Context) => {
-    if (isDelayPeriodOver(context)){
-      if (lastTestResult){
-//        val family = this.getConnections(houseId.toString).toList
-        val house = this.houseId
-        println(house)
-        if (this.houseId == house){
-          updateParam("isAContact",true)
+    if (lastTestResult) {
+      val places = getConnections(getRelation("House").get).toList
+      val place = places.head
+      val home = decodeNode("House", place)
+
+      val family = home.getConnections(home.getRelation[Person]().get).toList
+
+      for (i <- family.indices) {
+        val familyMember = family(i).as[Person]
+        if (familyMember.beingTested == 0 && !familyMember.isAContact && !familyMember.isHospitalized) {
+          familyMember.updateParam("isAContact", true)
+        }
+      }
+
+      if (essentialWorker == 0) {
+        val workplaces = getConnections(getRelation("Office").get).toList
+        val workplace = workplaces.head
+        val office = decodeNode("Office", workplace)
+
+        val workers = office.getConnections(office.getRelation[Person]().get).toList
+
+        for (i <- workers.indices) {
+          val Colleague = workers(i).as[Person]
+          if (Colleague.beingTested == 0 && !Colleague.isAContact && !Colleague.isHospitalized) {
+            if (biasedCoinToss(Disease.colleagueFraction)) {
+              Colleague.updateParam("isAContact", true)
+              //println("Yay")
+            }
+          }
         }
       }
     }
   }
-
 
   private val declarationOfResults:Context => Unit = (context:Context) => {
     if (beingTested == 1 && isDelayPeriodOver(context)){
       if (lastTestResult) {
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+//        val inf_family = this.getConnectionCount(getRelation[Person]().get,
+//          ("houseId" equ this.houseId))
       }
+
       //TODO RAT tests don't have delay
       if (!lastTestResult){
         updateParam("beingTested",0)
@@ -161,7 +130,6 @@ case class Person(id: Long,
 
   def isBeingTested:Boolean = beingTested == 1 || beingTested == 2
 
-
   def isAwaitingResult:Boolean = beingTested == 1
 
   def isSymptomatic: Boolean = infectionState == MildlyInfected || infectionState == SeverelyInfected
@@ -174,21 +142,10 @@ case class Person(id: Long,
 
   def isDelayPeriodOver(context: Context):Boolean = ((context.getCurrentStep*Disease.dt).toInt) - lastTestDay >= Disease.testDelay
 
-
-
-  def getSymptomaticCount(context: Context): Int = {
-    context.graphProvider.fetchCount("Person", ("infectionState" equ MildlyInfected) or ("infectionState" equ SeverelyInfected))
-  }
-
-
-
-
-
   def decodeNode(classType: String, node: GraphNode): Node = {
     classType match {
       case "House" => node.as[House]
       case "Office" => node.as[Office]
-      //case "School" => node.as[School]
       case "Hospital" => node.as[Hospital]
     }
   }
@@ -200,7 +157,7 @@ case class Person(id: Long,
   addBehaviour(checkEligibilityForRandomTesting)
   addBehaviour(declarationOfResults)
   addBehaviour(quarantinePeriodOver)
-  //addBehaviour(checkForContacts)
+  addBehaviour(checkForContacts)
 
 
   addRelation[House]("STAYS_AT")

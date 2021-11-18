@@ -34,7 +34,6 @@ object Disease {
   var numberOfRATTestsAvailable:Double = numberOfDailyTests * RATTestFraction
 
 
-
   val daysAfterWhichEligibleForTestingAgain:Int = 7
 
   val testDelay:Int = 0
@@ -45,6 +44,7 @@ object Disease {
 
   val quarantineDuration:Int = 14
 
+  val colleagueFraction:Double = 0.1
 
   final val ageStratifiedBetaMultiplier = HashMap(
     9 -> 0.34,

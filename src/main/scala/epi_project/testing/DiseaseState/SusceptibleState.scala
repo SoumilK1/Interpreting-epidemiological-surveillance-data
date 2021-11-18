@@ -84,7 +84,6 @@ case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
       Disease.contactProbability*infected_and_quarantined
 
     infectedCount/totalCount
-
   }
 
 
