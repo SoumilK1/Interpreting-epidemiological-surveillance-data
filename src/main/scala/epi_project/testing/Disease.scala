@@ -36,7 +36,7 @@ object Disease {
 
   val daysAfterWhichEligibleForTestingAgain:Int = 7
 
-  val testDelay:Int = 0
+  val testDelay:Int = 2
 
   var RTPCRTestSensitivity:Double = 1.0
 

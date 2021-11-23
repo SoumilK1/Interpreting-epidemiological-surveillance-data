@@ -58,7 +58,7 @@ case class Person(id: Long,
   }
 
   private val checkForContacts:Context => Unit = (context:Context) => {
-    if (lastTestResult) {
+    if ((lastTestResult) && (beingTested == 1) && (isDelayPeriodOver(context))) {
       val places = getConnections(getRelation("House").get).toList
       val place = places.head
       val home = decodeNode("House", place)
@@ -67,7 +67,7 @@ case class Person(id: Long,
 
       for (i <- family.indices) {
         val familyMember = family(i).as[Person]
-        if (familyMember.beingTested == 0 && !familyMember.isAContact && !familyMember.isHospitalized) {
+        if ((familyMember.beingTested == 0) && (!familyMember.isAContact) && (!familyMember.isHospitalized)) {
           familyMember.updateParam("isAContact", true)
         }
       }

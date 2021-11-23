@@ -29,12 +29,6 @@ object Main extends LazyLogging {
   var testing_begins_at:Double = 0.2
   val total_population = 10000
 
-//  var arg0: Double = testing_begins_at
-//  var arg1: Int = Disease.numberOfDailyTests
-//  var arg2: Double = Disease.RATTestSensitivity
-//  var arg3: Double = Disease.RATTestFraction
-//  var arg4: Double = Disease.RTPCRTestSensitivity
-//  var arg5: Double = Disease.RTPCRTestFraction
 
   var filename = "dummy"
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
@@ -42,14 +36,14 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-//    testing_begins_at = args(0).toDouble
-//    Disease.numberOfDailyTests = args(1).toInt
-//    Disease.RATTestSensitivity = args(2).toDouble
-//    Disease.RATTestFraction = args(3).toDouble
-//    Disease.RTPCRTestSensitivity = args(4).toDouble
-//    Disease.RTPCRTestFraction = args(5).toDouble
-//
-//    filename = args(6)
+    testing_begins_at = args(0).toDouble
+    Disease.numberOfDailyTests = args(1).toInt
+    Disease.RATTestSensitivity = args(2).toDouble
+    Disease.RATTestFraction = args(3).toDouble
+    Disease.RTPCRTestSensitivity = args(4).toDouble
+    Disease.RTPCRTestFraction = args(5).toDouble
+
+    filename = args(6)
 
 
 
@@ -99,15 +93,14 @@ object Main extends LazyLogging {
       val currentTime = new Date().getTime
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("csv/" +
-          filename +
+        new CsvOutputGenerator("csv/" + "testing_begins_at_" + testing_begins_at +
+          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_" + filename +
           ".csv", new SEIROutputSpec(context))
       )
     })
 
-    //"testing_begins_at_" + testing_begins_at +
-    //          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-    //          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_" +
+
 
     simulation.onCompleteSimulation { implicit context =>
       printStats(beforeCount)
