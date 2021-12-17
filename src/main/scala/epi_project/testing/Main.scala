@@ -36,16 +36,14 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-    testing_begins_at = args(0).toDouble
-    Disease.numberOfDailyTests = args(1).toInt
-    Disease.RATTestSensitivity = args(2).toDouble
-    Disease.RATTestFraction = args(3).toDouble
-    Disease.RTPCRTestSensitivity = args(4).toDouble
-    Disease.RTPCRTestFraction = args(5).toDouble
-
-    filename = args(6)
-
-
+//    testing_begins_at = args(0).toDouble
+//    Disease.numberOfDailyTests = args(1).toInt
+//    Disease.RATTestSensitivity = args(2).toDouble
+//    Disease.RATTestFraction = args(3).toDouble
+//    Disease.RTPCRTestSensitivity = args(4).toDouble
+//    Disease.RTPCRTestFraction = args(5).toDouble
+//
+//    filename = args(6)
 
     println("after", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
       Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
@@ -242,6 +240,7 @@ object Main extends LazyLogging {
             person.updateParam("beingTested",1)
             person.updateParam("isEligibleForTargetedTesting",false)
             person.updateParam("isEligibleForRandomTesting",false)
+            person.updateParam("isAContact",false)
 //            println("testHappens")
             if(biasedCoinToss(Disease.RTPCRTestSensitivity)){
               person.updateParam("lastTestResult",true)
@@ -260,6 +259,7 @@ object Main extends LazyLogging {
             person.updateParam("beingTested",1)
             person.updateParam("isEligibleForTargetedTesting",false)
             person.updateParam("isEligibleForRandomTesting",false)
+            person.updateParam("isAContact",false)
 //            println("testHappens")
             if(biasedCoinToss(Disease.RATTestSensitivity)){
               person.updateParam("lastTestResult",true)
@@ -327,6 +327,7 @@ object Main extends LazyLogging {
             randomPerson.updateParam("beingTested",1)
             randomPerson.updateParam("isEligibleForRandomTesting",false)
             randomPerson.updateParam("isEligibleForTargetedTesting",false)
+            randomPerson.updateParam("isAContact",false)
 //            println("testHappens")
             if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RTPCRTestSensitivity)){
               randomPerson.updateParam("lastTestResult",true)
@@ -344,6 +345,7 @@ object Main extends LazyLogging {
             randomPerson.updateParam("beingTested",1)
             randomPerson.updateParam("isEligibleForRandomTesting",false)
             randomPerson.updateParam("isEligibleForTargetedTesting",false)
+            randomPerson.updateParam("isAContact",false)
 //            println("testHappens")
             if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RATTestSensitivity)){
               randomPerson.updateParam("lastTestResult",true)
