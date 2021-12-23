@@ -238,6 +238,7 @@ object Main extends LazyLogging {
           if(Disease.numberOfRTPCRTestsDoneOnEachDay < Disease.RTPCRTestFraction * Disease.numberOfDailyTests){
             person.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             person.updateParam("beingTested",1)
+            person.updateParam("testCategory",1)
             person.updateParam("isEligibleForTargetedTesting",false)
             person.updateParam("isEligibleForRandomTesting",false)
             person.updateParam("isAContact",false)
@@ -257,6 +258,7 @@ object Main extends LazyLogging {
             (person.beingTested == 0)){
             person.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             person.updateParam("beingTested",1)
+            person.updateParam("testCategory",1)
             person.updateParam("isEligibleForTargetedTesting",false)
             person.updateParam("isEligibleForRandomTesting",false)
             person.updateParam("isAContact",false)
@@ -281,6 +283,7 @@ object Main extends LazyLogging {
           if(Disease.numberOfRTPCRTestsDoneOnEachDay < Disease.RTPCRTestFraction * Disease.numberOfDailyTests){
             contact.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             contact.updateParam("beingTested",1)
+            contact.updateParam("testCategory",2)
             contact.updateParam("isEligibleForTargetedTesting",false)
             contact.updateParam("isEligibleForRandomTesting",false)
             contact.updateParam("isAContact",false)
@@ -299,6 +302,7 @@ object Main extends LazyLogging {
             (contact.beingTested == 0)){
             contact.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             contact.updateParam("beingTested",1)
+            contact.updateParam("testCategory",2)
             contact.updateParam("isEligibleForTargetedTesting",false)
             contact.updateParam("isEligibleForRandomTesting",false)
             contact.updateParam("isAContact",false)
@@ -325,6 +329,7 @@ object Main extends LazyLogging {
             (randomPerson.beingTested == 0)){
             randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             randomPerson.updateParam("beingTested",1)
+            randomPerson.updateParam("testCategory",3)
             randomPerson.updateParam("isEligibleForRandomTesting",false)
             randomPerson.updateParam("isEligibleForTargetedTesting",false)
             randomPerson.updateParam("isAContact",false)
@@ -343,6 +348,7 @@ object Main extends LazyLogging {
             (randomPerson.beingTested == 0)){
             randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             randomPerson.updateParam("beingTested",1)
+            randomPerson.updateParam("testCategory",3)
             randomPerson.updateParam("isEligibleForRandomTesting",false)
             randomPerson.updateParam("isEligibleForTargetedTesting",false)
             randomPerson.updateParam("isAContact",false)
@@ -364,7 +370,6 @@ object Main extends LazyLogging {
         Disease.numberOfRTPCRTestsDoneOnEachDay = 0
         Disease.numberOfRATTestsDoneOnEachDay = 0
       }
-
     }
 
     val Testing = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution,perTickAction)

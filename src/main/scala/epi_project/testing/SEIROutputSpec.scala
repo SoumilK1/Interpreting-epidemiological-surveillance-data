@@ -18,9 +18,12 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       "Recovered",
       "Hospitalized",
       "Infected",
-      "EligibleForContactTracing",
       "EligibleForTargetedTest",
+      "TestedByTargetedTest",
+      "EligibleForContactTracing",
+      "TestedByContactTracing",
       "EligibleForRandomTest",
+      "TestedByRandomTest",
       "RTPCRTestsConducted",
       "RATTestsConducted"
     )
@@ -30,34 +33,23 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
     val label = "Person"
 
     val row = List(
-        if (context.getCurrentStep % 2 == 0) {
-          context.getCurrentStep},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "infectionState" equ Susceptible)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "infectionState" equ Asymptomatic)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "infectionState" equ Presymptomatic)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "infectionState" equ MildlyInfected)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "infectionState" equ SeverelyInfected)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "infectionState" equ Recovered)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "infectionState" equ Hospitalized)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "infectionState" equ Presymptomatic) + graphProvider.fetchCount(label, "infectionState" equ Asymptomatic) + graphProvider.fetchCount(label, "infectionState" equ MildlyInfected) + graphProvider.fetchCount(label, "infectionState" equ SeverelyInfected) + graphProvider.fetchCount(label, "infectionState" equ Hospitalized)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "isAContact" equ true)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "isEligibleForTargetedTesting" equ true)},
-        if (context.getCurrentStep % 2 == 0) {
-          graphProvider.fetchCount(label, "isEligibleForRandomTesting" equ true)},
-        if (context.getCurrentStep % 2 == 0) {
-          Disease.numberOfRTPCRTestsDoneOnEachDay},
-        if (context.getCurrentStep % 2 == 0) {
-          Disease.numberOfRATTestsDoneOnEachDay},
+          context.getCurrentStep,
+          graphProvider.fetchCount(label, "infectionState" equ Susceptible),
+          graphProvider.fetchCount(label, "infectionState" equ Asymptomatic),
+          graphProvider.fetchCount(label, "infectionState" equ Presymptomatic),
+          graphProvider.fetchCount(label, "infectionState" equ MildlyInfected),
+          graphProvider.fetchCount(label, "infectionState" equ SeverelyInfected),
+          graphProvider.fetchCount(label, "infectionState" equ Recovered),
+          graphProvider.fetchCount(label, "infectionState" equ Hospitalized),
+          graphProvider.fetchCount(label, "infectionState" equ Presymptomatic) + graphProvider.fetchCount(label, "infectionState" equ Asymptomatic) + graphProvider.fetchCount(label, "infectionState" equ MildlyInfected) + graphProvider.fetchCount(label, "infectionState" equ SeverelyInfected) + graphProvider.fetchCount(label, "infectionState" equ Hospitalized),
+          graphProvider.fetchCount(label, "isEligibleForTargetedTesting" equ true),
+          graphProvider.fetchCount(label,"testCategory" equ 1),
+          graphProvider.fetchCount(label, "isAContact" equ true),
+          graphProvider.fetchCount(label,"testCategory" equ 2),
+          graphProvider.fetchCount(label, "isEligibleForRandomTesting" equ true),
+          graphProvider.fetchCount(label,"testCategory" equ 3),
+          Disease.numberOfRTPCRTestsDoneOnEachDay,
+          Disease.numberOfRATTestsDoneOnEachDay,
         )
       List(row)
     }

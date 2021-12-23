@@ -23,7 +23,8 @@ case class Person(id: Long,
                   lastTestDay:Int = -20000,
                   currentLocation:String = "House",
                   quarantineStartedAt:Int = 0,
-                  isAContact:Boolean = false) extends StatefulAgent {
+                  isAContact:Boolean = false,
+                  testCategory:Int = 0) extends StatefulAgent {
 
 
   private val incrementInfectionDay: Context => Unit = (context: Context) => {

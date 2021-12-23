@@ -60,7 +60,10 @@ object Disease {
   )
 }
 
-// BeingTested = 0 -> Hasn't been tested before/can be eligible to get tested again
-// BeingTested = 1 -> Has been tested recently and is awaiting result
-// BeingTested = 2 -> Tested positive and is in quarantine
+// beingTested = 0 -> Hasn't been tested before/can be eligible to get tested again
+// beingTested = 1 -> Has been tested recently and is awaiting result
+// beingTested = 2 -> Tested positive and is in quarantine
 
+// testCategory = 1 -> Targeted Testing
+// testCategory = 2 -> Contact
+// testCategory = 3 -> Random Testing
