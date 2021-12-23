@@ -42,6 +42,7 @@ object Main extends LazyLogging {
 //    Disease.RATTestFraction = args(3).toDouble
 //    Disease.RTPCRTestSensitivity = args(4).toDouble
 //    Disease.RTPCRTestFraction = args(5).toDouble
+    //     Disease.DoesContactTracingHappen = args(6)
 //
 //    filename = args(6)
 
@@ -370,6 +371,19 @@ object Main extends LazyLogging {
         Disease.numberOfRTPCRTestsDoneOnEachDay = 0
         Disease.numberOfRATTestsDoneOnEachDay = 0
       }
+
+      if(context.getCurrentStep%Disease.numberOfTicksInADay==1) {
+        val populationIterableForTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
+          ("testCategory" equ 1) or  ("testCategory" equ 2) or ("testCategory" equ 3))
+
+        populationIterableForTesting.foreach(node => {
+          val TestedPerson = node.as[Person]
+          TestedPerson.updateParam("testCategory", 0)
+        })
+      }
+
+
+
     }
 
     val Testing = SingleInvocationIntervention(InterventionName,ActivationCondition,DeactivationCondition,FirstTimeExecution,perTickAction)

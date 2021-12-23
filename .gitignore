@@ -4,5 +4,4 @@ target
 /csv/
 *.log
 logback.xml
-*.jar
 

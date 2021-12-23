@@ -59,33 +59,35 @@ case class Person(id: Long,
   }
 
   private val checkForContacts:Context => Unit = (context:Context) => {
-    if ((lastTestResult) && (beingTested == 1) && (isDelayPeriodOver(context))) {
-      val places = getConnections(getRelation("House").get).toList
-      val place = places.head
-      val home = decodeNode("House", place)
+    if (Disease.DoesContactTracingHappen == "y"){
+      if ((lastTestResult) && (beingTested == 1) && (isDelayPeriodOver(context))) {
+        val places = getConnections(getRelation("House").get).toList
+        val place = places.head
+        val home = decodeNode("House", place)
 
-      val family = home.getConnections(home.getRelation[Person]().get).toList
+        val family = home.getConnections(home.getRelation[Person]().get).toList
 
-      for (i <- family.indices) {
-        val familyMember = family(i).as[Person]
-        if ((familyMember.beingTested == 0) && (!familyMember.isAContact) && (!familyMember.isHospitalized)) {
-          familyMember.updateParam("isAContact", true)
+        for (i <- family.indices) {
+          val familyMember = family(i).as[Person]
+          if ((familyMember.beingTested == 0) && (!familyMember.isAContact) && (!familyMember.isHospitalized)) {
+            familyMember.updateParam("isAContact", true)
+          }
         }
-      }
 
-      if (essentialWorker == 0) {
-        val workplaces = getConnections(getRelation("Office").get).toList
-        val workplace = workplaces.head
-        val office = decodeNode("Office", workplace)
+        if (essentialWorker == 0) {
+          val workplaces = getConnections(getRelation("Office").get).toList
+          val workplace = workplaces.head
+          val office = decodeNode("Office", workplace)
 
-        val workers = office.getConnections(office.getRelation[Person]().get).toList
+          val workers = office.getConnections(office.getRelation[Person]().get).toList
 
-        for (i <- workers.indices) {
-          val Colleague = workers(i).as[Person]
-          if (Colleague.beingTested == 0 && !Colleague.isAContact && !Colleague.isHospitalized) {
-            if (biasedCoinToss(Disease.colleagueFraction)) {
-              Colleague.updateParam("isAContact", true)
+          for (i <- workers.indices) {
+            val Colleague = workers(i).as[Person]
+            if (Colleague.beingTested == 0 && !Colleague.isAContact && !Colleague.isHospitalized) {
+              if (biasedCoinToss(Disease.colleagueFraction)) {
+                Colleague.updateParam("isAContact", true)
               //println("Yay")
+              }
             }
           }
         }

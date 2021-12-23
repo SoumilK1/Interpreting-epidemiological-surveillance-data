@@ -46,6 +46,8 @@ object Disease {
 
   val colleagueFraction:Double = 0.1
 
+  var DoesContactTracingHappen:String = "y"
+
   final val ageStratifiedBetaMultiplier = HashMap(
     9 -> 0.34,
     19 -> 0.67,
