@@ -44,7 +44,7 @@ object Main extends LazyLogging {
 //    Disease.RTPCRTestFraction = args(5).toDouble
     //     Disease.DoesContactTracingHappen = args(6)
 //
-//    filename = args(6)
+//    filename = args(7)
 
     println("after", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
       Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
