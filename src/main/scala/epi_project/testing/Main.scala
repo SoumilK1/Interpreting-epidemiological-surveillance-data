@@ -18,6 +18,7 @@ import com.typesafe.scalalogging.LazyLogging
 import epi_project.testing.DiseaseState._
 import epi_project.testing.InfectionStatus._
 
+
 import java.util.Date
 
 object Main extends LazyLogging {
@@ -36,15 +37,15 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-//    testing_begins_at = args(0).toDouble
-//    Disease.numberOfDailyTests = args(1).toInt
-//    Disease.RATTestSensitivity = args(2).toDouble
-//    Disease.RATTestFraction = args(3).toDouble
-//    Disease.RTPCRTestSensitivity = args(4).toDouble
-//    Disease.RTPCRTestFraction = args(5).toDouble
-    //     Disease.DoesContactTracingHappen = args(6)
-//
-//    filename = args(7)
+    testing_begins_at = args(0).toDouble
+    Disease.numberOfDailyTests = args(1).toInt
+    Disease.RATTestSensitivity = args(2).toDouble
+    Disease.RATTestFraction = args(3).toDouble
+    Disease.RTPCRTestSensitivity = args(4).toDouble
+    Disease.RTPCRTestFraction = args(5).toDouble
+    Disease.DoesContactTracingHappen = args(6)
+
+    filename = args(7)
 
     println("after", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
       Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
@@ -94,7 +95,7 @@ object Main extends LazyLogging {
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("csv/" + "testing_begins_at_" + testing_begins_at +
           "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_" + filename +
+          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_" +"_ContactTracingHappen_"+Disease.DoesContactTracingHappen+ filename +
           ".csv", new SEIROutputSpec(context))
       )
     })
@@ -178,6 +179,8 @@ object Main extends LazyLogging {
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
     val memberOf = Relation[House, Person](homeId, "HOUSES", citizenId)
 
+//    val familyMember = Relation[Person,Person](citizenId,"FAMILY_OF",getFamilyMemberOf(citizenId))
+
     val graphData = GraphData()
     graphData.addNode(citizenId, citizen)
     graphData.addNode(homeId, home)
@@ -213,6 +216,7 @@ object Main extends LazyLogging {
 
     graphData
   }
+
 
 
   private def testing(implicit context: Context):Unit = {
