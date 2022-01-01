@@ -312,7 +312,7 @@ object Main extends LazyLogging {
             contact.updateParam("isEligibleForRandomTesting",false)
             contact.updateParam("isAContact",false)
 
-            if(biasedCoinToss(Disease.RTPCRTestSensitivity)){
+            if((!contact.isSusceptible) && (!contact.isRecovered)&&biasedCoinToss(Disease.RTPCRTestSensitivity)){
               contact.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
             }
@@ -333,7 +333,7 @@ object Main extends LazyLogging {
             contact.updateParam("isEligibleForRandomTesting",false)
             contact.updateParam("isAContact",false)
 
-            if(biasedCoinToss(Disease.RATTestSensitivity)){
+            if((!contact.isSusceptible) && (!contact.isRecovered)&&biasedCoinToss(Disease.RATTestSensitivity)){
               contact.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
             }
