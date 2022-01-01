@@ -216,7 +216,9 @@ object Main extends LazyLogging {
 
     graphData
   }
-
+//  private def getFamilyMemberOf(citizenId:Long):Long = {
+//
+//  }
 
 
   private def testing(implicit context: Context):Unit = {
