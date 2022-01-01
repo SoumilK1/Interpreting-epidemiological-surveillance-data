@@ -23,16 +23,18 @@ object Disease {
   final val dt:Double = 1d/numberOfTicksInADay
 
 
-  var numberOfDailyTests: Int = 50
+  var numberOfDailyTests: Int = 100
   var RTPCRTestFraction:Double = 0.5
   var RATTestFraction:Double = 1 - RTPCRTestFraction
 
-  var numberOfRTPCRTestsDoneOnEachDay:Double = 0
+  var numberOfRTPCRTestsDoneAtEachTick:Double = 0
   var numberOfRTPCRTestsAvailable:Double = numberOfDailyTests * RTPCRTestFraction
 
-  var numberOfRATTestsDoneOnEachDay:Double = 0
+  var numberOfRATTestsDoneAtEachTick:Double = 0
   var numberOfRATTestsAvailable:Double = numberOfDailyTests * RATTestFraction
 
+  var totalNumberOfTestsDone:Double = 0
+  var numberOfPositiveTestsAtEachTick:Double = 0
 
   val daysAfterWhichEligibleForTestingAgain:Int = 7
 
