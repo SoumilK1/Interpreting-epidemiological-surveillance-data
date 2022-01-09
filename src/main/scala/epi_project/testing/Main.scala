@@ -36,15 +36,15 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-//    testing_begins_at = args(0).toDouble
-//    Disease.numberOfDailyTests = args(1).toInt
-//    Disease.RATTestSensitivity = args(2).toDouble
-//    Disease.RATTestFraction = args(3).toDouble
-//    Disease.RTPCRTestSensitivity = args(4).toDouble
-//    Disease.RTPCRTestFraction = args(5).toDouble
-    //     Disease.DoesContactTracingHappen = args(6)
-//
-//    filename = args(6)
+    testing_begins_at = args(0).toDouble
+    Disease.numberOfDailyTests = args(1).toInt
+    Disease.RATTestSensitivity = args(2).toDouble
+    Disease.RATTestFraction = args(3).toDouble
+    Disease.RTPCRTestSensitivity = args(4).toDouble
+    Disease.RTPCRTestFraction = args(5).toDouble
+    Disease.DoesContactTracingHappen = args(6)
+
+    filename = args(7)
 
     println("after", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
       Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
@@ -94,7 +94,8 @@ object Main extends LazyLogging {
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("csv/" + "testing_begins_at_" + testing_begins_at +
           "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_" + filename +
+          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+          + Disease.DoesContactTracingHappen + filename +
           ".csv", new SEIROutputSpec(context))
       )
     })
@@ -306,7 +307,7 @@ object Main extends LazyLogging {
             contact.updateParam("isEligibleForRandomTesting",false)
             contact.updateParam("isAContact",false)
 
-            if(biasedCoinToss(Disease.RTPCRTestSensitivity)){
+            if((!contact.isSusceptible) && (!contact.isRecovered) && biasedCoinToss(Disease.RTPCRTestSensitivity)){
               contact.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
             }
@@ -326,8 +327,7 @@ object Main extends LazyLogging {
             contact.updateParam("isEligibleForTargetedTesting",false)
             contact.updateParam("isEligibleForRandomTesting",false)
             contact.updateParam("isAContact",false)
-
-            if(biasedCoinToss(Disease.RATTestSensitivity)){
+            if((!contact.isSusceptible) && (!contact.isRecovered) && biasedCoinToss(Disease.RATTestSensitivity)){
               contact.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
             }

@@ -58,46 +58,41 @@ case class Person(id: Long,
     }
   }
 
-  private val checkForContacts:Context => Unit = (context:Context) => {
-    if (Disease.DoesContactTracingHappen == "y"){
-      if ((lastTestResult) && (beingTested == 1) && (isDelayPeriodOver(context))) {
-        val places = getConnections(getRelation("House").get).toList
-        val place = places.head
-        val home = decodeNode("House", place)
+  private val declarationOfResults_checkForContacts:Context => Unit = (context:Context) => {
+    if (beingTested == 1 && isDelayPeriodOver(context)){
+      if (lastTestResult){
+        if (Disease.DoesContactTracingHappen == "y"){
+          val places = getConnections(getRelation("House").get).toList
+          val place = places.head
+          val home = decodeNode("House", place)
 
-        val family = home.getConnections(home.getRelation[Person]().get).toList
+          val family = home.getConnections(home.getRelation[Person]().get).toList
 
-        for (i <- family.indices) {
-          val familyMember = family(i).as[Person]
-          if ((familyMember.beingTested == 0) && (!familyMember.isAContact) && (!familyMember.isHospitalized)) {
-            familyMember.updateParam("isAContact", true)
+          for (i <- family.indices) {
+            val familyMember = family(i).as[Person]
+            if ((familyMember.beingTested == 0) && (!familyMember.isAContact) && (!familyMember.isHospitalized)) {
+              familyMember.updateParam("isAContact", true)
+            }
           }
-        }
 
-        if (essentialWorker == 0) {
-          val workplaces = getConnections(getRelation("Office").get).toList
-          val workplace = workplaces.head
-          val office = decodeNode("Office", workplace)
+          if (essentialWorker == 0) {
+            val workplaces = getConnections(getRelation("Office").get).toList
+            val workplace = workplaces.head
+            val office = decodeNode("Office", workplace)
 
-          val workers = office.getConnections(office.getRelation[Person]().get).toList
+            val workers = office.getConnections(office.getRelation[Person]().get).toList
 
-          for (i <- workers.indices) {
-            val Colleague = workers(i).as[Person]
-            if (Colleague.beingTested == 0 && !Colleague.isAContact && !Colleague.isHospitalized) {
-              if (biasedCoinToss(Disease.colleagueFraction)) {
-                Colleague.updateParam("isAContact", true)
-              //println("Yay")
+            for (i <- workers.indices) {
+              val Colleague = workers(i).as[Person]
+              if (Colleague.beingTested == 0 && !Colleague.isAContact && !Colleague.isHospitalized) {
+                if (biasedCoinToss(Disease.colleagueFraction)) {
+                  Colleague.updateParam("isAContact", true)
+                  //println("Yay")
+                }
               }
             }
           }
         }
-      }
-    }
-  }
-
-  private val declarationOfResults:Context => Unit = (context:Context) => {
-    if (beingTested == 1 && isDelayPeriodOver(context)){
-      if (lastTestResult) {
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
 //        val inf_family = this.getConnectionCount(getRelation[Person]().get,
@@ -110,6 +105,8 @@ case class Person(id: Long,
       }
     }
   }
+
+
 
   private val quarantinePeriodOver:Context => Unit = (context:Context) => {
     if (beingTested == 2 &&
@@ -158,9 +155,9 @@ case class Person(id: Long,
   addBehaviour(checkCurrentLocation)
   addBehaviour(checkEligibilityForTargetedTesting)
   addBehaviour(checkEligibilityForRandomTesting)
-  addBehaviour(declarationOfResults)
+  addBehaviour(declarationOfResults_checkForContacts)
   addBehaviour(quarantinePeriodOver)
-  addBehaviour(checkForContacts)
+
 
 
   addRelation[House]("STAYS_AT")
