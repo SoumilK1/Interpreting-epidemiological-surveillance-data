@@ -242,12 +242,65 @@ object Main extends LazyLogging {
         TestedPerson.updateParam("testCategory", 0)
       })
 
-        val populationIterableForTargetedTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
-          ("isEligibleForTargetedTesting" equ true))
+      val populationIterableForTargetedTestingAndContacts: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
+        ("isEligibleForTargetedTesting" equ true) and ("isAContact" equ true))
+
+      populationIterableForTargetedTestingAndContacts.foreach(node => {
+        val SymptomaticContact = node.as[Person]
+
+        //println(Disease.RTPCRTestFraction*Disease.numberOfDailyTests, Disease.numberOfRTPCRTestsAvailable)
+        if(Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.dt* Disease.RTPCRTestFraction * Disease.numberOfDailyTests){
+          SymptomaticContact.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
+          SymptomaticContact.updateParam("beingTested",1)
+          SymptomaticContact.updateParam("testCategory",1)
+          SymptomaticContact.updateParam("isEligibleForTargetedTesting",false)
+          SymptomaticContact.updateParam("isEligibleForRandomTesting",false)
+          SymptomaticContact.updateParam("isAContact",false)
+
+          Disease.tested_person_id = SymptomaticContact.id
+          //            println("testHappens")
+          if((!SymptomaticContact.isRecovered) && (biasedCoinToss(Disease.RTPCRTestSensitivity))){
+            SymptomaticContact.updateParam("lastTestResult",true)
+            Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+          }
+          else{
+            SymptomaticContact.updateParam("lastTestResult",false)
+          }
+          Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick+1
+          Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
+
+          //            println(person.id,person.lastTestResult,person.beingTested)
+        }
+
+        //println(Disease.numberOfDailyTests,Disease.RATTestFraction,Disease.numberOfRATTestsAvailable)
+        if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
+          (Disease.numberOfRATTestsDoneAtEachTick< Disease.dt * Disease.RATTestFraction * Disease.numberOfDailyTests)&&
+          (SymptomaticContact.beingTested == 0) && (SymptomaticContact.id != Disease.tested_person_id)) {
+          SymptomaticContact.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
+          SymptomaticContact.updateParam("beingTested",1)
+          SymptomaticContact.updateParam("testCategory",1)
+          SymptomaticContact.updateParam("isEligibleForTargetedTesting",false)
+          SymptomaticContact.updateParam("isEligibleForRandomTesting",false)
+          SymptomaticContact.updateParam("isAContact",false)
+          //            println("testHappens")
+          if((!SymptomaticContact.isRecovered) && (biasedCoinToss(Disease.RATTestSensitivity))){
+            SymptomaticContact.updateParam("lastTestResult",true)
+            Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+          }
+          else{
+            SymptomaticContact.updateParam("lastTestResult",false)
+          }
+          Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick+1
+          Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
+        }
+      })
+
+
+      val populationIterableForTargetedTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
+          ("isEligibleForTargetedTesting" equ true) and ("isAContact" equ false))
 
         populationIterableForTargetedTesting.foreach(node => {
           val person = node.as[Person]
-
 
           //println(Disease.RTPCRTestFraction*Disease.numberOfDailyTests, Disease.numberOfRTPCRTestsAvailable)
           if(Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.dt* Disease.RTPCRTestFraction * Disease.numberOfDailyTests){
@@ -257,6 +310,8 @@ object Main extends LazyLogging {
             person.updateParam("isEligibleForTargetedTesting",false)
             person.updateParam("isEligibleForRandomTesting",false)
             person.updateParam("isAContact",false)
+
+            Disease.tested_person_id = person.id
 //            println("testHappens")
             if((!person.isRecovered) && (biasedCoinToss(Disease.RTPCRTestSensitivity))){
               person.updateParam("lastTestResult",true)
@@ -267,12 +322,14 @@ object Main extends LazyLogging {
             }
             Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick+1
             Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
+
+//            println(person.id,person.lastTestResult,person.beingTested)
           }
 
           //println(Disease.numberOfDailyTests,Disease.RATTestFraction,Disease.numberOfRATTestsAvailable)
           if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
             (Disease.numberOfRATTestsDoneAtEachTick< Disease.dt * Disease.RATTestFraction * Disease.numberOfDailyTests)&&
-            (person.beingTested == 0)){
+            (person.beingTested == 0) && (person.id != Disease.tested_person_id)) {
             person.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             person.updateParam("beingTested",1)
             person.updateParam("testCategory",1)
@@ -293,7 +350,7 @@ object Main extends LazyLogging {
         })
 
         val populationIterableForContactTracing:Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
-        "isAContact" equ true)
+        ("isAContact" equ true) and ("isEligibleForTargetedTesting" equ false))
 
         populationIterableForContactTracing.foreach(node => {
           val contact = node.as[Person]
@@ -306,6 +363,8 @@ object Main extends LazyLogging {
             contact.updateParam("isEligibleForTargetedTesting",false)
             contact.updateParam("isEligibleForRandomTesting",false)
             contact.updateParam("isAContact",false)
+
+            Disease.tested_person_id = contact.id
 
             if((!contact.isSusceptible) && (!contact.isRecovered) && biasedCoinToss(Disease.RTPCRTestSensitivity)){
               contact.updateParam("lastTestResult",true)
@@ -320,7 +379,7 @@ object Main extends LazyLogging {
 
           if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
             (Disease.numberOfRATTestsDoneAtEachTick< Disease.dt * Disease.RATTestFraction * Disease.numberOfDailyTests)&&
-            (contact.beingTested == 0)){
+            (contact.beingTested == 0) && (contact.id != Disease.tested_person_id)){
             contact.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             contact.updateParam("beingTested",1)
             contact.updateParam("testCategory",2)
@@ -341,7 +400,7 @@ object Main extends LazyLogging {
 
 
         val populationIterableForRandomTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
-          ("isEligibleForRandomTesting" equ true))
+          ("isEligibleForRandomTesting" equ true) and ("isAContact" equ false) and ("isEligibleForTargetedTesting" equ false))
 
         populationIterableForRandomTesting.foreach(node => {
           val randomPerson = node.as[Person]
@@ -355,6 +414,8 @@ object Main extends LazyLogging {
             randomPerson.updateParam("isEligibleForRandomTesting",false)
             randomPerson.updateParam("isEligibleForTargetedTesting",false)
             randomPerson.updateParam("isAContact",false)
+
+            Disease.tested_person_id = randomPerson.id
 //            println("testHappens")
             if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RTPCRTestSensitivity)){
               randomPerson.updateParam("lastTestResult",true)
@@ -369,7 +430,7 @@ object Main extends LazyLogging {
 
           if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
             (Disease.numberOfRATTestsDoneAtEachTick< Disease.dt * Disease.RATTestFraction * Disease.numberOfDailyTests)&&
-            (randomPerson.beingTested == 0)){
+            (randomPerson.beingTested == 0) && (randomPerson.id != Disease.tested_person_id)){
             randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             randomPerson.updateParam("beingTested",1)
             randomPerson.updateParam("testCategory",3)

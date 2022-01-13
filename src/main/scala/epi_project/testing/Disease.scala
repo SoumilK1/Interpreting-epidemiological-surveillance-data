@@ -50,6 +50,8 @@ object Disease {
 
   var DoesContactTracingHappen:String = "y"
 
+  var tested_person_id:Long = 0
+
   final val ageStratifiedBetaMultiplier = HashMap(
     9 -> 0.34,
     19 -> 0.67,

@@ -94,6 +94,8 @@ case class Person(id: Long,
         }
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+
+        //println("Result declared")
 //        val inf_family = this.getConnectionCount(getRelation[Person]().get,
 //          ("houseId" equ this.houseId))
       }
