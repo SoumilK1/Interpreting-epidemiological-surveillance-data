@@ -29,6 +29,10 @@ case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
     val currentStep = context.getCurrentStep
     val placeType: String = schedule.getForStep(currentStep)
 
+//    if (placeType == "Hospital"){
+//      println("Location is Hospital", agent.asInstanceOf[Person].infectionState,
+//        agent.asInstanceOf[Person].essentialWorker)
+//    }
     val places = agent.getConnections(agent.getRelation(placeType).get).toList
     if (places.nonEmpty) {
       val place = places.head
@@ -73,7 +77,9 @@ case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
     //val total = node.getConnectionCount(node.getRelation[Person]().get, "currentLocation" equ placeType)
 
     val sus_or_rec = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType ) and  (("infectionState" equ Susceptible) or ("infectionState" equ Recovered)))
+
     val hos = node.getConnectionCount(node.getRelation[Person]().get, ("infectionState" equ Hospitalized) and ("currentLocation" equ placeType ))
+
     val infected = node.getConnectionCount(node.getRelation[Person]().get, (("infectionState" equ Asymptomatic) or ("infectionState" equ Presymptomatic) or ("infectionState" equ MildlyInfected) or ("infectionState" equ SeverelyInfected)) and ("currentLocation" equ placeType))
       //node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ Presymptomatic)+ node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ MildlyInfected) + node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ SeverelyInfected) + node.getConnectionCount(node.getRelation[Person]().get, "infectionState" equ Hospitalized)
 
