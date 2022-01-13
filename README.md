@@ -4,18 +4,24 @@
 
 **inputcsv** directory contains all the csv files that represent the synthetic population. `
 
-**csv** is a directory that *you will have to create* at the same level as **inputcsv**. This directory will contain the **output csv** files of the simulation. 
+**csv** is a directory that *you will have to create* at the same level as **inputcsv**. This directory will contain the **output csv** files of the simulation.
 
 ## Running the Simulation
 
-To run the simulation,  type the following command on the sbt shell
+To run the simulation, type the following command on the sbt shell
 
-`run "testingbeginsat" "numberoftestsavailable" "nameoffile"`
+`testing_begins_at = args(0)` (fraction of recovered at which testing begins)
 
-`testtingbeginsat` is a float between 0 and 1
+`Disease.numberOfDailyTests = args(1)` (Number of Tests per day)
 
-`numberoftestsavailable` is an int(chosen as 0.1%/0.2%/0.5% of the population)
+`Disease.RATTestSensitivity = args(2)` (Decimal)
 
-`nameoffile` is a string
+`Disease.RATTestFraction = args(3)` (Decimal)
 
+`Disease.RTPCRTestSensitivity = args(4)`(Decimal)
 
+`Disease.RTPCRTestFraction = args(5)`(Decimal)
+
+`Disease.DoesContactTracingHappen = args(6)`("y" in case contact tracing should happen, "n" in case it should not happen)
+
+`filename = args(7)`(Name of file that you want to give)
