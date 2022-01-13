@@ -36,25 +36,18 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-//    testing_begins_at = args(0).toDouble
-//    Disease.numberOfDailyTests = args(1).toInt
-//    Disease.RATTestSensitivity = args(2).toDouble
-//    Disease.RATTestFraction = args(3).toDouble
-//    Disease.RTPCRTestSensitivity = args(4).toDouble
-//    Disease.RTPCRTestFraction = args(5).toDouble
-//    Disease.DoesContactTracingHappen = args(6)
-//
-//    filename = args(7)
+    testing_begins_at = args(0).toDouble
+    Disease.numberOfDailyTests = args(1).toInt
+    Disease.RATTestSensitivity = args(2).toDouble
+    Disease.RATTestFraction = args(3).toDouble
+    Disease.RTPCRTestSensitivity = args(4).toDouble
+    Disease.RTPCRTestFraction = args(5).toDouble
+    Disease.DoesContactTracingHappen = args(6)
+
+    filename = args(7)
 
     println("after", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
       Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
-
-
-    //    filename_1 = args(1)
-//    filename_2 = args(2)
-//    filename_3 = args(3)
-//    filename_4 = args(4).toString
-
 
     var beforeCount = 1
     val simulation = Simulation()
