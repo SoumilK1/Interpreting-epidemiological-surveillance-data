@@ -10,21 +10,43 @@ import epi_project.testing._
 import epi_project.testing.InfectionStatus._
 
 
-case class HospitalizedState() extends State {
+case class HospitalizedState(toBeDead:Boolean) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",Hospitalized)
   }
 
-  def isRecovered(context: Context,agent: StatefulAgent):Boolean = {
-    val RecoveryProb = Disease.lambdaH*Disease.dt
-    val InfectionState = biasedCoinToss(RecoveryProb)
+  var leaveHospitalisedState:Boolean = false
+
+  override def perTickAction(context: Context, agent: StatefulAgent): Unit = {
+    leaveHospitalisedState = shouldLeaveHospitalisedState(context,agent)
+  }
+
+
+  def shouldLeaveHospitalisedState(context: Context,agent: StatefulAgent):Boolean = {
+    val exitH = Disease.lambdaH*Disease.dt
+    val InfectionState = biasedCoinToss(exitH)
 
     InfectionState
   }
 
+//  def isRecovered(context: Context,agent: StatefulAgent):Boolean = {
+//    val RecoveryProb = Disease.lambdaH*Disease.dt
+//    val InfectionState = biasedCoinToss(RecoveryProb)
+//
+//    InfectionState
+//  }
+
+  def isRecovered(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) && (!toBeDead)
+  def isDead(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) && (toBeDead)
+
+
   addTransition(
     when = isRecovered,
      to = RecoveredState()
+  )
+  addTransition(
+    when = isDead,
+    to = DeadState()
   )
 }

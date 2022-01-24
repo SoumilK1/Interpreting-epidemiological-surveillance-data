@@ -40,6 +40,6 @@ case class SeverelyInfectedState(toBeHospitalized:Boolean) extends State {
 
   addTransition(
     when = goToHospitalized,
-      to = HospitalizedState()
+      to = HospitalizedState(toBeDead = biasedCoinToss(Disease.mu))
   )
 }

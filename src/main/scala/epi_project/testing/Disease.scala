@@ -16,6 +16,7 @@ object Disease {
   final val sigma:Double = 0.8
 
   final val lambdaH: Double = 0.1
+  final val mu: Double = 0.2
 
   val contactProbability:Double = 0.1
 
