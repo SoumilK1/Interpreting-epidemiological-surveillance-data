@@ -36,6 +36,10 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
+    val d = DataGeneratorForTestingPaper
+    d.main("ResidentialArea10k")
+    System.exit(0)
+
     testing_begins_at = args(0).toDouble
     Disease.numberOfDailyTests = args(1).toInt
     Disease.RATTestSensitivity = args(2).toDouble
