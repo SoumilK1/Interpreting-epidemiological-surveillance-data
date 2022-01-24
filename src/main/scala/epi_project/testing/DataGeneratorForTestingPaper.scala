@@ -66,7 +66,7 @@ object DataGeneratorForTestingPaper {
     val id = rowNum
     val age = random.nextInt(25, 100)                 // Philip: No school-goers, only employees
     val houseId= random.nextInt(1, totalPopulation / 4 + 1)
-    val roadId = ceil(houseId/40)
+    val roadId = (houseId/40).ceil
     val isEmployee = age >= 25
     val isStudent = !isEmployee
     val officeId = if (isEmployee) random.nextInt(1, totalOffices + 1) else 0
