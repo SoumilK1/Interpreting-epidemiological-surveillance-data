@@ -20,19 +20,29 @@ import java.util.SplittableRandom
  */
 
 object DataGeneratorForTestingPaper {
+//  val headers = List(
+//    "Agent_ID",
+//    "Age",
+//    "PublicTransport_Jobs",
+//    "essential_worker",
+//    "Adherence_to_Intervention",
+//    "AdminUnitName",
+//    "H_Lat",
+//    "H_Lon",
+//    "HID",
+//    "school_id",
+//    "WorkPlaceID",
+//    "Hospital ID"
+//  )
   val headers = List(
     "Agent_ID",
     "Age",
-    "PublicTransport_Jobs",
     "essential_worker",
-    "Adherence_to_Intervention",
-    "AdminUnitName",
-    "H_Lat",
-    "H_Lon",
-    "HID",
+    "HouseID",
     "school_id",
     "WorkPlaceID",
-    "Hospital ID"
+    "HospitalID",
+    "RoadID"
   )
 
   val totalPopulation = 10_000
@@ -48,12 +58,15 @@ object DataGeneratorForTestingPaper {
   val totalHospitals: Int = 2
 
   val random = new SplittableRandom()
+  def ceil(x: Double): Double = java.lang.Math.ceil(x)
+
 
   @tailrec
   private def generateRow(rowNum: Int, writer: CSVWriter): Unit = {
     val id = rowNum
     val age = random.nextInt(25, 100)                 // Philip: No school-goers, only employees
-    val houseId = random.nextInt(1, totalPopulation / 4 + 1)
+    val houseId= random.nextInt(1, totalPopulation / 4 + 1)
+    val roadId = (houseId/40).ceil
     val isEmployee = age >= 25
     val isStudent = !isEmployee
     val officeId = if (isEmployee) random.nextInt(1, totalOffices + 1) else 0
@@ -68,19 +81,28 @@ object DataGeneratorForTestingPaper {
     val longitude = random.nextDouble()
 
     writer.writeRow(
+//      List(
+//        id,
+//        age,
+//        publicTransport,
+//        isEssentialWorker,
+//        (math round violatesLockdown * scale) / scale,
+//        village_town,
+//        latitude,
+//        longitude,
+//        houseId,
+//        schoolId,
+//        officeId,
+//        hospitalId
+//      )
       List(
         id,
         age,
-        publicTransport,
         isEssentialWorker,
-        (math round violatesLockdown * scale) / scale,
-        village_town,
-        latitude,
-        longitude,
         houseId,
-        schoolId,
         officeId,
-        hospitalId
+        hospitalId,
+        roadId
       )
     )
 
