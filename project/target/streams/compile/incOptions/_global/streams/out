@@ -1,7 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 [0m[[0m[0mdebug[0m] [0m[0mCreated transactional ClassFileManager with tempDir = D:\Soumil\Project\Plz_work_properly\COVID-19-epi_project\project\target\scala-2.12\sbt-1.0\classes.bak[0m
 [0m[[0m[0mdebug[0m] [0m[0mRemoving the temporary directory used for backing up class files: D:\Soumil\Project\Plz_work_properly\COVID-19-epi_project\project\target\scala-2.12\sbt-1.0\classes.bak[0m
 =======
 [0m[[0m[0mdebug[0m] [0m[0mCreated transactional ClassFileManager with tempDir = C:\Users\prath\Documents\EpidemiologyProjectProjects\COVID-19-epi_project\project\target\scala-2.12\sbt-1.0\classes.bak[0m
 [0m[[0m[0mdebug[0m] [0m[0mRemoving the temporary directory used for backing up class files: C:\Users\prath\Documents\EpidemiologyProjectProjects\COVID-19-epi_project\project\target\scala-2.12\sbt-1.0\classes.bak[0m
 >>>>>>> e1ee3e9bb4ec91d61ae35a10cef911fa577a47e2
+=======
+[debug] Created transactional ClassFileManager with tempDir = C:\Users\prath\Documents\EpidemiologyProjectProjects\COVID-19-epi_project\project\target\scala-2.12\sbt-1.0\classes.bak
+[debug] Removing the temporary directory used for backing up class files: C:\Users\prath\Documents\EpidemiologyProjectProjects\COVID-19-epi_project\project\target\scala-2.12\sbt-1.0\classes.bak
+>>>>>>> 70f1f8b5503b3f029a1c22b8ed9adf3d533074af
