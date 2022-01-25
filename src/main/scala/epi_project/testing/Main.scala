@@ -151,6 +151,7 @@ object Main extends LazyLogging {
     //val schoolId = map("school_id").toLong
     val officeId = map("WorkPlaceID").toLong
     val hospitalId = map("HospitalID").toLong
+    val roadId = map("RoadID").toLong
 
     val essentialWorker = map("essential_worker").toInt
 
@@ -176,10 +177,19 @@ object Main extends LazyLogging {
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
     val memberOf = Relation[House, Person](homeId, "HOUSES", citizenId)
 
+    val road = Road(roadId)
+    val partOf = Relation[House,Road](homeId,"PART_OF",roadId)
+    val contains = Relation[Road,House](roadId,"CONTAINS_HOUSE",homeId)
+
+
     val graphData = GraphData()
     graphData.addNode(citizenId, citizen)
     graphData.addNode(homeId, home)
     graphData.addRelations(staysAt, memberOf)
+    graphData.addNode(roadId, road)
+    graphData.addRelations(partOf,contains)
+
+
 
     if (essentialWorker == 0) {
       val office = Office(officeId)
