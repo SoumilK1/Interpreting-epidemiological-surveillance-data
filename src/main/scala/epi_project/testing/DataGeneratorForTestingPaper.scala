@@ -3,9 +3,8 @@ package epi_project.testing
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import com.github.tototoshi.csv.CSVWriter
 
-import scala.annotation.tailrec
-
 import java.util.SplittableRandom
+import scala.annotation.tailrec
 
 /**
  * Utility to create a population like the one used in ``Optimizing Testing for COVID-19 in India``
