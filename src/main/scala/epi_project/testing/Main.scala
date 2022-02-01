@@ -36,9 +36,7 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-    val d = DataGeneratorForTestingPaper
-    d.main("ResidentialArea10k")
-    System.exit(0)
+
 
     testing_begins_at = args(0).toDouble
     Disease.numberOfDailyTests = args(1).toInt
@@ -57,7 +55,7 @@ object Main extends LazyLogging {
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("inputcsv/"+"dummy10k_paper.csv", csvDataExtractor)
+      ingestCSVData("inputcsv/"+"ResidentialArea10k.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
@@ -69,7 +67,7 @@ object Main extends LazyLogging {
       registerAction(
         StopSimulation,
         (c: Context) => {
-          c.getCurrentStep == 400
+          c.getCurrentStep == Disease.numberOfTicks
         }
       )
 
@@ -94,6 +92,10 @@ object Main extends LazyLogging {
           "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
           + Disease.DoesContactTracingHappen + filename +
           ".csv", new SEIROutputSpec(context))
+
+      )
+      SimulationListenerRegistry.register(
+        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
       )
     })
 
@@ -118,6 +120,9 @@ object Main extends LazyLogging {
 //    val studentSchedule = (myDay, myTick)
 //      .add[House](0, 0)
 //      .add[School](1, 1)
+
+    val contactSchedule = (myDay,myTick)
+      .add[House](from=0,to=1)
 
 
     val hospitalizedSchedule = (myDay,myTick)

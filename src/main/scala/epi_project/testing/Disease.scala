@@ -3,6 +3,8 @@ package epi_project.testing
 import scala.collection.immutable.HashMap
 
 object Disease {
+
+  final val numberOfTicks: Int = 40
   final val lambdaS: Double = 0.25
   final val gamma: Double = 1d/2
   final val lambdaA : Double = 0.143
