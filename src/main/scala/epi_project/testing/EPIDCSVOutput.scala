@@ -1,26 +1,66 @@
 package epi_project.testing
 
 import com.bharatsim.engine.Context
+import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
+import com.bharatsim.engine.graph.GraphNode
+import com.bharatsim.engine.listeners.CSVSpecs
+import com.bharatsim.engine.models.Node
+import com.bharatsim.engine.basicConversions.encoders._
+import com.bharatsim.engine.basicConversions.decoders._
+import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
+import com.bharatsim.engine.Context
+import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.listeners.CSVSpecs
+import com.bharatsim.engine.models.Node
+import scala.collection.mutable.ListBuffer
 
-class EPIDCSVOutput (context: Context) extends CSVSpecs {
+import scala.collection.mutable.ListBuffer
+
+class EPIDCSVOutput (placeType:String,context: Context) extends CSVSpecs {
   override def getHeaders: List[String] =
     List(
+      "Person_fellow",
       "PositiveCaseID",
-      "ContactID"
+      "TestResult",
+      "infStat"
     )
-
   override def getRows(): List[List[Any]] = {
-    val graphProvider1 = context.graphProvider
-    val label = "Person"
 
-    val row = List(
-      graphProvider1.fetchNodes(label,("lastTestResult" equ true)).last,
-      graphProvider1.fetchNodes(label,"isAContact" equ true)
+    val rows = ListBuffer.empty[List[String]]
+    val locations = context.graphProvider.fetchNodes(placeType)
 
-    )
-    List(row)
+    locations.foreach(oneLocation => {
+      val decodedLoc = decodeNode(placeType, oneLocation)
+      val locId = getId(placeType, oneLocation).toString
+      val N_0_18 = decodedLoc.asInstanceOf[Person].lastTestResult.toString
+      val infection = decodedLoc.asInstanceOf[Person].infectionState.toString
+
+
+
+      rows.addOne(List(placeType, locId,N_0_18,infection))
+    })
+    rows.toList
+
+
   }
+
+  def decodeNode(classType: String, node: GraphNode): Node = {
+    classType match {
+//      case "House" => node.as[House]
+//      case "Office" => node.as[Office]
+      case "Person" => node.as[Person]
+    }
+  }
+  def getId(classType: String, node: GraphNode) : Long = {
+    classType match {
+//      case "House" => node.as[House].id
+//      case "Office" => node.as[Office].id
+      case "Person" => node.as[Person].id
+    }
+  }
+
+
 }

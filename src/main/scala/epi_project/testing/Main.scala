@@ -30,7 +30,7 @@ object Main extends LazyLogging {
   val total_population = 10000
 
 
-  var filename = "dummy"
+  var filename = "dummy2_pls_work_meow"
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
 
@@ -38,15 +38,15 @@ object Main extends LazyLogging {
 
 
 
-    testing_begins_at = args(0).toDouble
-    Disease.numberOfDailyTests = args(1).toInt
-    Disease.RATTestSensitivity = args(2).toDouble
-    Disease.RATTestFraction = args(3).toDouble
-    Disease.RTPCRTestSensitivity = args(4).toDouble
-    Disease.RTPCRTestFraction = args(5).toDouble
-    Disease.DoesContactTracingHappen = args(6)
-
-    filename = args(7)
+//    testing_begins_at = args(0).toDouble
+//    Disease.numberOfDailyTests = args(1).toInt
+//    Disease.RATTestSensitivity = args(2).toDouble
+//    Disease.RATTestFraction = args(3).toDouble
+//    Disease.RTPCRTestSensitivity = args(4).toDouble
+//    Disease.RTPCRTestFraction = args(5).toDouble
+//    Disease.DoesContactTracingHappen = args(6)
+//
+//    filename = args(7)
 
     println("after", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
       Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
@@ -86,6 +86,8 @@ object Main extends LazyLogging {
 
       val currentTime = new Date().getTime
 
+
+
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("csv/" + "testing_begins_at_" + testing_begins_at +
           "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
@@ -94,17 +96,33 @@ object Main extends LazyLogging {
           ".csv", new SEIROutputSpec(context))
 
       )
-      SimulationListenerRegistry.register(
-        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
-      )
+//      SimulationListenerRegistry.register(
+//        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
+//      )
     })
 
 
 
     simulation.onCompleteSimulation { implicit context =>
+      val outputGenerator = new CsvOutputGenerator("output.csv", new EPIDCSVOutput("Person", context))
+      outputGenerator.onSimulationStart(context)
+      outputGenerator.onStepStart(context)
+      outputGenerator.onSimulationEnd(context)
+//      SimulationListenerRegistry.register(
+//        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
+//      val outputGenerator = new CsvOutputGenerator("csv/newKindOfFile_type" + filename + ".csv", new EPIDCSVOutput("Person",context))
+//      outputGenerator.onSimulationStart(context)
+//      outputGenerator.onStepStart(context)
+//      outputGenerator.onSimulationEnd(context)
+//      )
       printStats(beforeCount)
       teardown()
     }
+//    simulation.onCompleteSimulation{ implicit context =>
+//      SimulationListenerRegistry.register(
+//        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
+//      )
+//    }
 
     val startTime = System.currentTimeMillis()
     simulation.run()
