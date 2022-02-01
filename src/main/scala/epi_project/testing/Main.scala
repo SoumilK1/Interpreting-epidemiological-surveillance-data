@@ -30,25 +30,23 @@ object Main extends LazyLogging {
   val total_population = 10000
 
 
-  var filename = "dummy"
+  var filename = "dummy2_pls_work_meow"
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
 
   def main(args: Array[String]): Unit = {
 
-    val d = DataGeneratorForTestingPaper
-    d.main("ResidentialArea10k")
-    System.exit(0)
 
-    testing_begins_at = args(0).toDouble
-    Disease.numberOfDailyTests = args(1).toInt
-    Disease.RATTestSensitivity = args(2).toDouble
-    Disease.RATTestFraction = args(3).toDouble
-    Disease.RTPCRTestSensitivity = args(4).toDouble
-    Disease.RTPCRTestFraction = args(5).toDouble
-    Disease.DoesContactTracingHappen = args(6)
 
-    filename = args(7)
+//    testing_begins_at = args(0).toDouble
+//    Disease.numberOfDailyTests = args(1).toInt
+//    Disease.RATTestSensitivity = args(2).toDouble
+//    Disease.RATTestFraction = args(3).toDouble
+//    Disease.RTPCRTestSensitivity = args(4).toDouble
+//    Disease.RTPCRTestFraction = args(5).toDouble
+//    Disease.DoesContactTracingHappen = args(6)
+//
+//    filename = args(7)
 
     println("after", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
       Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
@@ -57,7 +55,7 @@ object Main extends LazyLogging {
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("inputcsv/"+"dummy10k_paper.csv", csvDataExtractor)
+      ingestCSVData("inputcsv/"+"ResidentialArea10k.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
@@ -69,7 +67,7 @@ object Main extends LazyLogging {
       registerAction(
         StopSimulation,
         (c: Context) => {
-          c.getCurrentStep == 400
+          c.getCurrentStep == Disease.numberOfTicks
         }
       )
 
@@ -88,21 +86,43 @@ object Main extends LazyLogging {
 
       val currentTime = new Date().getTime
 
+
+
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("csv/" + "testing_begins_at_" + testing_begins_at +
           "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
           "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
           + Disease.DoesContactTracingHappen + filename +
           ".csv", new SEIROutputSpec(context))
+
       )
+//      SimulationListenerRegistry.register(
+//        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
+//      )
     })
 
 
 
     simulation.onCompleteSimulation { implicit context =>
+      val outputGenerator = new CsvOutputGenerator("output.csv", new EPIDCSVOutput("Person", context))
+      outputGenerator.onSimulationStart(context)
+      outputGenerator.onStepStart(context)
+      outputGenerator.onSimulationEnd(context)
+//      SimulationListenerRegistry.register(
+//        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
+//      val outputGenerator = new CsvOutputGenerator("csv/newKindOfFile_type" + filename + ".csv", new EPIDCSVOutput("Person",context))
+//      outputGenerator.onSimulationStart(context)
+//      outputGenerator.onStepStart(context)
+//      outputGenerator.onSimulationEnd(context)
+//      )
       printStats(beforeCount)
       teardown()
     }
+//    simulation.onCompleteSimulation{ implicit context =>
+//      SimulationListenerRegistry.register(
+//        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
+//      )
+//    }
 
     val startTime = System.currentTimeMillis()
     simulation.run()
@@ -118,6 +138,9 @@ object Main extends LazyLogging {
 //    val studentSchedule = (myDay, myTick)
 //      .add[House](0, 0)
 //      .add[School](1, 1)
+
+    val contactSchedule = (myDay,myTick)
+      .add[House](from=0,to=1)
 
 
     val hospitalizedSchedule = (myDay,myTick)

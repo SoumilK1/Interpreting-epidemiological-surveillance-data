@@ -5,9 +5,8 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.models.{Node, StatefulAgent}
-import epi_project.testing.InfectionStatus._
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
+import epi_project.testing.InfectionStatus._
 
 case class Person(id: Long,
                   houseId:Long,
@@ -116,6 +115,13 @@ case class Person(id: Long,
     }
   }
 
+  private val printStuff:Context => Unit = (context:Context) =>{
+    if (context.getCurrentStep == Disease.numberOfTicks){
+      println(id,houseId,lastTestResult)
+
+    }
+  }
+
   def isSusceptible: Boolean = infectionState == Susceptible
   def isAsymptomatic: Boolean = infectionState == Asymptomatic
 
@@ -158,6 +164,7 @@ case class Person(id: Long,
   addBehaviour(checkEligibilityForRandomTesting)
   addBehaviour(declarationOfResults_checkForContacts)
   addBehaviour(quarantinePeriodOver)
+  addBehaviour(printStuff)
 
 
 
