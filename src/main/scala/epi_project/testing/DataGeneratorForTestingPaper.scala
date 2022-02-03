@@ -41,7 +41,8 @@ object DataGeneratorForTestingPaper {
     "HouseID",
     "WorkPlaceID",
     "HospitalID",
-    "RoadID"
+    "RoadID",
+    "CemeteryID"
   )
 
   val totalPopulation = 10_000
@@ -101,7 +102,8 @@ object DataGeneratorForTestingPaper {
         houseId,
         officeId,
         hospitalId,
-        roadId
+        roadId,
+        1
       )
     )
 

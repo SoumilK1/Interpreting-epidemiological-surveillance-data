@@ -4,6 +4,7 @@ import scala.collection.immutable.HashMap
 
 object Disease {
 
+
   final val numberOfTicks: Int = 400
   final val lambdaS: Double = 0.25
   final val gamma: Double = 1d/2
@@ -49,11 +50,17 @@ object Disease {
 
   val quarantineDuration:Int = 14
 
+  //TODO: Figure out if Quarantine and Isolation makes sense
+
+  val isolationDuration:Int =7
+
   val colleagueFraction:Double = 0.1
 
   var DoesContactTracingHappen:String = "y"
 
   var tested_person_id:Long = 0
+
+  val probabilityOfReportingSymptoms:Double = 0.95
 
   final val ageStratifiedBetaMultiplier = HashMap(
     9 -> 0.34,
@@ -76,3 +83,8 @@ object Disease {
 // testCategory = 1 -> Targeted Testing
 // testCategory = 2 -> Contact
 // testCategory = 3 -> Random Testing
+
+// isAContact = 0 -> Not a contact
+// isAContact = 1 -> High Risk Contact/Household
+// isAContact = 2 -> Low Risk Contact who is symptomatic
+// isAContact = 3 -> Low Risk Asymptomatic/Presymptomatic/Susceptible/Recovered quarantined for 7 days

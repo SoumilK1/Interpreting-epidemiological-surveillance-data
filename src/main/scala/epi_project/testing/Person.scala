@@ -22,8 +22,9 @@ case class Person(id: Long,
                   lastTestDay:Int = -20000,
                   currentLocation:String = "House",
                   quarantineStartedAt:Int = 0,
-                  isAContact:Boolean = false,
-                  testCategory:Int = 0) extends StatefulAgent {
+                  isAContact:Int =0,
+                  testCategory:Int = 0,
+                  contactIsolationStartedAt:Int = 0) extends StatefulAgent {
 
 
   private val incrementInfectionDay: Context => Unit = (context: Context) => {
@@ -44,7 +45,9 @@ case class Person(id: Long,
     if((context.activeInterventionNames.contains("get_tested"))&&
       (isSymptomatic)&&
       (!isBeingTested)){
-      updateParam("isEligibleForTargetedTesting",true)
+      if(biasedCoinToss(Disease.probabilityOfReportingSymptoms)){
+        updateParam("isEligibleForTargetedTesting",true)
+      }
     }
   }
 
@@ -52,6 +55,7 @@ case class Person(id: Long,
     //println(!isBeingTested)
     if((context.activeInterventionNames.contains("get_tested"))&&
       (!isHospitalized)&&
+      (!isDead)&&
       (!isBeingTested)){
       updateParam("isEligibleForRandomTesting",true)
     }
@@ -69,8 +73,8 @@ case class Person(id: Long,
 
           for (i <- family.indices){
             val familyMember = family(i).as[Person]
-            if ((familyMember.beingTested == 0) && (!familyMember.isAContact) && (!familyMember.isHospitalized)) {
-              familyMember.updateParam("isAContact", true)
+            if ((familyMember.beingTested == 0) && (familyMember.isAContact == 0) && (!familyMember.isHospitalized) &&(!familyMember.isDead)) {
+              familyMember.updateParam("isAContact", 1)
             }
           }
           if (essentialWorker == 0){
@@ -82,10 +86,15 @@ case class Person(id: Long,
 
             for (i <- workers.indices) {
               val Colleague = workers(i).as[Person]
-              if (Colleague.beingTested == 0 && !Colleague.isAContact && !Colleague.isHospitalized){
+              if ((Colleague.beingTested == 0) && (Colleague.isAContact==0) && (!Colleague.isHospitalized) &&(!Colleague.isDead)){
                 if (biasedCoinToss(Disease.colleagueFraction)) {
-                  Colleague.updateParam("isAContact", true)
-                  //println("Yay")
+                  if(Colleague.isSymptomatic){
+                    Colleague.updateParam("isAContact", 2)
+                  }
+                  if(!Colleague.isSymptomatic){
+                    Colleague.updateParam("isAContact",3)
+                    Colleague.updateParam("contactIsolationStartedAt",(context.getCurrentStep * Disease.dt).toInt)
+                  }
                 }
               }
             }
@@ -94,9 +103,6 @@ case class Person(id: Long,
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
 
-        //println("Result declared")
-//        val inf_family = this.getConnectionCount(getRelation[Person]().get,
-//          ("houseId" equ this.houseId))
       }
 
       //TODO RAT tests don't have delay
@@ -113,6 +119,14 @@ case class Person(id: Long,
       ((((context.getCurrentStep*Disease.dt).toInt)- quarantineStartedAt) >= Disease.quarantineDuration)){
       updateParam("beingTested",0)
     }
+  }
+
+  private val contactIsolationPeriodOver:Context => Unit = (context:Context) => {
+    if ((isAContact==3)
+      &&((((context.getCurrentStep*Disease.dt).toInt)-contactIsolationStartedAt) >= Disease.isolationDuration))
+      {
+        updateParam("isAContact",0)
+      }
   }
 
   private val printStuff:Context => Unit = (context:Context) =>{
@@ -134,6 +148,8 @@ case class Person(id: Long,
   def isHospitalized:Boolean = infectionState == Hospitalized
 
   def isRecovered: Boolean = infectionState == Recovered
+
+  def isDead: Boolean = infectionState == Dead
 
   def isBeingTested:Boolean = beingTested == 1 || beingTested == 2
 
@@ -172,5 +188,6 @@ case class Person(id: Long,
   addRelation[Office]("WORKS_AT")
   //addRelation[School]("STUDIES_AT")
   addRelation[Hospital]("WORKS_IN/ADMITTED")
+  addRelation[Cemetery]("BURIED_IN")
 
 }
