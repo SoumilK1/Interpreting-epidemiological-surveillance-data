@@ -117,7 +117,7 @@ case class Person(id: Long,
 
   private val printStuff:Context => Unit = (context:Context) =>{
     if (context.getCurrentStep == Disease.numberOfTicks){
-      println(id,houseId,lastTestResult)
+//      println(id,houseId,lastTestResult)
 
     }
   }

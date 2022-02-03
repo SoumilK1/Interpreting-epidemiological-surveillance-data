@@ -30,7 +30,7 @@ object Main extends LazyLogging {
   val total_population = 10000
 
 
-  var filename = "dummy2_pls_work_meow"
+  var filename = "dummy2_pls_work_fatcat_meow"
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
 
@@ -104,7 +104,7 @@ object Main extends LazyLogging {
 
 
     simulation.onCompleteSimulation { implicit context =>
-      val outputGenerator = new CsvOutputGenerator("output.csv", new EPIDCSVOutput("Person", context))
+      val outputGenerator = new CsvOutputGenerator("csv/"+filename+".csv", new EPIDCSVOutput("Person", context))
       outputGenerator.onSimulationStart(context)
       outputGenerator.onStepStart(context)
       outputGenerator.onSimulationEnd(context)
@@ -153,6 +153,7 @@ object Main extends LazyLogging {
 
     registerSchedules(
       (hospitalizedSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].isHospitalized,1),
+
       (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].essentialWorker == 0, 1),
       //(studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25 && agent.asInstanceOf[Person].essentialWorker == 0, 3),
       (healthCareWorkerSchedule,(agent:Agent,_:Context) => agent.asInstanceOf[Person].essentialWorker == 1,2)
@@ -429,57 +430,57 @@ object Main extends LazyLogging {
         })
 
 
-        val populationIterableForRandomTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
-          ("isEligibleForRandomTesting" equ true) and ("isAContact" equ false) and ("isEligibleForTargetedTesting" equ false))
-
-        populationIterableForRandomTesting.foreach(node => {
-          val randomPerson = node.as[Person]
-
-
-          if(Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests&&
-            (randomPerson.beingTested == 0)){
-            randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
-            randomPerson.updateParam("beingTested",1)
-            randomPerson.updateParam("testCategory",3)
-            randomPerson.updateParam("isEligibleForRandomTesting",false)
-            randomPerson.updateParam("isEligibleForTargetedTesting",false)
-            randomPerson.updateParam("isAContact",false)
-
-            Disease.tested_person_id = randomPerson.id
-//            println("testHappens")
-            if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RTPCRTestSensitivity)){
-              randomPerson.updateParam("lastTestResult",true)
-              Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
-            }
-            else{
-              randomPerson.updateParam("lastTestResult",false)
-            }
-            Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick + 1
-            Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
-          }
-
-          if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
-            (Disease.numberOfRATTestsDoneAtEachTick< Disease.dt * Disease.RATTestFraction * Disease.numberOfDailyTests)&&
-            (randomPerson.beingTested == 0) && (randomPerson.id != Disease.tested_person_id)){
-            randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
-            randomPerson.updateParam("beingTested",1)
-            randomPerson.updateParam("testCategory",3)
-            randomPerson.updateParam("isEligibleForRandomTesting",false)
-            randomPerson.updateParam("isEligibleForTargetedTesting",false)
-            randomPerson.updateParam("isAContact",false)
-//            println("testHappens")
-            if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RATTestSensitivity)){
-              randomPerson.updateParam("lastTestResult",true)
-              Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
-            }
-            else{
-              randomPerson.updateParam("lastTestResult",false)
-            }
-            Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick+1
-            Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
-          }
-
-        })
+//        val populationIterableForRandomTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
+//          ("isEligibleForRandomTesting" equ true) and ("isAContact" equ false) and ("isEligibleForTargetedTesting" equ false))
+//
+//        populationIterableForRandomTesting.foreach(node => {
+//          val randomPerson = node.as[Person]
+//
+//
+//          if(Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests&&
+//            (randomPerson.beingTested == 0)){
+//            randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
+//            randomPerson.updateParam("beingTested",1)
+//            randomPerson.updateParam("testCategory",3)
+//            randomPerson.updateParam("isEligibleForRandomTesting",false)
+//            randomPerson.updateParam("isEligibleForTargetedTesting",false)
+//            randomPerson.updateParam("isAContact",false)
+//
+//            Disease.tested_person_id = randomPerson.id
+////            println("testHappens")
+//            if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RTPCRTestSensitivity)){
+//              randomPerson.updateParam("lastTestResult",true)
+//              Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+//            }
+//            else{
+//              randomPerson.updateParam("lastTestResult",false)
+//            }
+//            Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick + 1
+//            Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
+//          }
+//
+//          if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
+//            (Disease.numberOfRATTestsDoneAtEachTick< Disease.dt * Disease.RATTestFraction * Disease.numberOfDailyTests)&&
+//            (randomPerson.beingTested == 0) && (randomPerson.id != Disease.tested_person_id)){
+//            randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
+//            randomPerson.updateParam("beingTested",1)
+//            randomPerson.updateParam("testCategory",3)
+//            randomPerson.updateParam("isEligibleForRandomTesting",false)
+//            randomPerson.updateParam("isEligibleForTargetedTesting",false)
+//            randomPerson.updateParam("isAContact",false)
+////            println("testHappens")
+//            if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RATTestSensitivity)){
+//              randomPerson.updateParam("lastTestResult",true)
+//              Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+//            }
+//            else{
+//              randomPerson.updateParam("lastTestResult",false)
+//            }
+//            Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick+1
+//            Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
+//          }
+//
+//        })
 
 //      if(context.getCurrentStep%Disease.numberOfTicksInADay==1){
 //        Disease.numberOfRTPCRTestsDoneOnEachDay = 0
