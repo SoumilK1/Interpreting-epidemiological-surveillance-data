@@ -112,6 +112,8 @@ object Main extends LazyLogging {
 
 
 
+
+
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("csv/" + "testing_begins_at_" + testing_begins_at +
           "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
@@ -127,18 +129,24 @@ object Main extends LazyLogging {
     /**
      *
      * GIVING OUTPUT IN THE NEW WAY(csv type 1)
+
      Columns
      =======
+
 
      Person ID(only if tested)
      Test Result
      Final infection status
+
      */
 
 
 
     simulation.onCompleteSimulation { implicit context =>
-      val outputGenerator = new CsvOutputGenerator("csv/"+filename+"EPID_output.csv", new EPIDCSVOutput("Person", context))
+      val outputGenerator = new CsvOutputGenerator("EPID_csv/"+"EPID_output_testing_begins_at_" + testing_begins_at +
+        "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+        "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+        + Disease.DoesContactTracingHappen + filename +".csv", new EPIDCSVOutput("Person", context))
       outputGenerator.onSimulationStart(context)
       outputGenerator.onStepStart(context)
       outputGenerator.onSimulationEnd(context)
