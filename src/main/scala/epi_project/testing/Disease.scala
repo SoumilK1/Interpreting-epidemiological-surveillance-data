@@ -29,6 +29,7 @@ object Disease {
 
   var numberOfDailyTests: Int = 100
   var RTPCRTestFraction:Double = 0.5
+  //TODO: hope the below line is okay
   var RATTestFraction:Double = 1 - RTPCRTestFraction
 
   var numberOfRTPCRTestsDoneAtEachTick:Double = 0
@@ -60,7 +61,9 @@ object Disease {
 
   var tested_person_id:Long = 0
 
-  val probabilityOfReportingSymptoms:Double = 0.95
+  val probabilityOfReportingSymptoms:Double = 0.9
+
+  //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
 
   final val ageStratifiedBetaMultiplier = HashMap(
     9 -> 0.34,

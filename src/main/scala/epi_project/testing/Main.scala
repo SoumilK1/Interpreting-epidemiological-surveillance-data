@@ -53,15 +53,14 @@ object Main extends LazyLogging {
      *
      */
 
-//    testing_begins_at = args(0).toDouble
-//    Disease.numberOfDailyTests = args(1).toInt
-//    Disease.RATTestSensitivity = args(2).toDouble
-//    Disease.RATTestFraction = args(3).toDouble
-//    Disease.RTPCRTestSensitivity = args(4).toDouble
-//    Disease.RTPCRTestFraction = args(5).toDouble
-//    Disease.DoesContactTracingHappen = args(6)
-//
-//    filename = args(7)
+    testing_begins_at = args(0).toDouble
+    Disease.numberOfDailyTests = args(1).toInt
+    Disease.RATTestSensitivity = args(2).toDouble
+    Disease.RATTestFraction = args(3).toDouble
+    Disease.RTPCRTestSensitivity = args(4).toDouble
+    Disease.RTPCRTestFraction = args(5).toDouble
+    Disease.DoesContactTracingHappen = args(6)
+    filename = args(7)
 
 
 
@@ -176,10 +175,6 @@ object Main extends LazyLogging {
 
     val deathSchedule = (myDay,myTick)
       .add[Cemetery](0,1)
-
-
-
-
 
     val hospitalizedSchedule = (myDay,myTick)
       .add[Hospital](0,1)

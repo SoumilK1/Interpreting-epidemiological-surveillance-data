@@ -48,8 +48,11 @@ case class Person(id: Long,
       (isSymptomatic)&&
       (!isBeingTested)){
 
+
       /**
-       * The following if statement ensures that not every spymptomatic person isEligibleForTargetedTesting
+       *
+       *
+       * The following if statement ensures that not every symptomatic person isEligibleForTargetedTesting
        *
        */
 
@@ -102,6 +105,7 @@ case class Person(id: Long,
                   }
                   if(!Colleague.isSymptomatic){
                     Colleague.updateParam("isAContact",3)
+                    Colleague.updateParam("beingTested",2)
                     Colleague.updateParam("contactIsolationStartedAt",(context.getCurrentStep * Disease.dt).toInt)
                   }
                 }
@@ -143,6 +147,7 @@ case class Person(id: Long,
       &&((((context.getCurrentStep*Disease.dt).toInt)-contactIsolationStartedAt) >= Disease.isolationDuration))
       {
         updateParam("isAContact",0)
+        updateParam("beingTested",0)
       }
   }
 
