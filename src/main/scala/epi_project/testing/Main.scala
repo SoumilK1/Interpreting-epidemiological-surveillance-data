@@ -30,16 +30,28 @@ object Main extends LazyLogging {
   val total_population = 10000
 
 
-  var filename = "dummy2_pls_work_fatcat_meow"
+  var filename = "dummy_new_testing_priority"
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
 
   def main(args: Array[String]): Unit = {
-//    val d = DataGeneratorForTestingPaper
-//    d.main("inputcsv/ResidentialArea10k")
-//    System.exit(0)
+
+    /**
+     * Run the follwing code by uncommenting for getting a synthetic pupolation.
+     * Do not use .csv at the end of file name.
+     *
+      val d = DataGeneratorForTestingPaper
+      d.main("inputcsv/ResidentialArea10k")
+      System.exit(0)
+     */
 
 
+    /** ARGUMENTS
+     * The following block of code contains all the arguments that one can use while running.
+     * Default arguments can be found in the Disease Class
+     *
+     *
+     */
 
 //    testing_begins_at = args(0).toDouble
 //    Disease.numberOfDailyTests = args(1).toInt
@@ -50,6 +62,8 @@ object Main extends LazyLogging {
 //    Disease.DoesContactTracingHappen = args(6)
 //
 //    filename = args(7)
+
+
 
     println("after", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
       Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
@@ -89,6 +103,14 @@ object Main extends LazyLogging {
 
       val currentTime = new Date().getTime
 
+      /**
+       * Giving output in the SEIR manner
+       *
+       *
+       *
+       *
+       */
+
 
 
       SimulationListenerRegistry.register(
@@ -99,39 +121,49 @@ object Main extends LazyLogging {
           ".csv", new SEIROutputSpec(context))
 
       )
-//      SimulationListenerRegistry.register(
-//        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
-//      )
+
     })
+
+
+    /**
+     *
+     * GIVING OUTPUT IN THE NEW WAY(csv type 1)
+     Columns
+     =======
+
+     Person ID(only if tested)
+     Test Result
+     Final infection status
+     */
 
 
 
     simulation.onCompleteSimulation { implicit context =>
-      val outputGenerator = new CsvOutputGenerator("csv/"+filename+".csv", new EPIDCSVOutput("Person", context))
+      val outputGenerator = new CsvOutputGenerator("csv/"+filename+"EPID_output.csv", new EPIDCSVOutput("Person", context))
       outputGenerator.onSimulationStart(context)
       outputGenerator.onStepStart(context)
       outputGenerator.onSimulationEnd(context)
-//      SimulationListenerRegistry.register(
-//        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
-//      val outputGenerator = new CsvOutputGenerator("csv/newKindOfFile_type" + filename + ".csv", new EPIDCSVOutput("Person",context))
-//      outputGenerator.onSimulationStart(context)
-//      outputGenerator.onStepStart(context)
-//      outputGenerator.onSimulationEnd(context)
-//      )
+
       printStats(beforeCount)
       teardown()
     }
-//    simulation.onCompleteSimulation{ implicit context =>
-//      SimulationListenerRegistry.register(
-//        new CsvOutputGenerator("csv/newKindOfFile_type"+filename+".csv",new EPIDCSVOutput(context))
-//      )
-//    }
 
     val startTime = System.currentTimeMillis()
     simulation.run()
     val endTime = System.currentTimeMillis()
     logger.info("Total time: {} s", (endTime - startTime) / 1000)
   }
+
+
+
+  /**
+   * Creating Schedules of Agents
+   *
+   *
+   *
+   *
+   * */
+
 
   private def create12HourSchedules()(implicit context: Context): Unit = {
     val employeeSchedule = (myDay, myTick)
@@ -181,7 +213,7 @@ object Main extends LazyLogging {
 
 
     val homeId = map("HouseID").toLong
-    //val schoolId = map("school_id").toLong
+
     val officeId = map("WorkPlaceID").toLong
     val hospitalId = map("HospitalID").toLong
     val roadId = map("RoadID").toLong
@@ -197,6 +229,8 @@ object Main extends LazyLogging {
       InfectionStatus.withName(initialInfectionState),
       0,
       essentialWorker,
+      roadId,
+      cemeteryId
     )
 
 
@@ -210,6 +244,8 @@ object Main extends LazyLogging {
     val home = House(homeId)
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
     val memberOf = Relation[House, Person](homeId, "HOUSES", citizenId)
+
+    //TODO: Change the name from Road to Neighbourhood.
 
     val road = Road(roadId)
     val partOf = Relation[House,Road](homeId,"PART_OF",roadId)
@@ -281,11 +317,28 @@ object Main extends LazyLogging {
         TestedPerson.updateParam("testCategory", 0)
       })
 
+
+      /**
+       * TESTING FUNCTION FOR HIGH RISK CONTACTS
+       *
+       *
+       *
+       *
+       *
+       */
       val HighRiskContacts: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
         ("isAContact" equ 1))
 
       HighRiskContacts.foreach(node => {
         val HighRiskContact = node.as[Person]
+
+        /**
+         * RT-PCR Testing for High Risk Contacts
+         *
+         *
+         *
+         *
+         */
 
         //println(Disease.RTPCRTestFraction*Disease.numberOfDailyTests, Disease.numberOfRTPCRTestsAvailable)
         if(Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.dt* Disease.RTPCRTestFraction * Disease.numberOfDailyTests){
@@ -310,7 +363,13 @@ object Main extends LazyLogging {
 
         }
 
-        //println(Disease.numberOfDailyTests,Disease.RATTestFraction,Disease.numberOfRATTestsAvailable)
+        /**
+         * RAT Testing for High Risk Contacts
+         *
+         *
+         *
+         *
+         */
         if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
           (Disease.numberOfRATTestsDoneAtEachTick< Disease.dt * Disease.RATTestFraction * Disease.numberOfDailyTests)&&
           (HighRiskContact.beingTested == 0) && (HighRiskContact.id != Disease.tested_person_id)) {
@@ -333,6 +392,14 @@ object Main extends LazyLogging {
         }
       })
 
+      /**
+       * TESTING FUNCTION FOR SELF-REPORTED SYMPTOMATICS AND LOW RISK SYMPTOMATIC CONTACTS
+       *
+       *
+       *
+       *
+       */
+
 
       val SelfReportedSymptomaticAndLowRiskSymptomaticContacts: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
           ("isEligibleForTargetedTesting" equ true) or (("isAContact" equ 2)))
@@ -340,7 +407,14 @@ object Main extends LazyLogging {
         SelfReportedSymptomaticAndLowRiskSymptomaticContacts.foreach(node => {
           val SelfRepLowRiskSymptomatic = node.as[Person]
 
-          //println(Disease.RTPCRTestFraction*Disease.numberOfDailyTests, Disease.numberOfRTPCRTestsAvailable)
+
+          /**
+           * RT-PCR Tests for Self Reported Symptomcatic and Symptomatic Low Risk Contacts
+           *
+           *
+           *
+           *
+           */
           if(Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.dt* Disease.RTPCRTestFraction * Disease.numberOfDailyTests){
             SelfRepLowRiskSymptomatic.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             SelfRepLowRiskSymptomatic.updateParam("beingTested",1)
@@ -370,7 +444,16 @@ object Main extends LazyLogging {
 
           }
 
-          //println(Disease.numberOfDailyTests,Disease.RATTestFraction,Disease.numberOfRATTestsAvailable)
+
+          /**
+           * RAT Testing For Self Reported Symptomatics and Low Risk Symptomatics
+           *
+           *
+           *
+           */
+
+
+
           if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
             (Disease.numberOfRATTestsDoneAtEachTick< Disease.dt * Disease.RATTestFraction * Disease.numberOfDailyTests)&&
             (SelfRepLowRiskSymptomatic.beingTested == 0) && (SelfRepLowRiskSymptomatic.id != Disease.tested_person_id)) {
@@ -379,7 +462,7 @@ object Main extends LazyLogging {
             SelfRepLowRiskSymptomatic.updateParam("testCategory",1)
             SelfRepLowRiskSymptomatic.updateParam("isEligibleForTargetedTesting",false)
             SelfRepLowRiskSymptomatic.updateParam("isEligibleForRandomTesting",false)
-            SelfRepLowRiskSymptomatic.updateParam("isAContact",false)
+            SelfRepLowRiskSymptomatic.updateParam("isAContact",0)
 //            println("testHappens")
             if((!SelfRepLowRiskSymptomatic.isRecovered) &&(!SelfRepLowRiskSymptomatic.isDead)&& (biasedCoinToss(Disease.RATTestSensitivity))){
               SelfRepLowRiskSymptomatic.updateParam("lastTestResult",true)
@@ -393,10 +476,18 @@ object Main extends LazyLogging {
           }
         })
 
+      /**
+       *
+       *
+       * Random Testing Code is commented as below, uncomment it to see the code.
+       *
+       *
+       */
 
 
 
-//        val populationIterableForRandomTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
+
+      //        val populationIterableForRandomTesting: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
 //          ("isEligibleForRandomTesting" equ true) and ("isAContact" equ false) and ("isEligibleForTargetedTesting" equ false))
 //
 //        populationIterableForRandomTesting.foreach(node => {

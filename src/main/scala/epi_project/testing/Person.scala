@@ -15,6 +15,8 @@ case class Person(id: Long,
                   infectionState: InfectionStatus,
                   infectionDur: Int,
                   essentialWorker:Int,
+                  roadId:Long,
+                  cemeteryId:Long,
                   beingTested:Int = 0,
                   isEligibleForTargetedTesting:Boolean = false,
                   isEligibleForRandomTesting:Boolean = false,
@@ -37,7 +39,7 @@ case class Person(id: Long,
     val locationNextTick: String = schedule.getForStep(context.getCurrentStep + 1)
     if (currentLocation != locationNextTick) {
       this.updateParam("currentLocation", locationNextTick)
-      //println(currentLocation)
+
     }
   }
 
@@ -45,6 +47,13 @@ case class Person(id: Long,
     if((context.activeInterventionNames.contains("get_tested"))&&
       (isSymptomatic)&&
       (!isBeingTested)){
+
+      /**
+       * The following if statement ensures that not every spymptomatic person isEligibleForTargetedTesting
+       *
+       */
+
+
       if(biasedCoinToss(Disease.probabilityOfReportingSymptoms)){
         updateParam("isEligibleForTargetedTesting",true)
       }
@@ -121,6 +130,14 @@ case class Person(id: Long,
     }
   }
 
+  /**
+   * The following behaviour makes sure that low-risk contacts who are asymptomatic are not quarantined/isolated for more than 7 days
+   *
+   *
+   *
+   *
+   */
+
   private val contactIsolationPeriodOver:Context => Unit = (context:Context) => {
     if ((isAContact==3)
       &&((((context.getCurrentStep*Disease.dt).toInt)-contactIsolationStartedAt) >= Disease.isolationDuration))
@@ -131,12 +148,13 @@ case class Person(id: Long,
 
   private val printStuff:Context => Unit = (context:Context) =>{
     if (context.getCurrentStep == Disease.numberOfTicks){
-//      println(id,houseId,lastTestResult)
+
 
     }
   }
 
   def isSusceptible: Boolean = infectionState == Susceptible
+
   def isAsymptomatic: Boolean = infectionState == Asymptomatic
 
   def isPresymptomatic: Boolean = infectionState == Presymptomatic
@@ -180,6 +198,7 @@ case class Person(id: Long,
   addBehaviour(checkEligibilityForRandomTesting)
   addBehaviour(declarationOfResults_checkForContacts)
   addBehaviour(quarantinePeriodOver)
+  addBehaviour(contactIsolationPeriodOver)
   addBehaviour(printStuff)
 
 
