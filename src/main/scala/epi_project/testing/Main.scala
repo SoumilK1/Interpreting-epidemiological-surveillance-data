@@ -36,19 +36,19 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-    val d = DataGeneratorForTestingPaper
-    d.main("ResidentialArea10k")
-    System.exit(0)
+//    val d = DataGeneratorForTestingPaper
+//    d.main("ResidentialArea10k")
+//    System.exit(0)
 
-    testing_begins_at = args(0).toDouble
-    Disease.numberOfDailyTests = args(1).toInt
-    Disease.RATTestSensitivity = args(2).toDouble
-    Disease.RATTestFraction = args(3).toDouble
-    Disease.RTPCRTestSensitivity = args(4).toDouble
-    Disease.RTPCRTestFraction = args(5).toDouble
-    Disease.DoesContactTracingHappen = args(6)
-
-    filename = args(7)
+//    testing_begins_at = args(0).toDouble
+//    Disease.numberOfDailyTests = args(1).toInt
+//    Disease.RATTestSensitivity = args(2).toDouble
+//    Disease.RATTestFraction = args(3).toDouble
+//    Disease.RTPCRTestSensitivity = args(4).toDouble
+//    Disease.RTPCRTestFraction = args(5).toDouble
+//    Disease.DoesContactTracingHappen = args(6)
+//
+//    filename = args(7)
 
     println("after", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
       Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
@@ -57,7 +57,7 @@ object Main extends LazyLogging {
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("inputcsv/"+"dummy10k_paper.csv", csvDataExtractor)
+      ingestCSVData("inputcsv/"+"ResidentialArea10k.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
@@ -177,9 +177,9 @@ object Main extends LazyLogging {
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
     val memberOf = Relation[House, Person](homeId, "HOUSES", citizenId)
 
-    val road = Road(roadId)
-    val partOf = Relation[House,Road](homeId,"PART_OF",roadId)
-    val contains = Relation[Road,House](roadId,"CONTAINS_HOUSE",homeId)
+    val road = Common_area(roadId)
+    val partOf = Relation[House,Common_area](homeId,"PART_OF",roadId)
+    val contains = Relation[Common_area,House](roadId,"CONTAINS_HOUSE",homeId)
 
 
     val graphData = GraphData()
@@ -269,6 +269,7 @@ object Main extends LazyLogging {
           if((!SymptomaticContact.isRecovered) && (biasedCoinToss(Disease.RTPCRTestSensitivity))){
             SymptomaticContact.updateParam("lastTestResult",true)
             Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+            Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
           }
           else{
             SymptomaticContact.updateParam("lastTestResult",false)
@@ -293,6 +294,7 @@ object Main extends LazyLogging {
           if((!SymptomaticContact.isRecovered) && (biasedCoinToss(Disease.RATTestSensitivity))){
             SymptomaticContact.updateParam("lastTestResult",true)
             Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+            Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
           }
           else{
             SymptomaticContact.updateParam("lastTestResult",false)
@@ -323,6 +325,7 @@ object Main extends LazyLogging {
             if((!person.isRecovered) && (biasedCoinToss(Disease.RTPCRTestSensitivity))){
               person.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
             }
             else{
               person.updateParam("lastTestResult",false)
@@ -347,6 +350,7 @@ object Main extends LazyLogging {
             if((!person.isRecovered) && (biasedCoinToss(Disease.RATTestSensitivity))){
               person.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
             }
             else{
               person.updateParam("lastTestResult",false)
@@ -376,6 +380,7 @@ object Main extends LazyLogging {
             if((!contact.isSusceptible) && (!contact.isRecovered) && biasedCoinToss(Disease.RTPCRTestSensitivity)){
               contact.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
             }
             else{
               contact.updateParam("lastTestResult",false)
@@ -396,6 +401,7 @@ object Main extends LazyLogging {
             if((!contact.isSusceptible) && (!contact.isRecovered) && biasedCoinToss(Disease.RATTestSensitivity)){
               contact.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
             }
             else{
               contact.updateParam("lastTestResult",false)
@@ -427,6 +433,7 @@ object Main extends LazyLogging {
             if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RTPCRTestSensitivity)){
               randomPerson.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
             }
             else{
               randomPerson.updateParam("lastTestResult",false)
@@ -448,6 +455,7 @@ object Main extends LazyLogging {
             if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RATTestSensitivity)){
               randomPerson.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
             }
             else{
               randomPerson.updateParam("lastTestResult",false)

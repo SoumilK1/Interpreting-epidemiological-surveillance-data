@@ -37,6 +37,8 @@ object Disease {
   var totalNumberOfTestsDone:Double = 0
   var numberOfPositiveTestsAtEachTick:Double = 0
 
+  var totalNumberOfPositiveTests:Double = 0
+
   val daysAfterWhichEligibleForTestingAgain:Int = 7
 
   val testDelay:Int = 2

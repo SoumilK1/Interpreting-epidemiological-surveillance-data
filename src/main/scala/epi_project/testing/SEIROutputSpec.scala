@@ -29,7 +29,8 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       "RATTestsConducted",
       "TotalTestsConducted",
       "TestPositivityRate",
-      "NumberOfPositiveTests"
+      "NumberOfPositiveTests",
+      "Case Fatality Rate",
     )
 
   override def getRows(): List[List[Any]] = {
@@ -58,7 +59,9 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       Disease.numberOfRATTestsDoneAtEachTick,
       Disease.totalNumberOfTestsDone,
       (Disease.numberOfPositiveTestsAtEachTick/(Disease.numberOfRTPCRTestsDoneAtEachTick + Disease.numberOfRATTestsDoneAtEachTick))*100,
-      Disease.numberOfPositiveTestsAtEachTick
+      Disease.numberOfPositiveTestsAtEachTick,
+      (graphProvider.fetchCount(label,"infectionState" equ Dead)/Disease.totalNumberOfPositiveTests)*100
+
     )
     List(row)
   }
