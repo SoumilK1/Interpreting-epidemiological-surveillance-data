@@ -12,6 +12,8 @@ case class Person(id: Long,
                   houseId:Long,
                   officeId:Long,
                   age: Int,
+                  ageStratifiedSigmaMultiplier:Double,
+                  ageStratifiedMuMultiplier:Double,
                   infectionState: InfectionStatus,
                   infectionDur: Int,
                   essentialWorker:Int,
@@ -58,6 +60,7 @@ case class Person(id: Long,
 
       if(biasedCoinToss(Disease.probabilityOfReportingSymptoms)){
         updateParam("isEligibleForTargetedTesting",true)
+        updateParam("beingTested",2)
       }
     }
   }
@@ -69,6 +72,7 @@ case class Person(id: Long,
       (!isDead)&&
       (!isBeingTested)){
       updateParam("isEligibleForRandomTesting",true)
+      updateParam("beingTested",2)
     }
   }
 
@@ -86,6 +90,7 @@ case class Person(id: Long,
             val familyMember = family(i).as[Person]
             if ((familyMember.beingTested == 0) && (familyMember.isAContact == 0) && (!familyMember.isHospitalized) &&(!familyMember.isDead)) {
               familyMember.updateParam("isAContact", 1)
+              familyMember.updateParam("beingTested",2)
             }
           }
           if (essentialWorker == 0){
@@ -101,6 +106,7 @@ case class Person(id: Long,
                 if (biasedCoinToss(Disease.colleagueFraction)) {
                   if(Colleague.isSymptomatic){
                     Colleague.updateParam("isAContact", 2)
+                    Colleague.updateParam("beingTested",2)
                   }
                   if(!Colleague.isSymptomatic){
                     Colleague.updateParam("isAContact",3)

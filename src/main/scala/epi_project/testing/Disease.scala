@@ -67,7 +67,20 @@ object Disease {
 
   //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
 
-  final val ageStratifiedBetaMultiplier = HashMap(
+  final val ageStratifiedMuMultiplier = HashMap(
+    9 -> 0.34,
+    19 -> 0.67,
+    29 -> 1.0,
+    39 -> 1.0,
+    49 -> 1.0,
+    59 -> 1.0,
+    69 -> 1.0,
+    79 -> 1.24,
+    89 -> 1.47,
+    99 -> 1.47
+  )
+
+  final val ageStratifiedSigmaMultiplier = HashMap(
     9 -> 0.34,
     19 -> 0.67,
     29 -> 1.0,

@@ -227,11 +227,18 @@ object Main extends LazyLogging {
     val essentialWorker = map("essential_worker").toInt
     val cemeteryId = map("CemeteryID").toLong
 
+    val muMultiplier :Double = Disease.ageStratifiedMuMultiplier.getOrElse(roundToAgeRange(age), Disease.ageStratifiedMuMultiplier(99))
+
+    val sigmaMultiplier:Double = Disease.ageStratifiedSigmaMultiplier.getOrElse(roundToAgeRange(age),Disease.ageStratifiedSigmaMultiplier(99))
+
+
     val citizen: Person = Person(
       citizenId,
       homeId,
       officeId,
       age,
+      sigmaMultiplier,
+      muMultiplier,
       InfectionStatus.withName(initialInfectionState),
       0,
       essentialWorker,

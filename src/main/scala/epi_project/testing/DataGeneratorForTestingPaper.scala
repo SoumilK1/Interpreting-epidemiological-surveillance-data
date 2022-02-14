@@ -64,8 +64,12 @@ object DataGeneratorForTestingPaper {
   @tailrec
   private def generateRow(rowNum: Int, writer: CSVWriter): Unit = {
     val id = rowNum
-    val age = random.nextInt(25, 100)                 // Philip: No school-goers, only employees
+    val age = random.nextInt(25, 100)
+
+    //TODO - Demographically distribute ages
+
     val houseId= random.nextInt(1, totalPopulation / 4 + 1)
+
     val roadId:Int = (houseId/40)
     val isEmployee = age >= 25
     val isStudent = !isEmployee
