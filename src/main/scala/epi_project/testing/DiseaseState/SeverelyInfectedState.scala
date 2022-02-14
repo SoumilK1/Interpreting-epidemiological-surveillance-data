@@ -6,7 +6,7 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import epi_project.testing.Disease
+import epi_project.testing.{Disease, Person}
 import epi_project.testing.InfectionStatus._
 
 case class SeverelyInfectedState(toBeHospitalized:Boolean) extends State {
@@ -39,7 +39,8 @@ case class SeverelyInfectedState(toBeHospitalized:Boolean) extends State {
   )
 
   addTransition(
-    when = goToHospitalized,
-      to = HospitalizedState(toBeDead = biasedCoinToss(Disease.mu))
+      when = goToHospitalized,
+      to = agent => HospitalizedState(toBeDead =
+        biasedCoinToss(Disease.mu*agent.asInstanceOf[Person].ageStratifiedMuMultiplier))
   )
 }
