@@ -2,7 +2,7 @@ package epi_project.testing
 
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import com.github.tototoshi.csv.CSVWriter
-//import com.bharatsim.engine.distributions.LogNormal
+import com.bharatsim.engine.distributions.LogNormal
 
 import java.util.SplittableRandom
 import scala.annotation.tailrec
