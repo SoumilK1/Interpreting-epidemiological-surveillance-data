@@ -5,9 +5,8 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.models.{Node, StatefulAgent}
-import epi_project.testing.InfectionStatus._
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
+import epi_project.testing.InfectionStatus._
 
 case class Person(id: Long,
                   houseId:Long,
@@ -16,6 +15,7 @@ case class Person(id: Long,
                   infectionState: InfectionStatus,
                   infectionDur: Int,
                   essentialWorker:Int,
+                  cemeteryId:Long,
                   beingTested:Int = 0,
                   isEligibleForTargetedTesting:Boolean = false,
                   isEligibleForRandomTesting:Boolean = false,
@@ -23,8 +23,9 @@ case class Person(id: Long,
                   lastTestDay:Int = -20000,
                   currentLocation:String = "House",
                   quarantineStartedAt:Int = 0,
-                  isAContact:Boolean = false,
-                  testCategory:Int = 0) extends StatefulAgent {
+                  isAContact:Int =0,
+                  testCategory:Int = 0,
+                  contactIsolationStartedAt:Int = 0) extends StatefulAgent {
 
 
   private val incrementInfectionDay: Context => Unit = (context: Context) => {
@@ -37,7 +38,7 @@ case class Person(id: Long,
     val locationNextTick: String = schedule.getForStep(context.getCurrentStep + 1)
     if (currentLocation != locationNextTick) {
       this.updateParam("currentLocation", locationNextTick)
-      //println(currentLocation)
+
     }
   }
 
@@ -45,7 +46,19 @@ case class Person(id: Long,
     if((context.activeInterventionNames.contains("get_tested"))&&
       (isSymptomatic)&&
       (!isBeingTested)){
-      updateParam("isEligibleForTargetedTesting",true)
+
+
+      /**
+       *
+       *
+       * The following if statement ensures that not every symptomatic person isEligibleForTargetedTesting
+       *
+       */
+
+
+      if(biasedCoinToss(Disease.probabilityOfReportingSymptoms)){
+        updateParam("isEligibleForTargetedTesting",true)
+      }
     }
   }
 
@@ -53,6 +66,7 @@ case class Person(id: Long,
     //println(!isBeingTested)
     if((context.activeInterventionNames.contains("get_tested"))&&
       (!isHospitalized)&&
+      (!isDead)&&
       (!isBeingTested)){
       updateParam("isEligibleForRandomTesting",true)
     }
@@ -70,8 +84,8 @@ case class Person(id: Long,
 
           for (i <- family.indices){
             val familyMember = family(i).as[Person]
-            if ((familyMember.beingTested == 0) && (!familyMember.isAContact) && (!familyMember.isHospitalized)) {
-              familyMember.updateParam("isAContact", true)
+            if ((familyMember.beingTested == 0) && (familyMember.isAContact == 0) && (!familyMember.isHospitalized) &&(!familyMember.isDead)) {
+              familyMember.updateParam("isAContact", 1)
             }
           }
           if (essentialWorker == 0){
@@ -83,10 +97,16 @@ case class Person(id: Long,
 
             for (i <- workers.indices) {
               val Colleague = workers(i).as[Person]
-              if (Colleague.beingTested == 0 && !Colleague.isAContact && !Colleague.isHospitalized){
+              if ((Colleague.beingTested == 0) && (Colleague.isAContact==0) && (!Colleague.isHospitalized) &&(!Colleague.isDead)){
                 if (biasedCoinToss(Disease.colleagueFraction)) {
-                  Colleague.updateParam("isAContact", true)
-                  //println("Yay")
+                  if(Colleague.isSymptomatic){
+                    Colleague.updateParam("isAContact", 2)
+                  }
+                  if(!Colleague.isSymptomatic){
+                    Colleague.updateParam("isAContact",3)
+                    Colleague.updateParam("beingTested",2)
+                    Colleague.updateParam("contactIsolationStartedAt",(context.getCurrentStep * Disease.dt).toInt)
+                  }
                 }
               }
             }
@@ -95,9 +115,6 @@ case class Person(id: Long,
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
 
-        //println("Result declared")
-//        val inf_family = this.getConnectionCount(getRelation[Person]().get,
-//          ("houseId" equ this.houseId))
       }
 
       //TODO RAT tests don't have delay
@@ -116,7 +133,26 @@ case class Person(id: Long,
     }
   }
 
+  /**
+   * The following behaviour makes sure that low-risk contacts who are asymptomatic are not quarantined/isolated for more than 7 days
+   *
+   *
+   *
+   *
+   */
+
+  private val contactIsolationPeriodOver:Context => Unit = (context:Context) => {
+    if ((isAContact==3)
+      &&((((context.getCurrentStep*Disease.dt).toInt)-contactIsolationStartedAt) >= Disease.isolationDuration))
+      {
+        updateParam("isAContact",0)
+        updateParam("beingTested",0)
+      }
+  }
+
+
   def isSusceptible: Boolean = infectionState == Susceptible
+
   def isAsymptomatic: Boolean = infectionState == Asymptomatic
 
   def isPresymptomatic: Boolean = infectionState == Presymptomatic
@@ -128,6 +164,8 @@ case class Person(id: Long,
   def isHospitalized:Boolean = infectionState == Hospitalized
 
   def isRecovered: Boolean = infectionState == Recovered
+
+  def isDead: Boolean = infectionState == Dead
 
   def isBeingTested:Boolean = beingTested == 1 || beingTested == 2
 
@@ -158,6 +196,8 @@ case class Person(id: Long,
   addBehaviour(checkEligibilityForRandomTesting)
   addBehaviour(declarationOfResults_checkForContacts)
   addBehaviour(quarantinePeriodOver)
+  addBehaviour(contactIsolationPeriodOver)
+
 
 
 
@@ -165,5 +205,6 @@ case class Person(id: Long,
   addRelation[Office]("WORKS_AT")
   //addRelation[School]("STUDIES_AT")
   addRelation[Hospital]("WORKS_IN/ADMITTED")
+  addRelation[Cemetery]("BURIED_IN")
 
 }

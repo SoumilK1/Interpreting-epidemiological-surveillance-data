@@ -28,6 +28,18 @@ libraryDependencies += "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.3
 libraryDependencies += "com.dimafeng" %% "testcontainers-scala-neo4j" % "0.39.3" % "test"
 libraryDependencies += "com.lightbend.akka" %% "akka-stream-alpakka-csv" % "2.0.2"
 libraryDependencies += "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test
+libraryDependencies  ++= Seq(
+  // other dependencies here
+  "org.scalanlp" %% "breeze" % "1.1",
+  // native libraries are not included by default. add this if you want them (as of 0.7)
+  // native libraries greatly improve performance, but increase jar sizes.
+  // It also packages various blas implementations, which have licenses that may or may not
+  // be compatible with the Apache License. No GPL code, as best I know.
+  "org.scalanlp" %% "breeze-natives" % "1.1",
+  // the visualization library is distributed separately as well.
+  // It depends on LGPL code.
+  "org.scalanlp" %% "breeze-viz" % "1.1"
+)
 
 Compile / doc / scalacOptions := Seq("-skip-packages", "com.bharatsim.model")
 

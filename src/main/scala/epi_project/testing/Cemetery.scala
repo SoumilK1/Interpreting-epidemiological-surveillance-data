@@ -2,8 +2,8 @@ package epi_project.testing
 
 import com.bharatsim.engine.models.Network
 
-case class Common_area(id: Long) extends Network {
-  addRelation[House]("CONTAINS_HOUSE")
+case class Cemetery(id: Long) extends Network {
+  addRelation[Person]("RESTING_PLACE_OF")
 
   override def getContactProbability(): Double = 1
 }

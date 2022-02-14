@@ -88,6 +88,7 @@ case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
     val totalCount:Double = sus_or_rec + infected + Disease.contactProbability*hos
     val infectedCount:Double = (infected - infected_and_quarantined) + Disease.contactProbability*hos +
       Disease.contactProbability*infected_and_quarantined
+    //TODO: account for quarantined
 
     infectedCount/totalCount
   }
