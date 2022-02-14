@@ -209,8 +209,8 @@ case class Person(id: Long,
 
   addRelation[House]("STAYS_AT")
   addRelation[Office]("WORKS_AT")
-  //addRelation[School]("STUDIES_AT")
   addRelation[Hospital]("WORKS_IN/ADMITTED")
   addRelation[Cemetery]("BURIED_IN")
+  addRelation[Neighbourhood]("LIVES_IN")
 
 }
