@@ -40,7 +40,7 @@ object Main extends LazyLogging {
 //    d.main("inputcsv/ResidentialArea10k")
 //    System.exit(0)
     /**
-     * Run the follwing code by uncommenting for getting a synthetic pupolation.
+     * Run the following code by uncommenting for getting a synthetic population.
      * Do not use .csv at the end of file name.
      *
       val d = DataGeneratorForTestingPaper
@@ -181,6 +181,11 @@ object Main extends LazyLogging {
       .add[House](0, 0)
       .add[Office](1, 1)
 
+    val newEmployeeSchedule = (myDay,myTick)
+      .add[House](0,2)
+      .add[Office](3,4)
+      .add[Neighbourhood](5,5)
+
 
     val contactSchedule = (myDay,myTick)
       .add[House](0,1)
@@ -190,6 +195,7 @@ object Main extends LazyLogging {
 
     val hospitalizedSchedule = (myDay,myTick)
       .add[Hospital](0,1)
+
 
 
     val healthCareWorkerSchedule = (myDay,myTick)
@@ -223,6 +229,8 @@ object Main extends LazyLogging {
 
     val officeId = map("WorkPlaceID").toLong
     val hospitalId = map("HospitalID").toLong
+
+    val neighbourhoodId = map("neighbourhoodId").toLong
 
     val essentialWorker = map("essential_worker").toInt
     val cemeteryId = map("CemeteryID").toLong
@@ -289,6 +297,10 @@ object Main extends LazyLogging {
     val restingPlace = Relation[Cemetery,Person](cemeteryId,"RESTING_PLACE_OF",citizenId)
     graphData.addNode(cemeteryId,cemetery)
     graphData.addRelations(restsIn,restingPlace)
+
+    val neighbourhood = Neighbourhood(neighbourhoodId)
+    val livesIn = Relation[Person,Neighbourhood](citizenId,"LIVES_IN",neighbourhoodId)
+    val isNeighbourhoodOf = Relation[Neighbourhood,Person](neighbourhoodId,"IS_NEIGHBOURHOOD_OF",citizenId)
 
 
     graphData

@@ -27,4 +27,5 @@ case class MildlyInfectedState() extends State {
     when = isRecovered,
     to = RecoveredState()
   )
+
 }
