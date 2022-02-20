@@ -9,7 +9,7 @@ import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing.{Disease, Person}
 import epi_project.testing.InfectionStatus._
 
-case class SeverelyInfectedState(toBeHospitalized:Boolean) extends State {
+case class SeverelyInfectedState(toBeHospitalized:Double) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",SeverelyInfected)
@@ -29,8 +29,10 @@ case class SeverelyInfectedState(toBeHospitalized:Boolean) extends State {
     InfectionState
   }
 
-  def goToHospitalized(context: Context,agent: StatefulAgent):Boolean = leaveSeverelyInfected && toBeHospitalized
-  def goToRecovered(context: Context,agent: StatefulAgent):Boolean = leaveSeverelyInfected && !toBeHospitalized
+  def goToHospitalized(context: Context,agent: StatefulAgent):Boolean = leaveSeverelyInfected &&
+    biasedCoinToss(toBeHospitalized*agent.asInstanceOf[Person].ageStratifiedSigmaMultiplier)
+  def goToRecovered(context: Context,agent: StatefulAgent):Boolean = leaveSeverelyInfected &&
+    !(biasedCoinToss(toBeHospitalized*agent.asInstanceOf[Person].ageStratifiedSigmaMultiplier))
 
 
   addTransition(
@@ -40,7 +42,7 @@ case class SeverelyInfectedState(toBeHospitalized:Boolean) extends State {
 
   addTransition(
       when = goToHospitalized,
-      to = agent => HospitalizedState(toBeDead =
-        biasedCoinToss(Disease.mu*agent.asInstanceOf[Person].ageStratifiedMuMultiplier))
+      to = agent => HospitalizedState(toBeDead = Disease.mu)
   )
+
 }

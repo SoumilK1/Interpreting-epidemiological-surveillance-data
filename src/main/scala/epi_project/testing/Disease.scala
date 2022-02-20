@@ -65,6 +65,8 @@ object Disease {
 
   val probabilityOfReportingSymptoms:Double = 0.9
 
+  val probabilityOfHavingCOVID:Double = 0.4
+
   //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
 
   final val ageStratifiedMuMultiplier = HashMap(
@@ -99,6 +101,8 @@ object Disease {
  beingTested = 0 -> Hasn't been tested before/can be eligible to get tested again
  beingTested = 1 -> Has been tested recently and is awaiting result
  beingTested = 2 -> Tested positive and is in quarantine
+ beingTested = 3 -> Isolated until getting a test
+ beingTested = 4 -> Isolated but not eligible for testing
 
  testCategory = 1 -> Targeted Testing
  testCategory = 2 -> Contact

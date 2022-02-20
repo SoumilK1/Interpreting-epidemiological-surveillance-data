@@ -39,6 +39,11 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
     val graphProvider = context.graphProvider
     val label = "Person"
 
+    var TPR:Double = (Disease.numberOfPositiveTestsAtEachTick/(Disease.numberOfRTPCRTestsDoneAtEachTick + Disease.numberOfRATTestsDoneAtEachTick))*100
+    if ((Disease.numberOfRTPCRTestsDoneAtEachTick + Disease.numberOfRATTestsDoneAtEachTick)==0){
+      TPR = 0.0
+    }
+
     val row = List(
       context.getCurrentStep*Disease.dt,
       graphProvider.fetchCount(label, "infectionState" equ Susceptible),
@@ -52,14 +57,15 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       graphProvider.fetchCount(label, "infectionState" equ Presymptomatic) + graphProvider.fetchCount(label, "infectionState" equ Asymptomatic) + graphProvider.fetchCount(label, "infectionState" equ MildlyInfected) + graphProvider.fetchCount(label, "infectionState" equ SeverelyInfected) + graphProvider.fetchCount(label, "infectionState" equ Hospitalized),
       graphProvider.fetchCount(label, "isEligibleForTargetedTesting" equ true),
       graphProvider.fetchCount(label, "testCategory" equ 1),
-      graphProvider.fetchCount(label, "isAContact" equ true),
+      graphProvider.fetchCount(label, "isAContact" equ 1) +
+        (graphProvider.fetchCount(label, "isAContact" equ 2)),
       graphProvider.fetchCount(label, "testCategory" equ 2),
       graphProvider.fetchCount(label, "isEligibleForRandomTesting" equ true),
       graphProvider.fetchCount(label, "testCategory" equ 3),
       Disease.numberOfRTPCRTestsDoneAtEachTick,
       Disease.numberOfRATTestsDoneAtEachTick,
       Disease.totalNumberOfTestsDone,
-      (Disease.numberOfPositiveTestsAtEachTick/(Disease.numberOfRTPCRTestsDoneAtEachTick + Disease.numberOfRATTestsDoneAtEachTick))*100,
+      TPR,
       Disease.numberOfPositiveTestsAtEachTick,
       (graphProvider.fetchCount(label,"infectionState" equ Dead)/Disease.totalNumberOfPositiveTests)*100
 

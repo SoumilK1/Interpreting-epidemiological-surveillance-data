@@ -10,7 +10,7 @@ import epi_project.testing._
 import epi_project.testing.InfectionStatus._
 
 
-case class HospitalizedState(toBeDead:Boolean) extends State {
+case class HospitalizedState(toBeDead:Double) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",Hospitalized)
@@ -37,8 +37,10 @@ case class HospitalizedState(toBeDead:Boolean) extends State {
 //    InfectionState
 //  }
 
-  def isRecovered(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) && (!toBeDead)
-  def isDead(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) && (toBeDead)
+  def isRecovered(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) &&
+    (!(biasedCoinToss(toBeDead*agent.asInstanceOf[Person].ageStratifiedMuMultiplier)))
+  def isDead(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) &&
+    (biasedCoinToss(toBeDead*agent.asInstanceOf[Person].ageStratifiedMuMultiplier))
 
 
   addTransition(

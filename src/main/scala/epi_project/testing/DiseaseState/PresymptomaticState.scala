@@ -39,7 +39,6 @@ case class PresymptomaticState(toBeMildlyInfected:Boolean) extends State {
 
   addTransition(
     when = goToSeverelyInfected,
-    to = agent => SeverelyInfectedState(toBeHospitalized =
-      biasedCoinToss(Disease.sigma*agent.asInstanceOf[Person].ageStratifiedSigmaMultiplier))
+    to = agent => SeverelyInfectedState(toBeHospitalized = Disease.sigma)
   )
 }

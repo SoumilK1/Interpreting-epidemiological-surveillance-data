@@ -11,6 +11,7 @@ import epi_project.testing.InfectionStatus._
 case class Person(id: Long,
                   houseId:Long,
                   officeId:Long,
+                  neighbourhoodID:Long,
                   age: Int,
                   ageStratifiedSigmaMultiplier:Double,
                   ageStratifiedMuMultiplier:Double,
@@ -47,7 +48,7 @@ case class Person(id: Long,
   private val checkEligibilityForTargetedTesting:Context => Unit = (context: Context)=>{
     if((context.activeInterventionNames.contains("get_tested"))&&
       (isSymptomatic)&&
-      (!isBeingTested)){
+      (isNotTested)){
 
 
       /**
@@ -57,10 +58,12 @@ case class Person(id: Long,
        *
        */
 
+      //TODO - Add a logic for Susceptible people who have symptoms for some other disease
 
       if(biasedCoinToss(Disease.probabilityOfReportingSymptoms)){
         updateParam("isEligibleForTargetedTesting",true)
-        updateParam("beingTested",2)
+        //println("id",id,"status",beingTested)
+        updateParam("beingTested",3)
       }
     }
   }
@@ -70,9 +73,9 @@ case class Person(id: Long,
     if((context.activeInterventionNames.contains("get_tested"))&&
       (!isHospitalized)&&
       (!isDead)&&
-      (!isBeingTested)){
+      (isNotTested)){
       updateParam("isEligibleForRandomTesting",true)
-      updateParam("beingTested",2)
+      updateParam("beingTested",3)
     }
   }
 
@@ -88,9 +91,11 @@ case class Person(id: Long,
 
           for (i <- family.indices){
             val familyMember = family(i).as[Person]
+            //println("id",familyMember.id,"Status", familyMember.beingTested)
             if ((familyMember.beingTested == 0) && (familyMember.isAContact == 0) && (!familyMember.isHospitalized) &&(!familyMember.isDead)) {
+              //println("GGs-2")
               familyMember.updateParam("isAContact", 1)
-              familyMember.updateParam("beingTested",2)
+              familyMember.updateParam("beingTested",3)
             }
           }
           if (essentialWorker == 0){
@@ -102,15 +107,16 @@ case class Person(id: Long,
 
             for (i <- workers.indices) {
               val Colleague = workers(i).as[Person]
-              if ((Colleague.beingTested == 0) && (Colleague.isAContact==0) && (!Colleague.isHospitalized) &&(!Colleague.isDead)){
+              if ( (Colleague.beingTested == 0) && (Colleague.isAContact==0) && (!Colleague.isHospitalized) &&(!Colleague.isDead)){
+                //println("GGs-3")
                 if (biasedCoinToss(Disease.colleagueFraction)) {
                   if(Colleague.isSymptomatic){
                     Colleague.updateParam("isAContact", 2)
-                    Colleague.updateParam("beingTested",2)
+                    Colleague.updateParam("beingTested",3)
                   }
                   if(!Colleague.isSymptomatic){
                     Colleague.updateParam("isAContact",3)
-                    Colleague.updateParam("beingTested",2)
+                    Colleague.updateParam("beingTested",4)
                     Colleague.updateParam("contactIsolationStartedAt",(context.getCurrentStep * Disease.dt).toInt)
                   }
                 }
@@ -133,7 +139,7 @@ case class Person(id: Long,
 
 
   private val quarantinePeriodOver:Context => Unit = (context:Context) => {
-    if (beingTested == 2 &&
+    if ((beingTested == 2)  && (lastTestDay >= 0) &&
       ((((context.getCurrentStep*Disease.dt).toInt)- quarantineStartedAt) >= Disease.quarantineDuration)){
       updateParam("beingTested",0)
     }
@@ -156,6 +162,12 @@ case class Person(id: Long,
       }
   }
 
+  private val printStuff:Context => Unit = (context:Context) => {
+    if (beingTested == 1){
+      println("test status", beingTested, "inf status", infectionState)
+    }
+  }
+
 
   def isSusceptible: Boolean = infectionState == Susceptible
 
@@ -174,6 +186,8 @@ case class Person(id: Long,
   def isDead: Boolean = infectionState == Dead
 
   def isBeingTested:Boolean = beingTested == 1 || beingTested == 2
+
+  def isNotTested:Boolean = beingTested == 0
 
   def isAwaitingResult:Boolean = beingTested == 1
 
@@ -198,11 +212,13 @@ case class Person(id: Long,
 
   addBehaviour(incrementInfectionDay)
   addBehaviour(checkCurrentLocation)
+
   addBehaviour(checkEligibilityForTargetedTesting)
-  addBehaviour(checkEligibilityForRandomTesting)
+  //addBehaviour(checkEligibilityForRandomTesting)
   addBehaviour(declarationOfResults_checkForContacts)
   addBehaviour(quarantinePeriodOver)
   addBehaviour(contactIsolationPeriodOver)
+  //addBehaviour(printStuff)
 
 
 
