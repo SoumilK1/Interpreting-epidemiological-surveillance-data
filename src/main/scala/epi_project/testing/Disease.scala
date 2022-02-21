@@ -4,8 +4,31 @@ import scala.collection.immutable.HashMap
 
 object Disease {
 
+  /**
+   *
+   =ParametersForSchedule=
 
-  final val numberOfTicks: Int = 400
+   *
+   *
+   */
+
+
+
+
+  final val stayAtHouseStartTick = 0
+  final val stayAtHomeEndTick = 2
+  final val goToOfficeStartTick = 3
+  final val goToOfficeEndTick = 4
+  final val stayInNeighbourhoodStartTick = 5
+  final val stayInNeighbourhoodEndTick = 5
+  final val numberOfTicks: Int = 2400
+
+  /**
+   *
+   =Parameters of the Model are described below=
+
+
+   */
   final val lambdaS: Double = 0.25
   final val gamma: Double = 1d/2
   final val lambdaA : Double = 0.143
@@ -23,13 +46,12 @@ object Disease {
 
   val contactProbability:Double = 0.1
 
-  var numberOfTicksInADay: Int = 2
+  var numberOfTicksInADay: Int = 6
   final val dt:Double = 1d/numberOfTicksInADay
 
 
-  var numberOfDailyTests: Int = 100
+  var numberOfDailyTests: Int = 120
   var RTPCRTestFraction:Double = 0.5
-  //TODO: hope the below line is okay
   var RATTestFraction:Double = 1 - RTPCRTestFraction
 
   var numberOfRTPCRTestsDoneAtEachTick:Double = 0
@@ -62,6 +84,10 @@ object Disease {
   var DoesContactTracingHappen:String = "y"
 
   var tested_person_id:Long = 0
+
+  var numberOfPeopleSelfReported:Int = 0
+
+  val numberOfPeopleSelfReportedToStartTesting:Int = 1
 
   val probabilityOfReportingSymptoms:Double = 0.9
 

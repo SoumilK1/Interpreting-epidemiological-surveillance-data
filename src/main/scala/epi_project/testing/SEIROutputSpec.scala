@@ -31,7 +31,7 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       "TotalTestsConducted",
       "TestPositivityRate",
       "NumberOfPositiveTests",
-      "Case Fatality Rate",
+      "CaseFatalityRate",
     )
 
   override def getRows(): List[List[Any]] = {
@@ -42,6 +42,10 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
     var TPR:Double = (Disease.numberOfPositiveTestsAtEachTick/(Disease.numberOfRTPCRTestsDoneAtEachTick + Disease.numberOfRATTestsDoneAtEachTick))*100
     if ((Disease.numberOfRTPCRTestsDoneAtEachTick + Disease.numberOfRATTestsDoneAtEachTick)==0){
       TPR = 0.0
+    }
+    var CFR:Double = (graphProvider.fetchCount(label,"infectionState" equ Dead)/Disease.totalNumberOfPositiveTests)*100
+    if((Disease.totalNumberOfPositiveTests==0)){
+      CFR = 0.0
     }
 
     val row = List(
@@ -67,8 +71,7 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       Disease.totalNumberOfTestsDone,
       TPR,
       Disease.numberOfPositiveTestsAtEachTick,
-      (graphProvider.fetchCount(label,"infectionState" equ Dead)/Disease.totalNumberOfPositiveTests)*100
-
+      CFR
     )
     List(row)
   }
