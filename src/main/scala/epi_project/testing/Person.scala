@@ -64,6 +64,7 @@ case class Person(id: Long,
         updateParam("isEligibleForTargetedTesting",true)
         //println("id",id,"status",beingTested)
         updateParam("beingTested",3)
+        Disease.numberOfPeopleSelfReported+=1
       }
     }
   }
@@ -206,6 +207,7 @@ case class Person(id: Long,
       case "House" => node.as[House]
       case "Office" => node.as[Office]
       case "Hospital" => node.as[Hospital]
+      case "Neighbourhood" => node.as[Neighbourhood]
     }
   }
 
