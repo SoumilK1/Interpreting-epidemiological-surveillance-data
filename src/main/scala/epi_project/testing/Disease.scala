@@ -30,7 +30,8 @@ object Disease {
 
    */
   final val lambdaS: Double = 0.25
-  final val gamma: Double = 1d/2
+  final val gamma: Double = 0.5
+  //TODO: GAMMA IS NOT SUFFICIENT. Right now keep it constant
   final val lambdaA : Double = 0.143
 
   final val lambdaP:Double = 1d/2
@@ -87,7 +88,7 @@ object Disease {
 
   var numberOfPeopleSelfReported:Int = 0
 
-  val numberOfPeopleSelfReportedToStartTesting:Int = 1
+  val numberOfPeopleSelfReportedToStartTesting:Int = 100
 
   val probabilityOfReportingSymptoms:Double = 0.9
 

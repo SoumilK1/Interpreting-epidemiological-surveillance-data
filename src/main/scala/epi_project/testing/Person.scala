@@ -45,9 +45,18 @@ case class Person(id: Long,
     }
   }
 
+  private val checkEligibilityForTargetedSusceptiblePeople: Context => Unit =(context:Context)=>{
+    if((isSusceptible)&&(isNotTested)){
+      if (biasedCoinToss(0.005)){
+        updateParam("isEligibleForTargetedTesting",true)
+        updateParam("beingTested",3)
+        Disease.numberOfPeopleSelfReported+=1
+      }
+    }
+  }
+
   private val checkEligibilityForTargetedTesting:Context => Unit = (context: Context)=>{
-    if((context.activeInterventionNames.contains("get_tested"))&&
-      (isSymptomatic)&&
+    if(      ((isSymptomatic))&&
       (isNotTested)){
 
 
@@ -127,6 +136,11 @@ case class Person(id: Long,
         }
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+
+        // TODO: add neighbourhood thing for contacts
+        // TODO: Add age distribution properly.
+        // TODO: Increase total population
+        // TODO: Synthetic population contact Philip, age distributed transitions.
 
       }
 
@@ -214,6 +228,7 @@ case class Person(id: Long,
 
   addBehaviour(incrementInfectionDay)
   addBehaviour(checkCurrentLocation)
+  addBehaviour(checkEligibilityForTargetedSusceptiblePeople)
 
   addBehaviour(checkEligibilityForTargetedTesting)
   //addBehaviour(checkEligibilityForRandomTesting)
