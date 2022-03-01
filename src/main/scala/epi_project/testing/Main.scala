@@ -21,7 +21,7 @@ import epi_project.testing.InfectionStatus._
 import java.util.Date
 
 object Main extends LazyLogging {
-  private val initialInfectedFraction = 0.001
+  private val initialInfectedFraction = 0.02
 
   private val myTick: ScheduleUnit = new ScheduleUnit(1)
   private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 6)
@@ -30,7 +30,7 @@ object Main extends LazyLogging {
   val total_population = 10000
 
 
-  var filename = "dummy_new_newest"
+  var filename = "dummy_new_newest_2"
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
 
@@ -86,7 +86,7 @@ object Main extends LazyLogging {
       registerAction(
         StopSimulation,
         (c: Context) => {
-          c.getCurrentStep == Disease.numberOfTicks
+          c.getCurrentStep == 1000
         }
       )
 
@@ -389,7 +389,7 @@ object Main extends LazyLogging {
 
             Disease.tested_person_id = HighRiskContact.id
 
-            if((!HighRiskContact.isSusceptible)&&(!HighRiskContact.isRecovered)&&(!HighRiskContact.isDead) && (biasedCoinToss(Disease.RTPCRTestSensitivity)) && (biasedCoinToss(Disease.probabilityOfHavingCOVID))){
+            if((!HighRiskContact.isSusceptible)&&(!HighRiskContact.isRecovered)&&(!HighRiskContact.isDead) && (biasedCoinToss(Disease.RTPCRTestSensitivity))){
               HighRiskContact.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
               Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
@@ -420,7 +420,7 @@ object Main extends LazyLogging {
             HighRiskContact.updateParam("isEligibleForRandomTesting",false)
             HighRiskContact.updateParam("isAContact",0)
             //            println("testHappens")
-            if((!HighRiskContact.isSusceptible)&&(!HighRiskContact.isRecovered) &&(!HighRiskContact.isDead) && (biasedCoinToss(Disease.RATTestSensitivity)) && (biasedCoinToss(Disease.probabilityOfHavingCOVID))){
+            if((!HighRiskContact.isSusceptible)&&(!HighRiskContact.isRecovered) &&(!HighRiskContact.isDead) && (biasedCoinToss(Disease.RATTestSensitivity))){
               HighRiskContact.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
               Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
@@ -473,7 +473,7 @@ object Main extends LazyLogging {
 
             Disease.tested_person_id = SelfRepLowRiskSymptomatic.id
 
-            if((!SelfRepLowRiskSymptomatic.isRecovered) && (!SelfRepLowRiskSymptomatic.isDead)&&(biasedCoinToss(Disease.RTPCRTestSensitivity)) && (biasedCoinToss(Disease.probabilityOfHavingCOVID))){
+            if((!SelfRepLowRiskSymptomatic.isSusceptible) && (!SelfRepLowRiskSymptomatic.isRecovered) && (!SelfRepLowRiskSymptomatic.isDead)&&(biasedCoinToss(Disease.RTPCRTestSensitivity))){
               SelfRepLowRiskSymptomatic.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
               Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
@@ -514,7 +514,7 @@ object Main extends LazyLogging {
             SelfRepLowRiskSymptomatic.updateParam("isEligibleForRandomTesting",false)
             SelfRepLowRiskSymptomatic.updateParam("isAContact",0)
 //            println("testHappens")
-            if((!SelfRepLowRiskSymptomatic.isRecovered) &&(!SelfRepLowRiskSymptomatic.isDead)&& (biasedCoinToss(Disease.RATTestSensitivity)) && (biasedCoinToss(Disease.probabilityOfHavingCOVID))){
+            if((!SelfRepLowRiskSymptomatic.isSusceptible) && (!SelfRepLowRiskSymptomatic.isRecovered) &&(!SelfRepLowRiskSymptomatic.isDead)&& (biasedCoinToss(Disease.RATTestSensitivity))){
               SelfRepLowRiskSymptomatic.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
               Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
