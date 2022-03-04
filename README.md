@@ -126,7 +126,7 @@ Thresholds
 Description
 -----------
 
-###Behaviours
+### Behaviours
 
 
 1. `checkEligibilityForTargetedTesting` checks whether a person is
