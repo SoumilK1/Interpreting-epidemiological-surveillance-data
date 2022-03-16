@@ -133,11 +133,37 @@ case class Person(id: Long,
               }
             }
           }
+          if (essentialWorker == 0){
+            val neighbourhoods = getConnections(getRelation("Neighbourhood").get).toList
+            val neighbourhood = neighbourhoods.head
+            val area = decodeNode("Neighbourhood",neighbourhood)
+
+
+            val neighbours = area.getConnections(area.getRelation[Person]().get).toList
+
+            for (i <- neighbours.indices) {
+              val sameNeighbourhoodPerson = neighbours(i).as[Person]
+              if ( (sameNeighbourhoodPerson.beingTested == 0) && (sameNeighbourhoodPerson.isAContact==0) && (!sameNeighbourhoodPerson.isHospitalized) &&(!sameNeighbourhoodPerson.isDead)){
+                //println("GGs-3")
+                if (biasedCoinToss(Disease.neighbourFraction)) {
+                  if(sameNeighbourhoodPerson.isSymptomatic){
+                    sameNeighbourhoodPerson.updateParam("isAContact", 2)
+                    sameNeighbourhoodPerson.updateParam("beingTested",3)
+                  }
+                  if(!sameNeighbourhoodPerson.isSymptomatic){
+                    sameNeighbourhoodPerson.updateParam("isAContact",3)
+                    sameNeighbourhoodPerson.updateParam("beingTested",4)
+                    sameNeighbourhoodPerson.updateParam("contactIsolationStartedAt",(context.getCurrentStep * Disease.dt).toInt)
+                  }
+                }
+              }
+            }
+          }
         }
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
 
-        // TODO: add neighbourhood thing for contacts
+        // TODO: add neighbourhood thing for contacts done
         // TODO: Add age distribution properly.
         // TODO: Increase total population
         // TODO: Synthetic population contact Philip, age distributed transitions.

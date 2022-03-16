@@ -82,6 +82,8 @@ object Disease {
 
   val colleagueFraction:Double = 0.1
 
+  val neighbourFraction:Double = 0.02
+
   var DoesContactTracingHappen:String = "y"
 
   var tested_person_id:Long = 0
