@@ -187,7 +187,7 @@ Description
 
 ### Testing
 
-: Testing is started when the total number of recovered agents crosses a
+Testing is started when the total number of recovered agents crosses a
 threshold value. When testing starts in the population, the `testing`
 intervention is activated. There are two types of tests - RT-PCR and
 RATs out of which, RT-PCR tests have a higher sensitivity. There are a
