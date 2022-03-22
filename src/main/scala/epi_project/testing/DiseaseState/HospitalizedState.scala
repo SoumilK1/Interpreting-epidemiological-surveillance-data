@@ -8,6 +8,7 @@ import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing._
 import epi_project.testing.InfectionStatus._
+import scala.math.tanh
 
 
 case class HospitalizedState(toBeDead:Double) extends State {

@@ -13,6 +13,7 @@ case class Person(id: Long,
                   officeId:Long,
                   neighbourhoodID:Long,
                   age: Int,
+                  ageStratifiedDeltaMultiplier:Double,
                   ageStratifiedSigmaMultiplier:Double,
                   ageStratifiedMuMultiplier:Double,
                   infectionState: InfectionStatus,
@@ -28,12 +29,20 @@ case class Person(id: Long,
                   quarantineStartedAt:Int = 0,
                   isAContact:Int =0,
                   testCategory:Int = 0,
-                  contactIsolationStartedAt:Int = 0) extends StatefulAgent {
+                  contactIsolationStartedAt:Int = 0,
+                  numberOfDaysSpentInSI:Int = 0,
+                  typeOfTestGiven:Int = 0) extends StatefulAgent {
 
 
   private val incrementInfectionDay: Context => Unit = (context: Context) => {
     if (isPresymptomatic && context.getCurrentStep % Disease.numberOfTicksInADay == 0)
       updateParam("infectionDur", infectionDur + 1)
+  }
+
+  private val incrementNumberOfDaysInSI:Context => Unit = (context:Context) => {
+    if (isSeverelyInfected && context.getCurrentStep % Disease.numberOfTicksInADay == 0){
+      updateParam("numberOfDaysSpentInSI", numberOfDaysSpentInSI + 1)
+    }
   }
 
   private val checkCurrentLocation: Context => Unit = (context: Context) => {
@@ -45,10 +54,22 @@ case class Person(id: Long,
     }
   }
 
+  private val checkEligibilityForTargetedSusceptiblePeople: Context => Unit =(context:Context)=>{
+    if((isSusceptible)&&(isNotTested)){
+      if (biasedCoinToss(0.005)){
+        updateParam("isEligibleForTargetedTesting",true)
+        updateParam("beingTested",3)
+        Disease.numberOfPeopleSelfReported+=1
+      }
+    }
+  }
+
   private val checkEligibilityForTargetedTesting:Context => Unit = (context: Context)=>{
+
     if(
 //      (context.activeInterventionNames.contains("get_tested"))&&
       (isSymptomatic)&&
+
       (isNotTested)){
 
 
@@ -59,25 +80,24 @@ case class Person(id: Long,
        *
        */
 
-      //TODO - Add a logic for Susceptible people who have symptoms for some other disease
-
       if(biasedCoinToss(Disease.probabilityOfReportingSymptoms)){
         updateParam("isEligibleForTargetedTesting",true)
         //println("id",id,"status",beingTested)
         updateParam("beingTested",3)
         Disease.numberOfPeopleSelfReported = Disease.numberOfPeopleSelfReported + 1
+      }
+    }
 
+    //TODO - Add contacts?
+
+    if (isSusceptible){
+      if (biasedCoinToss(Disease.probabilityOfNotHavingCOVID)){
+        updateParam("beingTested",3)
+        updateParam("isEligibleForTargetedTesting",true)
+        Disease.numberOfPeopleSelfReported = Disease.numberOfPeopleSelfReported + 1
       }
     }
   }
-
-//  private val checkNumberOfReportedSymptomatics:Context => Unit = (context:Context) => {
-//  if
-//
-//
-//  }
-
-
 
   private val checkEligibilityForRandomTesting:Context => Unit = (context: Context)=>{
     //println(!isBeingTested)
@@ -91,7 +111,7 @@ case class Person(id: Long,
   }
 
   private val declarationOfResults_checkForContacts:Context => Unit = (context:Context) => {
-    if (beingTested == 1 && isDelayPeriodOver(context)){
+    if ((beingTested == 1) && (typeOfTestGiven == 1) && (isDelayPeriodOver(context))){
       if (lastTestResult){
         if (Disease.DoesContactTracingHappen == "y"){
           val places = getConnections(getRelation("House").get).toList
@@ -134,13 +154,124 @@ case class Person(id: Long,
               }
             }
           }
+
+          val neighbourhoods = getConnections(getRelation("Neighbourhood").get).toList
+          val neighbourhood = neighbourhoods.head
+          val area = decodeNode("Neighbourhood",neighbourhood)
+
+
+          val neighbours = area.getConnections(area.getRelation[Person]().get).toList
+
+          for (i <- neighbours.indices) {
+            val sameNeighbourhoodPerson = neighbours(i).as[Person]
+            if ( (sameNeighbourhoodPerson.beingTested == 0) && (sameNeighbourhoodPerson.isAContact==0) && (!sameNeighbourhoodPerson.isHospitalized) &&(!sameNeighbourhoodPerson.isDead)){
+                //println("GGs-3")
+              if (biasedCoinToss(Disease.neighbourFraction)) {
+                if(sameNeighbourhoodPerson.isSymptomatic){
+                  sameNeighbourhoodPerson.updateParam("isAContact", 2)
+                  sameNeighbourhoodPerson.updateParam("beingTested",3)
+                }
+                if(!sameNeighbourhoodPerson.isSymptomatic){
+                  sameNeighbourhoodPerson.updateParam("isAContact",3)
+                  sameNeighbourhoodPerson.updateParam("beingTested",4)
+                  sameNeighbourhoodPerson.updateParam("contactIsolationStartedAt",(context.getCurrentStep * Disease.dt).toInt)
+                }
+              }
+            }
+          }
         }
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
 
+        // TODO: Add age distribution properly.
+        // TODO: Increase total population
+        // TODO: Synthetic population contact Philip, age distributed transitions.
+
       }
 
-      //TODO RAT tests don't have delay
+      if (!lastTestResult){
+        updateParam("beingTested",0)
+      }
+    }
+
+    if ((beingTested == 1) && (typeOfTestGiven == 2)){
+      if (lastTestResult){
+        if (Disease.DoesContactTracingHappen == "y"){
+          val places = getConnections(getRelation("House").get).toList
+          val place = places.head
+          val home = decodeNode("House", place)
+
+          val family = home.getConnections(home.getRelation[Person]().get).toList
+
+          for (i <- family.indices){
+            val familyMember = family(i).as[Person]
+            //println("id",familyMember.id,"Status", familyMember.beingTested)
+            if ((familyMember.beingTested == 0) && (familyMember.isAContact == 0) && (!familyMember.isHospitalized) &&(!familyMember.isDead)) {
+              //println("GGs-2")
+              familyMember.updateParam("isAContact", 1)
+              familyMember.updateParam("beingTested",3)
+            }
+          }
+          if (essentialWorker == 0){
+            val workplaces = getConnections(getRelation("Office").get).toList
+            val workplace = workplaces.head
+            val office = decodeNode("Office", workplace)
+
+            val workers = office.getConnections(office.getRelation[Person]().get).toList
+
+            for (i <- workers.indices) {
+              val Colleague = workers(i).as[Person]
+              if ( (Colleague.beingTested == 0) && (Colleague.isAContact==0) && (!Colleague.isHospitalized) &&(!Colleague.isDead)){
+                //println("GGs-3")
+                if (biasedCoinToss(Disease.colleagueFraction)) {
+                  if(Colleague.isSymptomatic){
+                    Colleague.updateParam("isAContact", 2)
+                    Colleague.updateParam("beingTested",3)
+                  }
+                  if(!Colleague.isSymptomatic){
+                    Colleague.updateParam("isAContact",3)
+                    Colleague.updateParam("beingTested",4)
+                    Colleague.updateParam("contactIsolationStartedAt",(context.getCurrentStep * Disease.dt).toInt)
+                  }
+                }
+              }
+            }
+          }
+
+          val neighbourhoods = getConnections(getRelation("Neighbourhood").get).toList
+          val neighbourhood = neighbourhoods.head
+          val area = decodeNode("Neighbourhood",neighbourhood)
+
+
+          val neighbours = area.getConnections(area.getRelation[Person]().get).toList
+
+          for (i <- neighbours.indices) {
+            val sameNeighbourhoodPerson = neighbours(i).as[Person]
+            if ( (sameNeighbourhoodPerson.beingTested == 0) && (sameNeighbourhoodPerson.isAContact==0) && (!sameNeighbourhoodPerson.isHospitalized) &&(!sameNeighbourhoodPerson.isDead)){
+              //println("GGs-3")
+              if (biasedCoinToss(Disease.neighbourFraction)) {
+                if(sameNeighbourhoodPerson.isSymptomatic){
+                  sameNeighbourhoodPerson.updateParam("isAContact", 2)
+                  sameNeighbourhoodPerson.updateParam("beingTested",3)
+                }
+                if(!sameNeighbourhoodPerson.isSymptomatic){
+                  sameNeighbourhoodPerson.updateParam("isAContact",3)
+                  sameNeighbourhoodPerson.updateParam("beingTested",4)
+                  sameNeighbourhoodPerson.updateParam("contactIsolationStartedAt",(context.getCurrentStep * Disease.dt).toInt)
+                }
+              }
+            }
+          }
+        }
+        updateParam("beingTested", 2)
+        updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+
+        // TODO: Add age distribution properly.
+        // TODO: Increase total population
+        // TODO: Synthetic population contact Philip, age distributed transitions.
+
+      }
+
       if (!lastTestResult){
         updateParam("beingTested",0)
       }
@@ -223,7 +354,9 @@ case class Person(id: Long,
 
 
   addBehaviour(incrementInfectionDay)
+  addBehaviour(incrementNumberOfDaysInSI)
   addBehaviour(checkCurrentLocation)
+  addBehaviour(checkEligibilityForTargetedSusceptiblePeople)
 
   addBehaviour(checkEligibilityForTargetedTesting)
   //addBehaviour(checkEligibilityForRandomTesting)

@@ -30,7 +30,8 @@ object Disease {
 
    */
   final val lambdaS: Double = 0.25
-  final val gamma: Double = 1d/2
+  final val gamma: Double = 0.5
+  //TODO: GAMMA IS NOT SUFFICIENT. Right now keep it constant
   final val lambdaA : Double = 0.143
 
   final val lambdaP:Double = 1d/2
@@ -81,6 +82,8 @@ object Disease {
 
   val colleagueFraction:Double = 0.1
 
+  val neighbourFraction:Double = 0.02
+
   var DoesContactTracingHappen:String = "y"
 
   var tested_person_id:Long = 0
@@ -91,10 +94,23 @@ object Disease {
 
   val probabilityOfReportingSymptoms:Double = 0.8
 
-
-  val probabilityOfHavingCOVID:Double = 0.5
+  val probabilityOfNotHavingCOVID:Double = 0.02
 
   //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
+
+  final val ageStratifiedDeltaMultiplier = HashMap(
+    9 -> 0.34,
+    19 -> 0.67,
+    29 -> 1.0,
+    39 -> 1.0,
+    49 -> 1.0,
+    59 -> 1.0,
+    69 -> 1.0,
+    79 -> 1.24,
+    89 -> 1.47,
+    99 -> 1.47
+  )
+
 
   final val ageStratifiedMuMultiplier = HashMap(
     9 -> 0.34,
@@ -140,5 +156,7 @@ object Disease {
  isAContact = 2 -> Low Risk Contact who is symptomatic
  isAContact = 3 -> Low Risk Asymptomatic/Presymptomatic/Susceptible/Recovered quarantined for 7 days
 
+ typeOfTestGiven = 1 -> RT-PCR
+ typeOfTestGiven = 2 -> RAT
 
  */

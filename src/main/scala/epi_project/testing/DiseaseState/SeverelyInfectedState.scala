@@ -8,6 +8,7 @@ import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing.{Disease, Person}
 import epi_project.testing.InfectionStatus._
+import scala.math.tanh
 
 case class SeverelyInfectedState(toBeHospitalized:Double) extends State {
 
@@ -33,6 +34,7 @@ case class SeverelyInfectedState(toBeHospitalized:Double) extends State {
     biasedCoinToss(toBeHospitalized*agent.asInstanceOf[Person].ageStratifiedSigmaMultiplier)
   def goToRecovered(context: Context,agent: StatefulAgent):Boolean = leaveSeverelyInfected &&
     !(biasedCoinToss(toBeHospitalized*agent.asInstanceOf[Person].ageStratifiedSigmaMultiplier))
+
 
 
   addTransition(
