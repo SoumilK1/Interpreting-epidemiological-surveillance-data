@@ -21,7 +21,7 @@ import epi_project.testing.InfectionStatus._
 import java.util.Date
 
 object Main extends LazyLogging {
-  private val initialInfectedFraction = 0.001
+  private val initialInfectedFraction = 0.01
 
   private val myTick: ScheduleUnit = new ScheduleUnit(1)
   private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 6)
@@ -327,8 +327,8 @@ object Main extends LazyLogging {
     var TestingStartedAt = 0
     val InterventionName = "get_tested"
 
-    val ActivationCondition = (context:Context) => getRecoveredCount(context) >= testing_begins_at*total_population
-//    val ActivationCondition = (context:Context) => Disease.numberOfPeopleSelfReported >= Disease.numberOfPeopleSelfReportedToStartTesting
+    //val ActivationCondition = (context:Context) => getRecoveredCount(context) >= testing_begins_at*total_population
+    val ActivationCondition = (context:Context) => Disease.numberOfPeopleSelfReported >= Disease.numberOfPeopleSelfReportedToStartTesting
 
     val FirstTimeExecution = (context:Context) => TestingStartedAt = context.getCurrentStep
     val DeactivationCondition = (context:Context) => context.getCurrentStep == Disease.numberOfTicks

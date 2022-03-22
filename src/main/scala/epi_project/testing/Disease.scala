@@ -50,7 +50,7 @@ object Disease {
   final val dt:Double = 1d/numberOfTicksInADay
 
 
-  var numberOfDailyTests: Int = 120
+  var numberOfDailyTests: Int = 60
   var RTPCRTestFraction:Double = 0.5
   var RATTestFraction:Double = 1 - RTPCRTestFraction
 
@@ -87,11 +87,12 @@ object Disease {
 
   var numberOfPeopleSelfReported:Int = 0
 
-  val numberOfPeopleSelfReportedToStartTesting:Int = 1
+  val numberOfPeopleSelfReportedToStartTesting:Int = 50
 
-  val probabilityOfReportingSymptoms:Double = 0.9
+  val probabilityOfReportingSymptoms:Double = 0.8
 
-  val probabilityOfHavingCOVID:Double = 0.4
+
+  val probabilityOfHavingCOVID:Double = 0.5
 
   //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
 

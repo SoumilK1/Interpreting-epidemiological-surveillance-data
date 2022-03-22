@@ -44,5 +44,4 @@ case class SeverelyInfectedState(toBeHospitalized:Double) extends State {
       when = goToHospitalized,
       to = agent => HospitalizedState(toBeDead = Disease.mu)
   )
-
 }

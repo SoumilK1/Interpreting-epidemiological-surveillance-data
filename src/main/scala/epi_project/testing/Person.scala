@@ -46,7 +46,8 @@ case class Person(id: Long,
   }
 
   private val checkEligibilityForTargetedTesting:Context => Unit = (context: Context)=>{
-    if((context.activeInterventionNames.contains("get_tested"))&&
+    if(
+//      (context.activeInterventionNames.contains("get_tested"))&&
       (isSymptomatic)&&
       (isNotTested)){
 
@@ -64,10 +65,19 @@ case class Person(id: Long,
         updateParam("isEligibleForTargetedTesting",true)
         //println("id",id,"status",beingTested)
         updateParam("beingTested",3)
-        Disease.numberOfPeopleSelfReported+=1
+        Disease.numberOfPeopleSelfReported = Disease.numberOfPeopleSelfReported + 1
+
       }
     }
   }
+
+//  private val checkNumberOfReportedSymptomatics:Context => Unit = (context:Context) => {
+//  if
+//
+//
+//  }
+
+
 
   private val checkEligibilityForRandomTesting:Context => Unit = (context: Context)=>{
     //println(!isBeingTested)
@@ -196,7 +206,7 @@ case class Person(id: Long,
 
   def isQuarantined:Boolean = beingTested == 2
 
-  def isEligibleForRTPCR:Boolean = isEligibleForTargetedTesting
+  def isEligibleForTargetTest:Boolean = isEligibleForTargetedTesting
 
 //  def isEligibleForTestingAgain(context: Context):Boolean = (context.getCurrentStep/Disease.numberOfTicksInADay) - lastTestDay >= Disease.daysAfterWhichEligibleForTestingAgain
 

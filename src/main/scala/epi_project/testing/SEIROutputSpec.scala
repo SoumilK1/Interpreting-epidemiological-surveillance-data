@@ -43,7 +43,7 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
     if ((Disease.numberOfRTPCRTestsDoneAtEachTick + Disease.numberOfRATTestsDoneAtEachTick)==0){
       TPR = 0.0
     }
-    var CFR:Double = (graphProvider.fetchCount(label,"infectionState" equ Dead)/Disease.totalNumberOfPositiveTests)*100
+    var CFR:Double = (graphProvider.fetchCount(label,(("infectionState" equ Dead) and ("lastTestDay" gte 0))))/(Disease.totalNumberOfPositiveTests)*100
     if((Disease.totalNumberOfPositiveTests==0)){
       CFR = 0.0
     }
