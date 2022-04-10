@@ -58,14 +58,14 @@ object Main extends LazyLogging {
      *
      */
 
-    testing_begins_at = args(0).toDouble
-    Disease.numberOfDailyTests = args(1).toInt
-    Disease.RATTestSensitivity = args(2).toDouble
-    Disease.RATTestFraction = args(3).toDouble
-    Disease.RTPCRTestSensitivity = args(4).toDouble
-    Disease.RTPCRTestFraction = args(5).toDouble
-    Disease.DoesContactTracingHappen = args(6)
-    filename = args(7)
+//    testing_begins_at = args(0).toDouble
+//    Disease.numberOfDailyTests = args(1).toInt
+//    Disease.RATTestSensitivity = args(2).toDouble
+//    Disease.RATTestFraction = args(3).toDouble
+//    Disease.RTPCRTestSensitivity = args(4).toDouble
+//    Disease.RTPCRTestFraction = args(5).toDouble
+//    Disease.DoesContactTracingHappen = args(6)
+//    filename = args(7)
 
 
 
@@ -88,7 +88,7 @@ object Main extends LazyLogging {
       registerAction(
         StopSimulation,
         (c: Context) => {
-          c.getCurrentStep == 1000
+          c.getCurrentStep == 100
         }
       )
 
@@ -230,7 +230,7 @@ object Main extends LazyLogging {
   }
 
   private def roundToAgeRange(age: Int): Int = {
-    (age / 10) * 10 + 9
+    (age / 5) * 5 + 5
   }
 
   private def csvDataExtractor(map: Map[String, String])(implicit context: Context): GraphData = {
@@ -252,7 +252,7 @@ object Main extends LazyLogging {
 
     val deltaMultiplier:Double = Disease.ageStratifiedDeltaMultiplier.getOrElse(roundToAgeRange(age), Disease.ageStratifiedDeltaMultiplier(99))
 
-    val muMultiplier :Double = Disease.ageStratifiedMuMultiplier.getOrElse(roundToAgeRange(age), Disease.ageStratifiedMuMultiplier(99))
+    val muMultiplier :Double = Disease.ageStratifiedMuMultiplier.getOrElse(roundToAgeRange(age), Disease.ageStratifiedMuMultiplier(100))
 
     val sigmaMultiplier:Double = Disease.ageStratifiedSigmaMultiplier.getOrElse(roundToAgeRange(age),Disease.ageStratifiedSigmaMultiplier(99))
 

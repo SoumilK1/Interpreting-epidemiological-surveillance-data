@@ -9,7 +9,7 @@ import scala.annotation.tailrec
 
 /**
  * Utility to create a population like the one used in ``Optimizing Testing for COVID-19 in India``
- * In order to use it, after importing the package, add the following to your Main class
+ * In order to use it, after importing the DataGenerator_100k, add the following to your Main class
 
        val d = DataGeneratorForTestingPaper
        d.main("some_filename")

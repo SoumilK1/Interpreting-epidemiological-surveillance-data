@@ -96,47 +96,81 @@ object Disease {
 
   val probabilityOfNotHavingCOVID:Double = 0.02
 
+  var no_pos_tests_0_30:Double = 0
+
+  var no_pos_tests_31_50:Double = 0
+
+  var no_pos_tests_51_65:Double = 0
+
+  var no_pos_tests_65_100:Double = 0
+
   //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
+
+
 
   final val ageStratifiedDeltaMultiplier = HashMap(
     9 -> 0.34,
     19 -> 0.67,
     29 -> 1.0,
-    39 -> 1.0,
-    49 -> 1.0,
-    59 -> 1.0,
-    69 -> 1.0,
-    79 -> 1.24,
-    89 -> 1.47,
-    99 -> 1.47
-  )
-
-
-  final val ageStratifiedMuMultiplier = HashMap(
-    9 -> 0.34,
-    19 -> 0.67,
-    29 -> 1.0,
-    39 -> 1.0,
-    49 -> 1.0,
-    59 -> 1.0,
-    69 -> 1.0,
-    79 -> 1.24,
-    89 -> 1.47,
-    99 -> 1.47
+    39 -> 0.0,
+    49 -> 0.0,
+    59 -> 0.0,
+    69 -> 0.0,
+    79 -> 0.0,
+    89 -> 0.0,
+    99 -> 0.0
   )
 
   final val ageStratifiedSigmaMultiplier = HashMap(
-    9 -> 0.34,
-    19 -> 0.67,
-    29 -> 1.0,
-    39 -> 1.0,
-    49 -> 1.0,
-    59 -> 1.0,
-    69 -> 1.0,
-    79 -> 1.24,
-    89 -> 1.47,
-    99 -> 1.47
+    5 -> 0.103,
+    10 -> 0.103,
+    15 -> 0.22,
+    20 -> 0.22,
+    25 -> 0.47,
+    30 -> 0.47,
+    35 -> 0.99,
+    40 -> 2.1,
+    45 -> 2.1,
+    50 -> 4.4,
+    55 -> 4.4,
+    60 -> 8.9,
+    65 -> 8.9,
+    70 -> 17.1,
+    75 -> 17.1,
+    80 -> 30.3,
+    85 -> 30.3,
+    90 -> 30.3,
+    95 -> 30.3,
+    100 -> 30.3
   )
+
+// Sigma multiplier - https://www.medrxiv.org/content/10.1101/2021.07.29.21261282v2.full.pdf
+
+
+  final val ageStratifiedMuMultiplier = HashMap(
+    5 -> 0.002,
+    10 -> 0.002,
+    15 -> 0.002,
+    20 -> 0.002,
+    25 -> 0.002,
+    30 -> 0.002,
+    35 -> 0.074,
+    40 -> 0.074,
+    45 -> 0.074,
+    50 -> 0.074,
+    55 -> 0.604,
+    60 -> 0.604,
+    65 -> 0.604,
+    70 -> 1.416,
+    75 -> 1.416,
+    80 -> 1.416,
+    85 -> 1.416,
+    90 -> 1.416,
+    95 -> 1.416,
+    100 -> 1.416
+  )
+
+  //Mu multiplier - https://www.medrxiv.org/content/10.1101/2020.11.17.20228155v2.full.pdf
 }
 
 /**
