@@ -39,10 +39,10 @@ object Disease {
 
   final val lambdaMI:Double = 0.1
 
-  final val lambdaSI:Double = 0.5
+  final val lambdaSI:Double = 1d/7
   final val sigma:Double = 0.8
 
-  final val lambdaH: Double = 0.1
+  final val lambdaH: Double = 1d/7
   final val mu: Double = 0.2
 
   val contactProbability:Double = 0.1
@@ -106,22 +106,7 @@ object Disease {
 
   //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
 
-
-
   final val ageStratifiedDeltaMultiplier = HashMap(
-    9 -> 0.34,
-    19 -> 0.67,
-    29 -> 1.0,
-    39 -> 0.0,
-    49 -> 0.0,
-    59 -> 0.0,
-    69 -> 0.0,
-    79 -> 0.0,
-    89 -> 0.0,
-    99 -> 0.0
-  )
-
-  final val ageStratifiedSigmaMultiplier = HashMap(
     5 -> 0.103,
     10 -> 0.103,
     15 -> 0.22,
@@ -143,6 +128,30 @@ object Disease {
     95 -> 30.3,
     100 -> 30.3
   )
+
+  final val ageStratifiedSigmaMultiplier = HashMap(
+    5 -> 0.0088,
+    10 -> 0.0088,
+    15 -> 0.024,
+    20 -> 0.024,
+    25 -> 0.063,
+    30 -> 0.063,
+    35 -> 0.17,
+    40 -> 0.17,
+    45 -> 0.46,
+    50 -> 0.46,
+    55 -> 1.2,
+    60 -> 1.2,
+    65 -> 3.3,
+    70 -> 3.3,
+    75 -> 8.3,
+    80 -> 8.3,
+    85 -> 19.4,
+    90 -> 19.4,
+    95 -> 19.4,
+    100 -> 19.4
+  )
+
 
 // Sigma multiplier - https://www.medrxiv.org/content/10.1101/2021.07.29.21261282v2.full.pdf
 

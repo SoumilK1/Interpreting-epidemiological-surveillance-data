@@ -8,7 +8,8 @@ import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import epi_project.testing._
 import epi_project.testing.InfectionStatus._
-import scala.math.tanh
+
+import scala.math.{tan, tanh}
 
 
 case class HospitalizedState(toBeDead:Double) extends State {
@@ -21,6 +22,10 @@ case class HospitalizedState(toBeDead:Double) extends State {
 
   override def perTickAction(context: Context, agent: StatefulAgent): Unit = {
     leaveHospitalisedState = shouldLeaveHospitalisedState(context,agent)
+    if (context.getCurrentStep % Disease.numberOfTicksInADay == 0){
+      var numberOfDays = agent.asInstanceOf[Person].numberOfDaysSpentInHospital
+      agent.updateParam("numberOfDaysSpentInHospital", numberOfDays + 1)
+    }
   }
 
 
@@ -39,9 +44,10 @@ case class HospitalizedState(toBeDead:Double) extends State {
 //  }
 
   def isRecovered(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) &&
-    (!(biasedCoinToss(toBeDead*agent.asInstanceOf[Person].ageStratifiedMuMultiplier)))
+    (!(biasedCoinToss(toBeDead * agent.asInstanceOf[Person].ageStratifiedMuMultiplier)))
   def isDead(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) &&
-    (biasedCoinToss(toBeDead*agent.asInstanceOf[Person].ageStratifiedMuMultiplier))
+    (biasedCoinToss(toBeDead * (1 + math.tanh(0.35*agent.asInstanceOf[Person].numberOfDaysSpentInHospital))
+      *agent.asInstanceOf[Person].ageStratifiedMuMultiplier))
 
 
   addTransition(

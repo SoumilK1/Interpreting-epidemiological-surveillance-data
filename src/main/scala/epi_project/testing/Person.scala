@@ -31,7 +31,8 @@ case class Person(id: Long,
                   testCategory:Int = 0,
                   contactIsolationStartedAt:Int = 0,
                   numberOfDaysSpentInSI:Int = 0,
-                  typeOfTestGiven:Int = 0) extends StatefulAgent {
+                  typeOfTestGiven:Int = 0,
+                  numberOfDaysSpentInHospital:Int = 0) extends StatefulAgent {
 
 
   private val incrementInfectionDay: Context => Unit = (context: Context) => {
@@ -305,8 +306,8 @@ case class Person(id: Long,
   }
 
   private val printStuff:Context => Unit = (context:Context) => {
-    if (beingTested == 1){
-      println("test status", beingTested, "inf status", infectionState)
+    if (infectionState == Hospitalized) {
+      println((1 + math.tanh(0.35 * numberOfDaysSpentInHospital)))
     }
   }
 
