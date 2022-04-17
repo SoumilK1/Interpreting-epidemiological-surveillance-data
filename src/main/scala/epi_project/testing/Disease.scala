@@ -96,13 +96,13 @@ object Disease {
 
   val probabilityOfNotHavingCOVID:Double = 0.02
 
-  var numberOfPositiveTestsAge0To30:Double = 0
+  var no_pos_tests_0_30:Double = 0
 
-  var numberOfPositiveTestsAge31To50:Double = 0
+  var no_pos_tests_31_50:Double = 0
 
-  var numberOfPositiveTestsAge51To65:Double = 0
+  var no_pos_tests_51_65:Double = 0
 
-  var numberOfPositiveTestsAge66To100:Double = 0
+  var no_pos_tests_65_100:Double = 0
 
   //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
 
