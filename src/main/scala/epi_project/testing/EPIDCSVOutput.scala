@@ -22,7 +22,9 @@ import scala.collection.mutable.ListBuffer
 class EPIDCSVOutput (placeType:String,context: Context) extends CSVSpecs {
   override def getHeaders: List[String] =
     List(
+      "Day",
       "PersonID",
+      "Age",
       "LastTestTick",
       "TestResult",
       "FinalInfectionStatus"
@@ -35,14 +37,14 @@ class EPIDCSVOutput (placeType:String,context: Context) extends CSVSpecs {
     locations.foreach(oneLocation => {
       val decodedLoc = decodeNode(placeType, oneLocation)
       val locId = getId(placeType, oneLocation).toString
+      val age = decodedLoc.asInstanceOf[Person].age.toString
       val lastTestTick_name = decodedLoc.asInstanceOf[Person].lastTestDay.toString
       val ResultOfTest = decodedLoc.asInstanceOf[Person].lastTestResult.toString
       val infection = decodedLoc.asInstanceOf[Person].infectionState.toString
 
-
-
-      if(lastTestTick_name.toInt != -20000){
-        rows.addOne(List(locId,lastTestTick_name,ResultOfTest,infection))
+      if(context.getCurrentStep%Disease.numberOfTicksInADay==0){
+        val day = (context.getCurrentStep/Disease.numberOfTicksInADay).toString
+        rows.addOne(List(day,locId,age,lastTestTick_name,ResultOfTest,infection))
 
       }
 

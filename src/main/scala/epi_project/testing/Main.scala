@@ -88,7 +88,7 @@ object Main extends LazyLogging {
       registerAction(
         StopSimulation,
         (c: Context) => {
-          c.getCurrentStep == 100
+          c.getCurrentStep == 500
         }
       )
 
@@ -129,6 +129,13 @@ object Main extends LazyLogging {
 
       )
 
+      SimulationListenerRegistry.register (
+        new CsvOutputGenerator("EPID_csv/"+"EPID_output_testing_begins_at_" + testing_begins_at +
+          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+          + Disease.DoesContactTracingHappen + filename +".csv", new EPIDCSVOutput("Person", context))
+      )
+
     })
 
 
@@ -148,15 +155,15 @@ object Main extends LazyLogging {
 
 
 
-    simulation.onCompleteSimulation { implicit context =>
-      val outputGenerator = new CsvOutputGenerator("EPID_csv/"+"EPID_output_testing_begins_at_" + testing_begins_at +
-        "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-        "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
-        + Disease.DoesContactTracingHappen + filename +".csv", new EPIDCSVOutput("Person", context))
-      outputGenerator.onSimulationStart(context)
-      outputGenerator.onStepStart(context)
-      outputGenerator.onSimulationEnd(context)
 
+
+//      outputGenerator.onSimulationStart(context)
+//      outputGenerator.onStepStart(context)
+//      outputGenerator.onSimulationEnd(context)
+
+
+
+    simulation.onCompleteSimulation { implicit context =>
       printStats(beforeCount)
       teardown()
     }
@@ -233,6 +240,10 @@ object Main extends LazyLogging {
     (age / 5) * 5 + 5
   }
 
+  private def roundToAge9(age:Int):Int = {
+    (age/10)*10 + 9
+  }
+
   private def csvDataExtractor(map: Map[String, String])(implicit context: Context): GraphData = {
 
     val citizenId = map("Agent_ID").toLong
@@ -250,12 +261,11 @@ object Main extends LazyLogging {
     val essentialWorker = map("essential_worker").toInt
     val cemeteryId = map("CemeteryID").toLong
 
-    val deltaMultiplier:Double = Disease.ageStratifiedDeltaMultiplier.getOrElse(roundToAgeRange(age), Disease.ageStratifiedDeltaMultiplier(99))
+    val deltaMultiplier:Double = Disease.ageStratifiedDeltaMultiplier.getOrElse(roundToAgeRange(age), Disease.ageStratifiedDeltaMultiplier(100))
 
     val muMultiplier :Double = Disease.ageStratifiedMuMultiplier.getOrElse(roundToAgeRange(age), Disease.ageStratifiedMuMultiplier(100))
 
-    val sigmaMultiplier:Double = Disease.ageStratifiedSigmaMultiplier.getOrElse(roundToAgeRange(age),Disease.ageStratifiedSigmaMultiplier(99))
-
+    val sigmaMultiplier:Double = Disease.ageStratifiedSigmaMultiplier.getOrElse(roundToAgeRange(age),Disease.ageStratifiedSigmaMultiplier(100))
 
     val citizen: Person = Person(
       citizenId,
@@ -399,14 +409,12 @@ object Main extends LazyLogging {
               HighRiskContact.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
               Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
-
             }
             else{
               HighRiskContact.updateParam("lastTestResult",false)
             }
             Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick+1
             Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
-
           }
 
           /**
@@ -491,8 +499,6 @@ object Main extends LazyLogging {
             }
             Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick+1
             Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
-
-
           }
 
 

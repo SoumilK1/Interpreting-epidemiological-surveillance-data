@@ -5,6 +5,7 @@ import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.listeners.CSVSpecs
+import epi_project.testing
 import epi_project.testing.InfectionStatus._
 
 class SEIROutputSpec(context: Context) extends CSVSpecs {
@@ -71,7 +72,7 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       Disease.totalNumberOfTestsDone,
       TPR,
       Disease.numberOfPositiveTestsAtEachTick,
-      CFR
+      CFR,
     )
     List(row)
   }
