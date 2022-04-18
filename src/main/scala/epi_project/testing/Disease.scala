@@ -129,6 +129,12 @@ object Disease {
     100 -> 30.3
   )
 
+
+
+  /*
+  The sigma multiplier is from Esposito et al.
+  The other multipliers are from INDSCI-SIM
+   */
   final val ageStratifiedSigmaMultiplier = HashMap(
     5 -> 0.0088,
     10 -> 0.0088,
@@ -151,7 +157,42 @@ object Disease {
     95 -> 19.4,
     100 -> 19.4
   )
-
+//  final val ageStratifiedGammaMultiplier = HashMap(
+//     9 -> 0.5
+//    19 -> 0.45
+//    29 -> 0.4
+//    39 -> 0.35
+//    49 -> 0.3
+//    59 -> 0.25
+//    69 -> 0.2
+//    79 -> 0.15
+//    89 -> 0.1
+//    99 -> 0.1
+//  )
+    //  final val ageStratifiedMuMultiplier = HashMap(
+    //     9 -> 0.0185
+    //    19 -> 0.0187
+    //    29 -> 0.0143
+    //    39 -> 0.0166
+    //    49 -> 0.034
+    //    59 -> 0.05
+    //    69 -> 0.097
+    //    79 -> 0.21
+    //    89 -> 0.22
+    //    99 -> 0.22
+    //  )
+  //  final val ageStratifiedDeltaMultiplier = HashMap(
+  //     9 -> 0.999
+  //    19 -> 0.997
+  //    29 -> 0.988
+  //    39 -> 0.968
+  //    49 -> 0.951
+  //    59 -> 0.898
+  //    69 -> 0.834
+  //    79 -> 0.757
+  //    89 -> 0.727
+  //    99 -> 0.727
+  //  )
 
 // Sigma multiplier - https://www.medrxiv.org/content/10.1101/2021.07.29.21261282v2.full.pdf
 
