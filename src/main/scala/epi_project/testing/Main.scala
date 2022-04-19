@@ -58,14 +58,14 @@ object Main extends LazyLogging {
      *
      */
 
-//    testing_begins_at = args(0).toDouble
-//    Disease.numberOfDailyTests = args(1).toInt
-//    Disease.RATTestSensitivity = args(2).toDouble
-//    Disease.RATTestFraction = args(3).toDouble
-//    Disease.RTPCRTestSensitivity = args(4).toDouble
-//    Disease.RTPCRTestFraction = args(5).toDouble
-//    Disease.DoesContactTracingHappen = args(6)
-//    filename = args(7)
+    testing_begins_at = args(0).toDouble
+    Disease.numberOfDailyTests = args(1).toInt
+    Disease.RATTestSensitivity = args(2).toDouble
+    Disease.RATTestFraction = args(3).toDouble
+    Disease.RTPCRTestSensitivity = args(4).toDouble
+    Disease.RTPCRTestFraction = args(5).toDouble
+    Disease.DoesContactTracingHappen = args(6)
+    filename = args(7)
 
 
 
@@ -76,7 +76,7 @@ object Main extends LazyLogging {
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("inputcsv/"+"ResidentialArea10k.csv", csvDataExtractor)
+      ingestCSVData("inputcsv/"+"100k.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
@@ -261,9 +261,11 @@ object Main extends LazyLogging {
     val essentialWorker = map("essential_worker").toInt
     val cemeteryId = map("CemeteryID").toLong
 
-    val deltaMultiplier:Double = Disease.ageStratifiedDeltaMultiplier.getOrElse(roundToAgeRange(age), Disease.ageStratifiedDeltaMultiplier(100))
+    val deltaMultiplier:Double = Disease.ageStratifiedDeltaMultiplier.getOrElse(roundToAge9(age), Disease.ageStratifiedDeltaMultiplier(99))
 
-    val muMultiplier :Double = Disease.ageStratifiedMuMultiplier.getOrElse(roundToAgeRange(age), Disease.ageStratifiedMuMultiplier(100))
+    val muMultiplier :Double = Disease.ageStratifiedMuMultiplier.getOrElse(roundToAge9(age), Disease.ageStratifiedMuMultiplier(99))
+
+    val gammaMultiplier :Double = Disease.ageStratifiedGammaMultiplier.getOrElse(roundToAge9(age),Disease.ageStratifiedGammaMultiplier(99))
 
     val sigmaMultiplier:Double = Disease.ageStratifiedSigmaMultiplier.getOrElse(roundToAgeRange(age),Disease.ageStratifiedSigmaMultiplier(100))
 
@@ -276,6 +278,7 @@ object Main extends LazyLogging {
       deltaMultiplier,
       sigmaMultiplier,
       muMultiplier,
+      gammaMultiplier,
       InfectionStatus.withName(initialInfectionState),
       0,
       essentialWorker,
