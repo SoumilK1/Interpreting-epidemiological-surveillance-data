@@ -30,12 +30,12 @@ object Disease {
 
    */
   final val lambdaS: Double = 0.25
-  final val gamma: Double = 0.5
+  final val gamma: Double = 1.0
   //TODO: GAMMA IS NOT SUFFICIENT. Right now keep it constant
   final val lambdaA : Double = 0.143
 
   final val lambdaP:Double = 1d/2
-  final val delta:Double = 1.0
+  final val delta:Double = 0.0
 
   final val lambdaMI:Double = 0.1
 
@@ -51,7 +51,7 @@ object Disease {
   final val dt:Double = 1d/numberOfTicksInADay
 
 
-  var numberOfDailyTests: Int = 60
+  var numberOfDailyTests: Int = 200
   var RTPCRTestFraction:Double = 0.5
   var RATTestFraction:Double = 1 - RTPCRTestFraction
 
@@ -169,17 +169,17 @@ object Disease {
     89 -> 0.1,
     99 -> 0.1,
   )
-        final val ageStratifiedMuMultiplier = HashMap(
-        9 -> 0.0185,
-        19 -> 0.0187,
-        29 -> 0.0143,
-        39 -> 0.0166,
-        49 -> 0.034,
-        59 -> 0.05,
-        69 -> 0.097,
-        79 -> 0.21,
-        89 -> 0.22,
-        99 -> 0.22,
+  final val ageStratifiedMuMultiplier = HashMap(
+       9 -> 0.0185,
+       19 -> 0.0187,
+       29 -> 0.0143,
+       39 -> 0.0166,
+       49 -> 0.034,
+       59 -> 0.05,
+       69 -> 0.097,
+       79 -> 0.21,
+       89 -> 0.22,
+       99 -> 0.22,
         )
     final val ageStratifiedDeltaMultiplier = HashMap(
        9 -> 0.999,

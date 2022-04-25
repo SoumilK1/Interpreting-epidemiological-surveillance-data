@@ -29,10 +29,10 @@ object Main extends LazyLogging {
   private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 6)
 8
   var testing_begins_at:Double = 0.001
-  val total_population = 10000
+  val total_population = 1000
 
 
-  var filename = "dummy_new_newest_2"
+  var filename = "please_work_properly_meow_meow"
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
 
@@ -107,6 +107,7 @@ object Main extends LazyLogging {
 
 
       val currentTime = new Date().getTime
+
 
       /**
        * Giving output in the SEIR manner
@@ -287,7 +288,7 @@ object Main extends LazyLogging {
 
 
     if (initialInfectionState == "Susceptible"){
-      citizen.setInitialState(SusceptibleState(toBeAsymptomatic = biasedCoinToss(Disease.gamma)))
+      citizen.setInitialState(SusceptibleState(toBeAsymptomatic = biasedCoinToss(Disease.gamma*gammaMultiplier)))
     }
     else if (initialInfectionState=="Asymptomatic"){
       citizen.setInitialState(AsymptomaticState())

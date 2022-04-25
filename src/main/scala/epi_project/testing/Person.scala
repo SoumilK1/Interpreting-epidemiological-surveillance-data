@@ -92,13 +92,13 @@ case class Person(id: Long,
 
     //TODO - Add contacts?
 
-    if (isSusceptible){
-      if (biasedCoinToss(Disease.probabilityOfNotHavingCOVID)){
-        updateParam("beingTested",3)
-        updateParam("isEligibleForTargetedTesting",true)
-        Disease.numberOfPeopleSelfReported = Disease.numberOfPeopleSelfReported + 1
-      }
-    }
+//    if (isSusceptible){
+//      if (biasedCoinToss(Disease.probabilityOfNotHavingCOVID)){
+//        updateParam("beingTested",3)
+//        updateParam("isEligibleForTargetedTesting",true)
+//        Disease.numberOfPeopleSelfReported = Disease.numberOfPeopleSelfReported + 1
+//      }
+//    }
   }
 
   private val checkEligibilityForRandomTesting:Context => Unit = (context: Context)=>{
