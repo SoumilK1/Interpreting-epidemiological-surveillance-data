@@ -46,9 +46,9 @@ case class HospitalizedState(toBeDead:Double) extends State {
   def isRecovered(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) &&
     (!(biasedCoinToss(toBeDead * agent.asInstanceOf[Person].ageStratifiedMuMultiplier)))
   def isDead(context: Context,agent: StatefulAgent):Boolean = (leaveHospitalisedState) &&
-    (biasedCoinToss(toBeDead * (1 + math.tanh(0.35*agent.asInstanceOf[Person].numberOfDaysSpentInHospital))
-      *agent.asInstanceOf[Person].ageStratifiedMuMultiplier))
+    (biasedCoinToss(toBeDead * agent.asInstanceOf[Person].ageStratifiedMuMultiplier))
 
+  //(1 + math.tanh(0.35*agent.asInstanceOf[Person].numberOfDaysSpentInHospital))
 
   addTransition(
     when = isRecovered,
