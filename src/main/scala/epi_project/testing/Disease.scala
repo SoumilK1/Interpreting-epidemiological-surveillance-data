@@ -86,6 +86,8 @@ object Disease {
 
   var DoesContactTracingHappen:String = "y"
 
+  var DoesRandomTestingHappen:String = "y"
+
   var tested_person_id:Long = 0
 
   var numberOfPeopleSelfReported:Int = 0
