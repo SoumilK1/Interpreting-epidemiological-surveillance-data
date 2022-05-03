@@ -32,15 +32,12 @@ object Main extends LazyLogging {
   val total_population = 1000
 
 
-  var filename = "please_work_properly_meow_meow"
+  var filename = "dummy_run"
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
 
   def main(args: Array[String]): Unit = {
-//
-//    val d = DataGeneratorForTestingPaper
-//    d.main("inputcsv/ResidentialArea10k")
-//    System.exit(0)
+
     /**
      * Run the following code by uncommenting for getting a synthetic population.
      * Do not use .csv at the end of file name.
@@ -66,6 +63,7 @@ object Main extends LazyLogging {
     Disease.RTPCRTestFraction = args(5).toDouble
     Disease.DoesContactTracingHappen = args(6)
     filename = args(7)
+
 
 
 
@@ -156,11 +154,6 @@ object Main extends LazyLogging {
 
 
 
-
-
-//      outputGenerator.onSimulationStart(context)
-//      outputGenerator.onStepStart(context)
-//      outputGenerator.onSimulationEnd(context)
 
 
 
@@ -345,7 +338,6 @@ object Main extends LazyLogging {
   private def testing(implicit context: Context):Unit = {
     var TestingStartedAt = 0
     val InterventionName = "get_tested"
-
     //val ActivationCondition = (context:Context) => getRecoveredCount(context) >= testing_begins_at*total_population
     val ActivationCondition = (context:Context) => Disease.numberOfPeopleSelfReported >= Disease.numberOfPeopleSelfReportedToStartTesting
 
