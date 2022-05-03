@@ -69,7 +69,7 @@ case class Person(id: Long,
   private val checkEligibilityForTargetedTesting:Context => Unit = (context: Context)=>{
 
     if(
-//      (context.activeInterventionNames.contains("get_tested"))&&
+//
       (isSymptomatic)&&
 
       (isNotTested)){
@@ -101,17 +101,17 @@ case class Person(id: Long,
 //    }
   }
 
-  private val checkEligibilityForRandomTesting:Context => Unit = (context: Context)=>{
-    //println(!isBeingTested)
-    if((context.activeInterventionNames.contains("get_tested"))&&
-      (!isHospitalized)&&
-      (!isDead)&&
-      (isNotTested)){
-      updateParam("isEligibleForRandomTesting",true)
-      updateParam("beingTested",3)
+  private val checkEligibilityForRandomTesting:Context => Unit = (context: Context)=> {
+    if (Disease.DoesRandomTestingHappen == "y") {
+      if((context.activeInterventionNames.contains("get_tested"))&&
+      (!isHospitalized) &&
+        (!isDead) &&
+        (isNotTested)) {
+        updateParam("isEligibleForRandomTesting", true)
+        updateParam("beingTested", 3)
+      }
     }
   }
-
   private val declarationOfResults_checkForContacts:Context => Unit = (context:Context) => {
     if ((beingTested == 1) && (typeOfTestGiven == 1) && (isDelayPeriodOver(context))){
       if (lastTestResult){
@@ -361,7 +361,7 @@ case class Person(id: Long,
   addBehaviour(checkEligibilityForTargetedSusceptiblePeople)
 
   addBehaviour(checkEligibilityForTargetedTesting)
-  //addBehaviour(checkEligibilityForRandomTesting)
+  addBehaviour(checkEligibilityForRandomTesting)
   addBehaviour(declarationOfResults_checkForContacts)
   addBehaviour(quarantinePeriodOver)
   addBehaviour(contactIsolationPeriodOver)

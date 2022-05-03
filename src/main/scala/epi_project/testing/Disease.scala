@@ -51,7 +51,7 @@ object Disease {
   final val dt:Double = 1d/numberOfTicksInADay
 
 
-  var numberOfDailyTests: Int = 200
+  var numberOfDailyTests: Int = 100
   var RTPCRTestFraction:Double = 0.5
   var RATTestFraction:Double = 1 - RTPCRTestFraction
 
@@ -85,6 +85,8 @@ object Disease {
   val neighbourFraction:Double = 0.02
 
   var DoesContactTracingHappen:String = "y"
+
+  var DoesRandomTestingHappen:String = "y"
 
   var tested_person_id:Long = 0
 
