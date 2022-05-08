@@ -104,7 +104,7 @@ case class Person(id: Long,
   private val checkEligibilityForRandomTesting:Context => Unit = (context: Context)=> {
     if (Disease.DoesRandomTestingHappen == "y") {
       if((context.activeInterventionNames.contains("get_tested"))&&
-      (!isHospitalized) &&
+        (!isHospitalized) &&
         (!isDead) &&
         (isNotTested)) {
         updateParam("isEligibleForRandomTesting", true)
