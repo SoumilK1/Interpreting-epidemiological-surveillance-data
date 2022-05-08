@@ -31,16 +31,13 @@ object Main extends LazyLogging {
   var testing_begins_at:Double = 0.001
   val total_population = 10000
 
+  var filename = "dummy_run_2Meow-newhggh"
 
-  var filename = "dummy"
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
 
   def main(args: Array[String]): Unit = {
-//
-//    val d = DataGeneratorForTestingPaper
-//    d.main("inputcsv/ResidentialArea10k")
-//    System.exit(0)
+
     /**
      * Run the following code by uncommenting for getting a synthetic population.
      * Do not use .csv at the end of file name.
@@ -58,15 +55,16 @@ object Main extends LazyLogging {
      *
      */
 
-//    testing_begins_at = args(0).toDouble
-//    Disease.numberOfDailyTests = args(1).toInt
-//    Disease.RATTestSensitivity = args(2).toDouble
-//    Disease.RATTestFraction = args(3).toDouble
-//    Disease.RTPCRTestSensitivity = args(4).toDouble
-//    Disease.RTPCRTestFraction = args(5).toDouble
-//    Disease.DoesContactTracingHappen = args(6)
-//    Disease.DoesRandomTestingHappen = args(7)
-//    filename = args(8)
+    testing_begins_at = args(0).toDouble
+    Disease.numberOfDailyTests = args(1).toInt
+    Disease.RATTestSensitivity = args(2).toDouble
+    Disease.RATTestFraction = args(3).toDouble
+    Disease.RTPCRTestSensitivity = args(4).toDouble
+    Disease.RTPCRTestFraction = args(5).toDouble
+    Disease.DoesContactTracingHappen = args(6)
+    Disease.DoesRandomTestingHappen = args(7)
+    filename = args(8)
+
 
 
 
@@ -89,7 +87,7 @@ object Main extends LazyLogging {
       registerAction(
         StopSimulation,
         (c: Context) => {
-          c.getCurrentStep == 500
+          c.getCurrentStep == 2400
         }
       )
 
@@ -131,12 +129,12 @@ object Main extends LazyLogging {
 
       )
 
-      SimulationListenerRegistry.register (
-        new CsvOutputGenerator("EPID_csv/"+"EPID_output_testing_begins_at_" + testing_begins_at +
-          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
-          + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + filename +".csv", new EPIDCSVOutput("Person", context))
-      )
+//      SimulationListenerRegistry.register (
+//        new CsvOutputGenerator("EPID_csv/"+"EPID_output_testing_begins_at_" + testing_begins_at +
+//          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+//          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+//          + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + filename +".csv", new EPIDCSVOutput("Person", context))
+//      )
 
     })
 
@@ -157,11 +155,6 @@ object Main extends LazyLogging {
 
 
 
-
-
-//      outputGenerator.onSimulationStart(context)
-//      outputGenerator.onStepStart(context)
-//      outputGenerator.onSimulationEnd(context)
 
 
 
@@ -346,7 +339,6 @@ object Main extends LazyLogging {
   private def testing(implicit context: Context):Unit = {
     var TestingStartedAt = 0
     val InterventionName = "get_tested"
-
     //val ActivationCondition = (context:Context) => getRecoveredCount(context) >= testing_begins_at*total_population
     val ActivationCondition = (context:Context) => Disease.numberOfPeopleSelfReported >= Disease.numberOfPeopleSelfReportedToStartTesting
 
@@ -516,7 +508,7 @@ object Main extends LazyLogging {
 
 
 
-          if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
+          if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
             (Disease.numberOfRATTestsDoneAtEachTick< Disease.RATTestFraction * Disease.numberOfDailyTests)&&
             (SelfRepLowRiskSymptomatic.beingTested != 1) && (SelfRepLowRiskSymptomatic.id != Disease.tested_person_id)) {
             SelfRepLowRiskSymptomatic.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
@@ -564,7 +556,8 @@ object Main extends LazyLogging {
           val randomPerson = node.as[Person]
 
 
-          if(Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests&&
+          if(context.getCurrentStep%Disease.numberOfTicksInADay==0){
+          if(Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.RTPCRTestFraction * Disease.numberOfDailyTests&&
             (randomPerson.beingTested == 3)){
             randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             randomPerson.updateParam("beingTested",1)
@@ -574,7 +567,7 @@ object Main extends LazyLogging {
             randomPerson.updateParam("isAContact",0)
 
             Disease.tested_person_id = randomPerson.id
-            println("testHappens")
+//            println("testHappens")
             if((!randomPerson.isSusceptible) && (!randomPerson.isRecovered)&& biasedCoinToss(Disease.RTPCRTestSensitivity)){
               randomPerson.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
@@ -587,8 +580,8 @@ object Main extends LazyLogging {
             Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
           }
 
-          if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.dt * Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
-            (Disease.numberOfRATTestsDoneAtEachTick< Disease.dt * Disease.RATTestFraction * Disease.numberOfDailyTests)&&
+          if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
+            (Disease.numberOfRATTestsDoneAtEachTick< Disease.RATTestFraction * Disease.numberOfDailyTests)&&
             (randomPerson.beingTested == 3) && (randomPerson.id != Disease.tested_person_id)){
             randomPerson.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
             randomPerson.updateParam("beingTested",1)
@@ -609,7 +602,7 @@ object Main extends LazyLogging {
             Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
           }
 
-        })
+        }})
 
 //      if(context.getCurrentStep%Disease.numberOfTicksInADay==1){
 //        Disease.numberOfRTPCRTestsDoneAtEachTick = 0
