@@ -31,7 +31,7 @@ object Main extends LazyLogging {
   var testing_begins_at:Double = 0.001
   val total_population = 10000
 
-  var filename = "dummy_run_2Meow"
+  var filename = "dummy_run_2Meow-newhggh"
 
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
@@ -87,7 +87,7 @@ object Main extends LazyLogging {
       registerAction(
         StopSimulation,
         (c: Context) => {
-          c.getCurrentStep == 1200
+          c.getCurrentStep == 2400
         }
       )
 
@@ -129,12 +129,12 @@ object Main extends LazyLogging {
 
       )
 
-      SimulationListenerRegistry.register (
-        new CsvOutputGenerator("EPID_csv/"+"EPID_output_testing_begins_at_" + testing_begins_at +
-          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
-          + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + filename +".csv", new EPIDCSVOutput("Person", context))
-      )
+//      SimulationListenerRegistry.register (
+//        new CsvOutputGenerator("EPID_csv/"+"EPID_output_testing_begins_at_" + testing_begins_at +
+//          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+//          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+//          + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + filename +".csv", new EPIDCSVOutput("Person", context))
+//      )
 
     })
 

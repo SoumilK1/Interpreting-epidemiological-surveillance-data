@@ -86,9 +86,12 @@ case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
 
     val infected_and_quarantined: Double = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType) and ("beingTested" equ 2))
 
+    val contact_traced_and_quarantined_to_be_tested: Double = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType) and ("beingTested" equ 3))
+
+    val contact_traced_and_quarantined_not_to_be_tested: Double = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType) and ("beingTested" equ 4))
     val totalCount:Double = sus_or_rec + infected + Disease.contactProbability*hos
-    val infectedCount:Double = (infected - infected_and_quarantined) + Disease.contactProbability*hos +
-      Disease.contactProbability*infected_and_quarantined
+    val infectedCount:Double = (infected - infected_and_quarantined - contact_traced_and_quarantined_not_to_be_tested - contact_traced_and_quarantined_to_be_tested) + Disease.contactProbability*hos +
+      Disease.contactProbability*infected_and_quarantined + Disease.contactProbability*contact_traced_and_quarantined_not_to_be_tested + Disease.contactProbability*contact_traced_and_quarantined_to_be_tested
     //TODO: account for quarantined
 
     infectedCount/totalCount
