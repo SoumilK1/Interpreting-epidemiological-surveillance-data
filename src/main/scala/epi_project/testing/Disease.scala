@@ -23,6 +23,8 @@ object Disease {
   final val stayInNeighbourhoodEndTick = 5
   final val numberOfTicks: Int = 2400
 
+  var EPID_required:String = "n"
+
   /**
    *
    =Parameters of the Model are described below=
@@ -52,8 +54,8 @@ object Disease {
 
 
   var numberOfDailyTests: Int = 100
-  var RTPCRTestFraction:Double = 0.5
-  var RATTestFraction:Double = 1 - RTPCRTestFraction
+  var RTPCRTestFraction:Double = 1.0
+  var RATTestFraction:Double = 1.0 - RTPCRTestFraction
 
   var numberOfRTPCRTestsDoneAtEachTick:Double = 0
   var numberOfRTPCRTestsAvailable:Double = numberOfDailyTests * RTPCRTestFraction
@@ -80,31 +82,37 @@ object Disease {
 
   val isolationDuration:Int =7
 
-  val colleagueFraction:Double = 0.1
+  var colleagueFraction:Double = 0.1
 
-  val neighbourFraction:Double = 0.02
+  var neighbourFraction:Double = 0.02
 
-  var DoesContactTracingHappen:String = "n"
+  var basalFraction:Double = 0.0004
 
-  var DoesRandomTestingHappen:String = "n"
+  var DoesContactTracingHappen:String = "y"
+
+  var DoesRandomTestingHappen:String = "y"
 
   var tested_person_id:Long = 0
 
   var numberOfPeopleSelfReported:Int = 0
 
-  val numberOfPeopleSelfReportedToStartTesting:Int = 50
+  val totalPopulation:Int = 100000
+
+  var fractionOfPeopleSelfReportedToStartTesting:Double = 0.05
+
+  var numberOfPeopleSelfReportedToStartTesting:Double = fractionOfPeopleSelfReportedToStartTesting*totalPopulation
 
   val probabilityOfReportingSymptoms:Double = 0.8
 
   val probabilityOfNotHavingCOVID:Double = 0.02
 
-  var no_pos_tests_0_30:Double = 0
+  var numberOfDeadOnEachDay: Double = 0.0
 
-  var no_pos_tests_31_50:Double = 0
+  var numberOfUntestedDeadOnEachDay: Double = 0.0
 
-  var no_pos_tests_51_65:Double = 0
+  var totalNumberOfInfected:Double = 0.0
 
-  var no_pos_tests_65_100:Double = 0
+  var numberOfUninfectedPeopleTested:Double = 0.0
 
   //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
 

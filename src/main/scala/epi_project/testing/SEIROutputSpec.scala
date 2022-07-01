@@ -33,6 +33,8 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       "TestPositivityRate",
       "NumberOfPositiveTests",
       "CaseFatalityRate",
+      "CumulativeInfectedFraction",
+      "NumberOfUninfectedPeopleGettingTested"
     )
 
   override def getRows(): List[List[Any]] = {
@@ -40,14 +42,41 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
     val graphProvider = context.graphProvider
     val label = "Person"
 
+//    println(Disease.numberOfDeadOnEachDay)
+
     var TPR:Double = (Disease.numberOfPositiveTestsAtEachTick/(Disease.numberOfRTPCRTestsDoneAtEachTick + Disease.numberOfRATTestsDoneAtEachTick))*100
     if ((Disease.numberOfRTPCRTestsDoneAtEachTick + Disease.numberOfRATTestsDoneAtEachTick)==0){
       TPR = 0.0
     }
-    var CFR:Double = (graphProvider.fetchCount(label,(("infectionState" equ Dead) and ("lastTestDay" gte 0))))/(Disease.totalNumberOfPositiveTests)*100
-    if((Disease.totalNumberOfPositiveTests==0)){
+//    var CFR:Double =((graphProvider.fetchCount(label,"infectionState" equ Dead)) /(Disease.numberOfPositiveTestsAtEachTick
+//      + graphProvider.fetchCount(label,(("infectionState" equ Dead) and ("lastTestDay" lt  0)))))*100
+//    if((Disease.numberOfPositiveTestsAtEachTick +
+//      graphProvider.fetchCount(label,(("infectionState" equ Dead) and ("lastTestDay" lt  0)))==0  )){
+//      CFR = 0.0
+//    }
+
+    var CFR: Double = (Disease.numberOfDeadOnEachDay / (Disease.numberOfPositiveTestsAtEachTick +
+      Disease.numberOfUntestedDeadOnEachDay)) * 100
+    if (Disease.numberOfPositiveTestsAtEachTick +
+      Disease.numberOfUntestedDeadOnEachDay == 0.0) {
       CFR = 0.0
     }
+
+//    var CFR:Double = {
+//      var numberOfDead: Double = graphProvider.fetchCount(label, ("infectionState" equ Dead) and
+//        ("deathDay" equ context.getCurrentStep / Disease.numberOfTicksInADay))
+//      var numberOfUntestedDead: Double = graphProvider.fetchCount(label, ("infectionState" equ Dead) and
+//        ("deathDay" equ context.getCurrentStep / Disease.numberOfTicksInADay) and ("lastTestDay" lt 0))
+//      var CFRd = numberOfDead / (Disease.numberOfPositiveTestsAtEachTick + numberOfUntestedDead)
+//      if (Disease.numberOfPositiveTestsAtEachTick + numberOfUntestedDead == 0.0) {
+//        CFRd = 0.0
+//      }
+//      CFRd
+//    }
+
+
+
+
 
     val row = List(
       context.getCurrentStep*Disease.dt,
@@ -73,6 +102,9 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
       TPR,
       Disease.numberOfPositiveTestsAtEachTick,
       CFR,
+      Disease.totalNumberOfInfected/100000,
+      Disease.numberOfUninfectedPeopleTested
+
     )
     List(row)
   }

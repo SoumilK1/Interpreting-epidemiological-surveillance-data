@@ -33,7 +33,9 @@ case class Person(id: Long,
                   contactIsolationStartedAt:Int = 0,
                   numberOfDaysSpentInSI:Int = 0,
                   typeOfTestGiven:Int = 0,
-                  numberOfDaysSpentInHospital:Int = 0) extends StatefulAgent {
+                  numberOfDaysSpentInHospital:Int = 0,
+                  deadCount:Int = 0,
+                  deathDay:Int = 0) extends StatefulAgent {
 
 
   private val incrementInfectionDay: Context => Unit = (context: Context) => {
@@ -58,7 +60,7 @@ case class Person(id: Long,
 
   private val checkEligibilityForTargetedSusceptiblePeople: Context => Unit =(context:Context)=>{
     if((isSusceptible)&&(isNotTested)){
-      if (biasedCoinToss(0.005)){
+      if (biasedCoinToss(Disease.basalFraction)){
         updateParam("isEligibleForTargetedTesting",true)
         updateParam("beingTested",3)
         Disease.numberOfPeopleSelfReported+=1
@@ -108,10 +110,10 @@ case class Person(id: Long,
         (!isDead) &&
         (isNotTested)) {
         updateParam("isEligibleForRandomTesting", true)
-        updateParam("beingTested", 3)
       }
     }
   }
+
   private val declarationOfResults_checkForContacts:Context => Unit = (context:Context) => {
     if ((beingTested == 1) && (typeOfTestGiven == 1) && (isDelayPeriodOver(context))){
       if (lastTestResult){
@@ -306,11 +308,20 @@ case class Person(id: Long,
       }
   }
 
-  private val printStuff:Context => Unit = (context:Context) => {
-    if (infectionState == Hospitalized) {
-      println((1 + math.tanh(0.35 * numberOfDaysSpentInHospital)))
+  private val countDead: Context => Unit = (context:Context) => {
+
+    if (context.getCurrentStep % Disease.numberOfTicksInADay == 0) {
+      Disease.numberOfDeadOnEachDay = 0.0
+      Disease.numberOfUntestedDeadOnEachDay = 0.0
     }
   }
+
+//  private val printStuff:Context => Unit = (context:Context) => {
+//    if (id == 500){
+////      println("behaviour")
+//      println("RIP",Disease.numberOfDeadOnEachDay)
+//    }
+//  }
 
 
   def isSusceptible: Boolean = infectionState == Susceptible
@@ -365,6 +376,7 @@ case class Person(id: Long,
   addBehaviour(declarationOfResults_checkForContacts)
   addBehaviour(quarantinePeriodOver)
   addBehaviour(contactIsolationPeriodOver)
+  addBehaviour(countDead)
   //addBehaviour(printStuff)
 
 

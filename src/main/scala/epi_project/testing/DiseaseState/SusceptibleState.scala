@@ -46,6 +46,7 @@ case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
       return InfectionState
     }
     false
+
   }
 
 
@@ -95,6 +96,7 @@ case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
     //TODO: account for quarantined
 
     infectedCount/totalCount
+
   }
 
 

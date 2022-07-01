@@ -16,6 +16,7 @@ case class AsymptomaticState() extends State  {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",Asymptomatic)
+    Disease.totalNumberOfInfected = Disease.totalNumberOfInfected + 1.0
   }
 
   def isRecovered(context: Context,agent: StatefulAgent):Boolean = {
