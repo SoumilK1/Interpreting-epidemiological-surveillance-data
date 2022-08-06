@@ -31,9 +31,9 @@ object Disease {
 
 
    */
-  final val lambdaS: Double = 0.25
+  final val lambdaS: Double = 0.5
   final val gamma: Double = 1.0
-  //TODO: GAMMA IS NOT SUFFICIENT. Right now keep it constant
+  
   final val lambdaA : Double = 0.143
 
   final val lambdaP:Double = 1d/2
@@ -86,11 +86,11 @@ object Disease {
 
   var neighbourFraction:Double = 0.02
 
-  var basalFraction:Double = 0.0004
+  var basalFraction:Double = 0.00004
 
-  var DoesContactTracingHappen:String = "y"
+  var DoesContactTracingHappen:String = "n"
 
-  var DoesRandomTestingHappen:String = "y"
+  var DoesRandomTestingHappen:String = "n"
 
   var tested_person_id:Long = 0
 
@@ -98,11 +98,13 @@ object Disease {
 
   val totalPopulation:Int = 100000
 
-  var fractionOfPeopleSelfReportedToStartTesting:Double = 0.05
+  var fractionOfPeopleSelfReportedToStartTesting:Double = 0.01
 
   var numberOfPeopleSelfReportedToStartTesting:Double = fractionOfPeopleSelfReportedToStartTesting*totalPopulation
 
-  val probabilityOfReportingSymptoms:Double = 0.8
+  val probabilityOfReportingSevereSymptoms:Double = 0.8
+
+  val probabilityOfReportingMildSymptoms:Double = 0.4
 
   val probabilityOfNotHavingCOVID:Double = 0.02
 
@@ -113,6 +115,25 @@ object Disease {
   var totalNumberOfInfected:Double = 0.0
 
   var numberOfUninfectedPeopleTested:Double = 0.0
+
+  var newlyInfectedEveryDay:Double = 0.0
+
+  var newlyRecoveredEveryDay:Double = 0.0
+
+  var cumulativeInfectedTillDayN_1:Double = 0.0
+
+  var initialSeed:Int = 0
+
+  var caseDoublingTick:Int = 1
+
+  var identifiedSeed:Int = 0
+
+  var IdentifiedDoublingTick:Int = 1
+
+  var testingStartedAt:Int = -30
+
+
+//  var numberOfActiveCasesOnEachDay:Double = 0.0
 
   //TODO: this probability is not 0.95? (try to make an expression, use Sero-Survey data)
 
@@ -192,16 +213,16 @@ object Disease {
        99 -> 0.22,
         )
     final val ageStratifiedDeltaMultiplier = HashMap(
-       9 -> 0.999,
-      19 -> 0.997,
-      29 -> 0.988,
-      39 -> 0.968,
-      49 -> 0.951,
-      59 -> 0.898,
-      69 -> 0.834,
-      79 -> 0.757,
-      89 -> 0.727,
-      99 -> 0.727
+       9 -> (1.0 - 0.999),
+      19 -> (1.0 - 0.997),
+      29 -> (1.0 - 0.988),
+      39 -> (1.0 - 0.968),
+      49 -> (1.0 - 0.951),
+      59 -> (1.0 - 0.898),
+      69 -> (1.0 - 0.834),
+      79 -> (1.0 - 0.757),
+      89 -> (1.0 - 0.727),
+      99 -> (1.0 - 0.727)
     )
 
 // Sigma multiplier - https://www.medrxiv.org/content/10.1101/2021.07.29.21261282v2.full.pdf

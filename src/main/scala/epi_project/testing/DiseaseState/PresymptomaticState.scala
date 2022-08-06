@@ -14,6 +14,8 @@ case class PresymptomaticState(toBeSeverelyInfected:Double) extends State {
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState",Presymptomatic)
     Disease.totalNumberOfInfected = Disease.totalNumberOfInfected + 1.0
+    Disease.newlyInfectedEveryDay = Disease.newlyInfectedEveryDay + 1.0
+    agent.updateParam("dayAtWhichPersonIsInfected", (context.getCurrentStep/Disease.numberOfTicksInADay) + 1)
   }
 
   var leavingPresymptomatic:Boolean = false

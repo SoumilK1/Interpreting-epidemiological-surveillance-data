@@ -35,7 +35,9 @@ case class Person(id: Long,
                   typeOfTestGiven:Int = 0,
                   numberOfDaysSpentInHospital:Int = 0,
                   deadCount:Int = 0,
-                  deathDay:Int = 0) extends StatefulAgent {
+                  deathDay:Int = 0,
+                  dayAtWhichPersonIsInfected:Int = -20,
+                  dayAtWhichPersonIsIdentified:Int = -30) extends StatefulAgent {
 
 
   private val incrementInfectionDay: Context => Unit = (context: Context) => {
@@ -74,7 +76,7 @@ case class Person(id: Long,
 //
       (isSymptomatic)&&
 
-      (isNotTested)){
+      (isNotTested)) {
 
 
       /**
@@ -84,14 +86,24 @@ case class Person(id: Long,
        *
        */
 
-      if(biasedCoinToss(Disease.probabilityOfReportingSymptoms)){
-        updateParam("isEligibleForTargetedTesting",true)
-        //println("id",id,"status",beingTested)
-        updateParam("beingTested",3)
-        Disease.numberOfPeopleSelfReported = Disease.numberOfPeopleSelfReported + 1
+      if (isSeverelyInfected) {
+        if (biasedCoinToss(Disease.probabilityOfReportingSevereSymptoms)) {
+          updateParam("isEligibleForTargetedTesting", true)
+          //println("id",id,"status",beingTested)
+          updateParam("beingTested", 3)
+          Disease.numberOfPeopleSelfReported = Disease.numberOfPeopleSelfReported + 1
+        }
+      }
+
+      if (isMildlyInfected) {
+        if (biasedCoinToss(Disease.probabilityOfReportingMildSymptoms)) {
+          updateParam("isEligibleForTargetedTesting", true)
+          //println("id",id,"status",beingTested)
+          updateParam("beingTested", 3)
+          Disease.numberOfPeopleSelfReported = Disease.numberOfPeopleSelfReported + 1
+        }
       }
     }
-
     //TODO - Add contacts?
 
 //    if (isSusceptible){
@@ -186,11 +198,11 @@ case class Person(id: Long,
         }
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+        updateParam("dayAtWhichPersonIsIdentified",(context.getCurrentStep/Disease.numberOfTicksInADay)+1)
 
-        // TODO: Add age distribution properly.
-        // TODO: Increase total population
-        // TODO: Synthetic population contact Philip, age distributed transitions.
-
+        if (context.getCurrentStep - Disease.testDelay*Disease.numberOfTicksInADay == Disease.testingStartedAt){
+          Disease.identifiedSeed = Disease.identifiedSeed + 1
+        }
       }
 
       if (!lastTestResult){
@@ -269,11 +281,11 @@ case class Person(id: Long,
         }
         updateParam("beingTested", 2)
         updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+        updateParam("dayAtWhichPersonIsIdentified",(context.getCurrentStep/Disease.numberOfTicksInADay)+1)
 
-        // TODO: Add age distribution properly.
-        // TODO: Increase total population
-        // TODO: Synthetic population contact Philip, age distributed transitions.
-
+        if (context.getCurrentStep - Disease.testDelay*Disease.numberOfTicksInADay == Disease.testingStartedAt){
+          Disease.identifiedSeed = Disease.identifiedSeed + 1
+        }
       }
 
       if (!lastTestResult){
@@ -308,12 +320,23 @@ case class Person(id: Long,
       }
   }
 
-  private val countDead: Context => Unit = (context:Context) => {
+  private val countParams: Context => Unit = (context:Context) => {
 
     if (context.getCurrentStep % Disease.numberOfTicksInADay == 0) {
       Disease.numberOfDeadOnEachDay = 0.0
       Disease.numberOfUntestedDeadOnEachDay = 0.0
+      Disease.newlyInfectedEveryDay = 0.0
+      Disease.newlyRecoveredEveryDay = 0.0
+//      Disease.numberOfActiveCasesOnEachDay = 0.0
     }
+    if (context.getCurrentStep == 1){
+      if (isAsymptomatic){
+        updateParam("dayAtWhichPersonIsInfected",1)
+      }
+    }
+
+
+
   }
 
 //  private val printStuff:Context => Unit = (context:Context) => {
@@ -376,7 +399,7 @@ case class Person(id: Long,
   addBehaviour(declarationOfResults_checkForContacts)
   addBehaviour(quarantinePeriodOver)
   addBehaviour(contactIsolationPeriodOver)
-  addBehaviour(countDead)
+  addBehaviour(countParams)
   //addBehaviour(printStuff)
 
 

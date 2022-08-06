@@ -22,7 +22,7 @@ import java.util.Date
 
 object Main extends LazyLogging {
 
-  private var initialInfectedFraction = 0.02
+  private var initialInfectedFraction = 0.005
 
 
   private val myTick: ScheduleUnit = new ScheduleUnit(1)
@@ -55,20 +55,20 @@ object Main extends LazyLogging {
      *
      */
 
-//    initialInfectedFraction = args(0).toDouble
-//    Disease.fractionOfPeopleSelfReportedToStartTesting = args(1).toDouble
-//    Disease.numberOfDailyTests = args(2).toInt
-//    Disease.RATTestSensitivity = args(3).toDouble
-//    Disease.RATTestFraction = args(4).toDouble
-//    Disease.RTPCRTestSensitivity = args(5).toDouble
-//    Disease.RTPCRTestFraction = args(6).toDouble
-//    Disease.DoesContactTracingHappen = args(7)
-//    Disease.DoesRandomTestingHappen = args(8)
-//    Disease.colleagueFraction = args(9).toDouble
-//    Disease.neighbourFraction = args(10).toDouble
-//    Disease.basalFraction = args(11).toDouble
-//    Disease.EPID_required = args(12)
-//    filename = args(13)
+    initialInfectedFraction = args(0).toDouble
+    Disease.fractionOfPeopleSelfReportedToStartTesting = args(1).toDouble
+    Disease.numberOfDailyTests = args(2).toInt
+    Disease.RATTestSensitivity = args(3).toDouble
+    Disease.RATTestFraction = args(4).toDouble
+    Disease.RTPCRTestSensitivity = args(5).toDouble
+    Disease.RTPCRTestFraction = args(6).toDouble
+    Disease.DoesContactTracingHappen = args(7)
+    Disease.DoesRandomTestingHappen = args(8)
+    Disease.colleagueFraction = args(9).toDouble
+    Disease.neighbourFraction = args(10).toDouble
+    Disease.basalFraction = args(11).toDouble
+    Disease.EPID_required = args(12)
+    filename = args(13)
 ////
 
 
@@ -142,7 +142,18 @@ object Main extends LazyLogging {
             + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + filename + ".csv", new EPIDCSVOutput("Person", context))
         )
 
-      }    })
+      }
+
+
+          SimulationListenerRegistry.register(
+            new CsvOutputGenerator("CFR_csv/" + "CFR_output_initialInfectedFraction" + initialInfectedFraction +
+              "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+              "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+              + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + filename + ".csv", new CFROutput("Person", context))
+          )
+
+
+    })
 
 
     /**
@@ -165,6 +176,8 @@ object Main extends LazyLogging {
 
 
     simulation.onCompleteSimulation { implicit context =>
+
+
       printStats(beforeCount)
       teardown()
     }
@@ -259,7 +272,7 @@ object Main extends LazyLogging {
 
     val citizenId = map("Agent_ID").toLong
     val age = map("Age").toInt
-//    val initialInfectionState = if (biasedCoinToss(initialInfectedFraction)) "Asymptomatic" else "Susceptible"
+    val initialInfectionState = if (biasedCoinToss(initialInfectedFraction)) "Asymptomatic" else "Susceptible"
 
     val homeId = map("HouseID").toLong
 
@@ -268,7 +281,7 @@ object Main extends LazyLogging {
 
     val neighbourhoodId = map("Neighbourhood_ID").toLong
 
-    val initialInfectionState = if ((officeId <= 200) && (biasedCoinToss(0.25))) "Asymptomatic" else "Susceptible"
+//    val initialInfectionState = if ((officeId <= 100) && (biasedCoinToss(0.5))) "Asymptomatic" else "Susceptible"
 
     val essentialWorker = map("essential_worker").toInt
     val cemeteryId = map("CemeteryID").toLong
@@ -294,7 +307,7 @@ object Main extends LazyLogging {
       InfectionStatus.withName(initialInfectionState),
       0,
       essentialWorker,
-      cemeteryId
+      cemeteryId,
     )
 
 
@@ -303,6 +316,8 @@ object Main extends LazyLogging {
     }
     else if (initialInfectionState=="Asymptomatic"){
       citizen.setInitialState(AsymptomaticState())
+//      citizen.updateParam("dayAtWhichPersonIsInfected",1)
+      Disease.initialSeed = Disease.initialSeed + 1
     }
 
     val home = House(homeId)
@@ -359,10 +374,20 @@ object Main extends LazyLogging {
     //val ActivationCondition = (context:Context) => getRecoveredCount(context) >= testing_begins_at*total_population
     val ActivationCondition = (context:Context) => Disease.numberOfPeopleSelfReported > Disease.numberOfPeopleSelfReportedToStartTesting
 
-    val FirstTimeExecution = (context:Context) => TestingStartedAt = context.getCurrentStep
-    val DeactivationCondition = (context:Context) => context.getCurrentStep == Disease.numberOfTicks
+    val FirstTimeExecution = (context:Context) => {
+      TestingStartedAt = context.getCurrentStep
+      if (context.getCurrentStep % Disease.numberOfTicksInADay != 0) {
+        Disease.testingStartedAt = (context.getCurrentStep / Disease.numberOfTicksInADay + 1) * (Disease.numberOfTicksInADay)
+        Disease.IdentifiedDoublingTick = Disease.testingStartedAt + Disease.testDelay*Disease.numberOfTicksInADay
+      }
+      if (context.getCurrentStep % Disease.numberOfTicksInADay == 0){
+        Disease.testingStartedAt = context.getCurrentStep
+        Disease.IdentifiedDoublingTick = Disease.testingStartedAt + Disease.testDelay*Disease.numberOfTicksInADay
+      }
 
-   
+
+    }
+    val DeactivationCondition = (context:Context) => context.getCurrentStep == Disease.numberOfTicks
 
     val perTickAction = (context:Context) => {
 //      if(context.getCurrentStep % Disease.numberOfTicksInADay==0){
