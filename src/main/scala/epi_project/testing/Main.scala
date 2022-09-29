@@ -69,6 +69,7 @@ object Main extends LazyLogging {
     Disease.basalFraction = args(11).toDouble
     Disease.EPID_required = args(12)
     filename = args(13)
+    Disease.lambdaS = args(14).toDouble
 ////
 
 
@@ -125,32 +126,31 @@ object Main extends LazyLogging {
 
 
 
-      SimulationListenerRegistry.register(
-        new CsvOutputGenerator("csv/" + "initialInfectedFraction" + initialInfectedFraction +
-          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
-          + Disease.DoesContactTracingHappen +  "_RandomTesting_" + Disease.DoesRandomTestingHappen + filename +
-          ".csv", new SEIROutputSpec(context))
-
-      )
+//      SimulationListenerRegistry.register(
+//        new CsvOutputGenerator("csv/" + "initialInfectedFraction" + initialInfectedFraction +
+//          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+//          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+//          + Disease.DoesContactTracingHappen +  "_RandomTesting_" + Disease.DoesRandomTestingHappen + "_beta_" + Disease.lambdaS + filename +
+//          ".csv", new SEIROutputSpec(context))
+//      )
 
       if (Disease.EPID_required == "y") {
         SimulationListenerRegistry.register(
           new CsvOutputGenerator("EPID_csv/" + "EPID_output_initialInfectedFraction" + initialInfectedFraction +
             "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
             "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
-            + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + filename + ".csv", new EPIDCSVOutput("Person", context))
+            + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + "_beta_" + Disease.lambdaS + filename + ".csv", new EPIDCSVOutput("Person", context))
         )
 
       }
 
 
-          SimulationListenerRegistry.register(
-            new CsvOutputGenerator("CFR_csv/" + "CFR_output_initialInfectedFraction" + initialInfectedFraction +
-              "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-              "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
-              + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + filename + ".csv", new CFROutput("Person", context))
-          )
+//          SimulationListenerRegistry.register(
+//            new CsvOutputGenerator("CFR_csv/" + "CFR_output_initialInfectedFraction" + initialInfectedFraction +
+//              "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+//              "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+//              + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + "_beta_" + Disease.lambdaS + filename + ".csv", new CFROutput("Person", context))
+//          )
 
 
     })
@@ -418,11 +418,11 @@ object Main extends LazyLogging {
        *
        *
        */
-      val HighRiskContacts: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
-        ("isAContact" equ 1))
-
-      HighRiskContacts.foreach(node => {
-        val HighRiskContact = node.as[Person]
+//      val HighRiskContacts: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
+//        ("isAContact" equ 1))
+//
+//      HighRiskContacts.foreach(node => {
+//        val HighRiskContact = node.as[Person]
 
         /**
          * RT-PCR Testing for High Risk Contacts
@@ -433,31 +433,31 @@ object Main extends LazyLogging {
          */
 
         //println(Disease.RTPCRTestFraction*Disease.numberOfDailyTests, Disease.numberOfRTPCRTestsAvailable)
-        if((context.getCurrentStep%Disease.numberOfTicksInADay==0)){
-          if((Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.RTPCRTestFraction * Disease.numberOfDailyTests)){
-            HighRiskContact.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
-            HighRiskContact.updateParam("beingTested",1)
-            HighRiskContact.updateParam("testCategory",2)
-            HighRiskContact.updateParam("isEligibleForTargetedTesting",false)
-            HighRiskContact.updateParam("isEligibleForRandomTesting",false)
-            HighRiskContact.updateParam("isAContact",0)
-            HighRiskContact.updateParam("typeOfTestGiven", 1)
+//        if((context.getCurrentStep%Disease.numberOfTicksInADay==0)){
+//          if((Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.RTPCRTestFraction * Disease.numberOfDailyTests)){
+//            HighRiskContact.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
+//            HighRiskContact.updateParam("beingTested",1)
+//            HighRiskContact.updateParam("testCategory",2)
+//            HighRiskContact.updateParam("isEligibleForTargetedTesting",false)
+//            HighRiskContact.updateParam("isEligibleForRandomTesting",false)
+//            HighRiskContact.updateParam("isAContact",0)
+//            HighRiskContact.updateParam("typeOfTestGiven", 1)
+//
+//
+//            Disease.tested_person_id = HighRiskContact.id
 
-
-            Disease.tested_person_id = HighRiskContact.id
-
-            if((!HighRiskContact.isSusceptible)&&(!HighRiskContact.isRecovered)&&(!HighRiskContact.isDead) && (biasedCoinToss(Disease.RTPCRTestSensitivity))){
-              HighRiskContact.updateParam("lastTestResult",true)
-              Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
-              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
-            }
-            else{
-              HighRiskContact.updateParam("lastTestResult",false)
-              Disease.numberOfUninfectedPeopleTested = Disease.numberOfUninfectedPeopleTested + 1.0
-            }
-            Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick+1
-            Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
-          }
+//            if((!HighRiskContact.isSusceptible)&&(!HighRiskContact.isRecovered)&&(!HighRiskContact.isDead) && (biasedCoinToss(Disease.RTPCRTestSensitivity))){
+//              HighRiskContact.updateParam("lastTestResult",true)
+//              Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+//              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
+//            }
+//            else{
+//              HighRiskContact.updateParam("lastTestResult",false)
+//              Disease.numberOfUninfectedPeopleTested = Disease.numberOfUninfectedPeopleTested + 1.0
+//            }
+//            Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick+1
+//            Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
+//          }
 
           /**
            * RAT Testing for High Risk Contacts
@@ -466,30 +466,30 @@ object Main extends LazyLogging {
            *
            *
            */
-          if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
-            (Disease.numberOfRATTestsDoneAtEachTick< Disease.RATTestFraction * Disease.numberOfDailyTests)&&
-            (HighRiskContact.beingTested != 1)  && (HighRiskContact.id != Disease.tested_person_id)) {
-            HighRiskContact.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
-            HighRiskContact.updateParam("beingTested",1)
-            HighRiskContact.updateParam("testCategory",2)
-            HighRiskContact.updateParam("isEligibleForTargetedTesting",false)
-            HighRiskContact.updateParam("isEligibleForRandomTesting",false)
-            HighRiskContact.updateParam("isAContact",0)
-            HighRiskContact.updateParam("typeOfTestGiven", 2)
-            //            println("testHappens")
-            if((!HighRiskContact.isSusceptible)&&(!HighRiskContact.isRecovered) &&(!HighRiskContact.isDead) && (biasedCoinToss(Disease.RATTestSensitivity))){
-              HighRiskContact.updateParam("lastTestResult",true)
-              Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
-              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
-            }
-            else{
-              HighRiskContact.updateParam("lastTestResult",false)
-              Disease.numberOfUninfectedPeopleTested = Disease.numberOfUninfectedPeopleTested + 1.0
-            }
-            Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick+1
-            Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
-          }
-      }})
+//          if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
+//            (Disease.numberOfRATTestsDoneAtEachTick< Disease.RATTestFraction * Disease.numberOfDailyTests)&&
+//            (HighRiskContact.beingTested != 1)  && (HighRiskContact.id != Disease.tested_person_id)) {
+//            HighRiskContact.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
+//            HighRiskContact.updateParam("beingTested",1)
+//            HighRiskContact.updateParam("testCategory",2)
+//            HighRiskContact.updateParam("isEligibleForTargetedTesting",false)
+//            HighRiskContact.updateParam("isEligibleForRandomTesting",false)
+//            HighRiskContact.updateParam("isAContact",0)
+//            HighRiskContact.updateParam("typeOfTestGiven", 2)
+//            //            println("testHappens")
+//            if((!HighRiskContact.isSusceptible)&&(!HighRiskContact.isRecovered) &&(!HighRiskContact.isDead) && (biasedCoinToss(Disease.RATTestSensitivity))){
+//              HighRiskContact.updateParam("lastTestResult",true)
+//              Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
+//              Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
+//            }
+//            else{
+//              HighRiskContact.updateParam("lastTestResult",false)
+//              Disease.numberOfUninfectedPeopleTested = Disease.numberOfUninfectedPeopleTested + 1.0
+//            }
+//            Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick+1
+//            Disease.totalNumberOfTestsDone = Disease.totalNumberOfTestsDone + 1
+//          }
+//      }})
 
       /**
        * TESTING FUNCTION FOR SELF-REPORTED SYMPTOMATICS AND LOW RISK SYMPTOMATIC CONTACTS
@@ -500,12 +500,11 @@ object Main extends LazyLogging {
        */
 
 
-      val SelfReportedSymptomaticAndLowRiskSymptomaticContacts: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
-          ("isEligibleForTargetedTesting" equ true) or (("isAContact" equ 2)))
+      val EligibleforTargetedTest_CT: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person",
+          ("isEligibleForTargetedTesting" equ true) or ("isAContact" equ 2) or ("isAContact" equ 1) )
 
-        SelfReportedSymptomaticAndLowRiskSymptomaticContacts.foreach(node => {
-          val SelfRepLowRiskSymptomatic = node.as[Person]
-
+        EligibleforTargetedTest_CT.foreach(node => {
+          val PersonEligibleforSR_CT = node.as[Person]
 
           /**
            * RT-PCR Tests for Self Reported Symptomcatic and Symptomatic Low Risk Contacts
@@ -516,29 +515,29 @@ object Main extends LazyLogging {
            */
           if(context.getCurrentStep%Disease.numberOfTicksInADay==0){
           if(Disease.numberOfRTPCRTestsDoneAtEachTick < Disease.RTPCRTestFraction * Disease.numberOfDailyTests){
-            SelfRepLowRiskSymptomatic.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
-            SelfRepLowRiskSymptomatic.updateParam("beingTested",1)
-            if(SelfRepLowRiskSymptomatic.isEligibleForTargetedTesting){
-              SelfRepLowRiskSymptomatic.updateParam("testCategory",1)
+            PersonEligibleforSR_CT.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
+            PersonEligibleforSR_CT.updateParam("beingTested",1)
+            if(PersonEligibleforSR_CT.isEligibleForTargetedTesting){
+              PersonEligibleforSR_CT.updateParam("testCategory",1)
             }
-            if(SelfRepLowRiskSymptomatic.isAContact==2){
-              SelfRepLowRiskSymptomatic.updateParam("testCategory",2)
+            if(PersonEligibleforSR_CT.isAContact==2 || PersonEligibleforSR_CT.isAContact == 1){
+              PersonEligibleforSR_CT.updateParam("testCategory",2)
 
             }
-            SelfRepLowRiskSymptomatic.updateParam("isEligibleForTargetedTesting",false)
-            SelfRepLowRiskSymptomatic.updateParam("isEligibleForRandomTesting",false)
-            SelfRepLowRiskSymptomatic.updateParam("isAContact",0)
-            SelfRepLowRiskSymptomatic.updateParam("typeOfTestGiven",1)
+            PersonEligibleforSR_CT.updateParam("isEligibleForTargetedTesting",false)
+            PersonEligibleforSR_CT.updateParam("isEligibleForRandomTesting",false)
+            PersonEligibleforSR_CT.updateParam("isAContact",0)
+            PersonEligibleforSR_CT.updateParam("typeOfTestGiven",1)
 
-            Disease.tested_person_id = SelfRepLowRiskSymptomatic.id
+            Disease.tested_person_id = PersonEligibleforSR_CT.id
 
-            if((!SelfRepLowRiskSymptomatic.isSusceptible) && (!SelfRepLowRiskSymptomatic.isRecovered) && (!SelfRepLowRiskSymptomatic.isDead)&&(biasedCoinToss(Disease.RTPCRTestSensitivity))){
-              SelfRepLowRiskSymptomatic.updateParam("lastTestResult",true)
+            if((!PersonEligibleforSR_CT.isSusceptible) && (!PersonEligibleforSR_CT.isRecovered) && (!PersonEligibleforSR_CT.isDead)&&(biasedCoinToss(Disease.RTPCRTestSensitivity))){
+              PersonEligibleforSR_CT.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
               Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
             }
             else{
-              SelfRepLowRiskSymptomatic.updateParam("lastTestResult",false)
+              PersonEligibleforSR_CT.updateParam("lastTestResult",false)
               Disease.numberOfUninfectedPeopleTested = Disease.numberOfUninfectedPeopleTested + 1.0
             }
             Disease.numberOfRTPCRTestsDoneAtEachTick = Disease.numberOfRTPCRTestsDoneAtEachTick+1
@@ -557,29 +556,29 @@ object Main extends LazyLogging {
 
           if((Disease.numberOfRTPCRTestsDoneAtEachTick >= Disease.RTPCRTestFraction * Disease.numberOfDailyTests) &&
             (Disease.numberOfRATTestsDoneAtEachTick< Disease.RATTestFraction * Disease.numberOfDailyTests)&&
-            (SelfRepLowRiskSymptomatic.beingTested != 1) && (SelfRepLowRiskSymptomatic.id != Disease.tested_person_id)) {
-            SelfRepLowRiskSymptomatic.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
-            SelfRepLowRiskSymptomatic.updateParam("beingTested",1)
+            (PersonEligibleforSR_CT.beingTested != 1) && (PersonEligibleforSR_CT.id != Disease.tested_person_id)) {
+            PersonEligibleforSR_CT.updateParam("lastTestDay", (context.getCurrentStep*Disease.dt).toInt)
+            PersonEligibleforSR_CT.updateParam("beingTested",1)
 
-            if(SelfRepLowRiskSymptomatic.isEligibleForTargetedTesting){
-              SelfRepLowRiskSymptomatic.updateParam("testCategory",1)
+            if(PersonEligibleforSR_CT.isEligibleForTargetedTesting){
+              PersonEligibleforSR_CT.updateParam("testCategory",1)
             }
-            if(SelfRepLowRiskSymptomatic.isAContact==2){
-              SelfRepLowRiskSymptomatic.updateParam("testCategory",2)
+            if(PersonEligibleforSR_CT.isAContact==2 || PersonEligibleforSR_CT.isAContact == 1){
+              PersonEligibleforSR_CT.updateParam("testCategory",2)
 
             }
-            SelfRepLowRiskSymptomatic.updateParam("isEligibleForTargetedTesting",false)
-            SelfRepLowRiskSymptomatic.updateParam("isEligibleForRandomTesting",false)
-            SelfRepLowRiskSymptomatic.updateParam("isAContact",0)
-            SelfRepLowRiskSymptomatic.updateParam("typeOfTestGiven",2)
+            PersonEligibleforSR_CT.updateParam("isEligibleForTargetedTesting",false)
+            PersonEligibleforSR_CT.updateParam("isEligibleForRandomTesting",false)
+            PersonEligibleforSR_CT.updateParam("isAContact",0)
+            PersonEligibleforSR_CT.updateParam("typeOfTestGiven",2)
 //            println("testHappens")
-            if((!SelfRepLowRiskSymptomatic.isSusceptible) && (!SelfRepLowRiskSymptomatic.isRecovered) &&(!SelfRepLowRiskSymptomatic.isDead)&& (biasedCoinToss(Disease.RATTestSensitivity))){
-              SelfRepLowRiskSymptomatic.updateParam("lastTestResult",true)
+            if((!PersonEligibleforSR_CT.isSusceptible) && (!PersonEligibleforSR_CT.isRecovered) &&(!PersonEligibleforSR_CT.isDead)&& (biasedCoinToss(Disease.RATTestSensitivity))){
+              PersonEligibleforSR_CT.updateParam("lastTestResult",true)
               Disease.numberOfPositiveTestsAtEachTick = Disease.numberOfPositiveTestsAtEachTick + 1
               Disease.totalNumberOfPositiveTests = Disease.totalNumberOfPositiveTests + 1
             }
             else{
-              SelfRepLowRiskSymptomatic.updateParam("lastTestResult",false)
+              PersonEligibleforSR_CT.updateParam("lastTestResult",false)
               Disease.numberOfUninfectedPeopleTested = Disease.numberOfUninfectedPeopleTested + 1.0
             }
             Disease.numberOfRATTestsDoneAtEachTick = Disease.numberOfRATTestsDoneAtEachTick+1

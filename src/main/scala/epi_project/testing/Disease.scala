@@ -31,7 +31,7 @@ object Disease {
 
 
    */
-  final val lambdaS: Double = 0.5
+  var lambdaS: Double = 0.5
   final val gamma: Double = 1.0
   
   final val lambdaA : Double = 0.143
@@ -88,7 +88,7 @@ object Disease {
 
   var basalFraction:Double = 0.00004
 
-  var DoesContactTracingHappen:String = "n"
+  var DoesContactTracingHappen:String = "y"
 
   var DoesRandomTestingHappen:String = "n"
 
@@ -201,28 +201,28 @@ object Disease {
     99 -> 0.1,
   )
   final val ageStratifiedMuMultiplier = HashMap(
-       9 -> 0.0185,
-       19 -> 0.0187,
-       29 -> 0.0143,
-       39 -> 0.0166,
-       49 -> 0.034,
-       59 -> 0.05,
-       69 -> 0.097,
-       79 -> 0.21,
-       89 -> 0.22,
-       99 -> 0.22,
+       9 -> 0.0185*3,
+       19 -> 0.0187*3,
+       29 -> 0.0143*3,
+       39 -> 0.0166*3,
+       49 -> 0.034*3,
+       59 -> 0.05*3,
+       69 -> 0.097*3,
+       79 -> 0.21*3,
+       89 -> 0.22*3,
+       99 -> 0.22*3,
         )
     final val ageStratifiedDeltaMultiplier = HashMap(
        9 -> (1.0 - 0.999),
-      19 -> (1.0 - 0.997),
-      29 -> (1.0 - 0.988),
-      39 -> (1.0 - 0.968),
-      49 -> (1.0 - 0.951),
-      59 -> (1.0 - 0.898),
-      69 -> (1.0 - 0.834),
-      79 -> (1.0 - 0.757),
-      89 -> (1.0 - 0.727),
-      99 -> (1.0 - 0.727)
+      19 -> (1.0 - 0.97),
+      29 -> (1.0 - 0.92),
+      39 -> (1.0 - 0.88),
+      49 -> (1.0 - 0.84),
+      59 -> (1.0 - 0.8),
+      69 -> (1.0 - 0.76),
+      79 -> (1.0 - 0.72),
+      89 -> (1.0 - 0.68),
+      99 -> (1.0 - 0.64)
     )
 
 // Sigma multiplier - https://www.medrxiv.org/content/10.1101/2021.07.29.21261282v2.full.pdf
