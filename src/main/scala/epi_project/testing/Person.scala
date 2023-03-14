@@ -196,8 +196,11 @@ case class Person(id: Long,
             }
           }
         }
-        updateParam("beingTested", 2)
-        updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+
+        if (Disease.activateQuarantine == "y") {
+          updateParam("beingTested", 2)
+          updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+        }
         updateParam("dayAtWhichPersonIsIdentified",(context.getCurrentStep/Disease.numberOfTicksInADay)+1)
 
         if (context.getCurrentStep - Disease.testDelay*Disease.numberOfTicksInADay == Disease.testingStartedAt){
@@ -279,8 +282,11 @@ case class Person(id: Long,
             }
           }
         }
-        updateParam("beingTested", 2)
-        updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+
+        if (Disease.activateQuarantine == "y") {
+          updateParam("beingTested", 2)
+          updateParam("quarantineStartedAt", (context.getCurrentStep * Disease.dt).toInt)
+        }
         updateParam("dayAtWhichPersonIsIdentified",(context.getCurrentStep/Disease.numberOfTicksInADay)+1)
 
         if (context.getCurrentStep - Disease.testDelay*Disease.numberOfTicksInADay == Disease.testingStartedAt){

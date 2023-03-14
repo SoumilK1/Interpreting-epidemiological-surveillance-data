@@ -21,6 +21,9 @@ case class DeadState() extends State {
 
     if (agent.asInstanceOf[Person].lastTestDay < 0){
       Disease.numberOfUntestedDeadOnEachDay = Disease.numberOfUntestedDeadOnEachDay + 1.0
+    }
+
+    if (agent.asInstanceOf[Person].dayAtWhichPersonIsIdentified < 0){
       agent.updateParam("dayAtWhichPersonIsIdentified",context.getCurrentStep/Disease.numberOfTicksInADay)
     }
 

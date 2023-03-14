@@ -132,6 +132,12 @@ object Disease {
 
   var testingStartedAt:Int = -30
 
+  var activateTesting:String = "y"
+
+  var activateQuarantine:String = "y"
+
+  var do2400ticks:String = "n"
+
 
 //  var numberOfActiveCasesOnEachDay:Double = 0.0
 
@@ -224,6 +230,7 @@ object Disease {
       89 -> (1.0 - 0.68),
       99 -> (1.0 - 0.64)
     )
+
 
 // Sigma multiplier - https://www.medrxiv.org/content/10.1101/2021.07.29.21261282v2.full.pdf
 

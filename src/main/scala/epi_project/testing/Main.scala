@@ -70,7 +70,11 @@ object Main extends LazyLogging {
     Disease.EPID_required = args(12)
     filename = args(13)
     Disease.lambdaS = args(14).toDouble
-////
+    Disease.activateTesting = args(15)
+    Disease.activateQuarantine = args(16)
+    Disease.do2400ticks = args(17)
+
+////////
 
 
 
@@ -90,12 +94,24 @@ object Main extends LazyLogging {
       testing
       create12HourSchedules()
 
-      registerAction(
-        StopSimulation,
-        (c: Context) => {
-          c.getCurrentStep == 1200
-        }
-      )
+      if (Disease.do2400ticks == "n") {
+        registerAction(
+          StopSimulation,
+          (c: Context) => {
+            c.getCurrentStep == 1200
+          }
+        )
+      }
+
+
+      if (Disease.do2400ticks == "y"){
+        registerAction(
+          StopSimulation,
+          (c: Context) => {
+            c.getCurrentStep == 2400
+          }
+        )
+      }
 
       beforeCount = getInfectedCount(context)
 
@@ -126,13 +142,13 @@ object Main extends LazyLogging {
 
 
 
-//      SimulationListenerRegistry.register(
-//        new CsvOutputGenerator("csv/" + "initialInfectedFraction" + initialInfectedFraction +
-//          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-//          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
-//          + Disease.DoesContactTracingHappen +  "_RandomTesting_" + Disease.DoesRandomTestingHappen + "_beta_" + Disease.lambdaS + filename +
-//          ".csv", new SEIROutputSpec(context))
-//      )
+      SimulationListenerRegistry.register(
+        new CsvOutputGenerator("csv/" + "initialInfectedFraction" + initialInfectedFraction +
+          "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+          "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+          + Disease.DoesContactTracingHappen +  "_RandomTesting_" + Disease.DoesRandomTestingHappen + "_beta_" + Disease.lambdaS + filename +
+          ".csv", new SEIROutputSpec(context))
+      )
 
       if (Disease.EPID_required == "y") {
         SimulationListenerRegistry.register(
@@ -145,12 +161,12 @@ object Main extends LazyLogging {
       }
 
 
-//          SimulationListenerRegistry.register(
-//            new CsvOutputGenerator("CFR_csv/" + "CFR_output_initialInfectedFraction" + initialInfectedFraction +
-//              "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
-//              "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
-//              + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + "_beta_" + Disease.lambdaS + filename + ".csv", new CFROutput("Person", context))
-//          )
+          SimulationListenerRegistry.register(
+            new CsvOutputGenerator("CFR_csv/" + "CFR_output_initialInfectedFraction" + initialInfectedFraction +
+              "_DTR_" + Disease.numberOfDailyTests + "_RATSen_" + Disease.RATTestSensitivity + "_RATFrac_" + Disease.RATTestFraction +
+              "_RTPCRSen_" + Disease.RTPCRTestSensitivity + "_RTPCRFrac_" + Disease.RTPCRTestFraction + "_ContactTracingHappen_"
+              + Disease.DoesContactTracingHappen + "_RandomTesting_" + Disease.DoesRandomTestingHappen + "_beta_" + Disease.lambdaS + filename + ".csv", new CFROutput("Person", context))
+          )
 
 
     })
@@ -372,7 +388,8 @@ object Main extends LazyLogging {
     var TestingStartedAt = 0
     val InterventionName = "get_tested"
     //val ActivationCondition = (context:Context) => getRecoveredCount(context) >= testing_begins_at*total_population
-    val ActivationCondition = (context:Context) => Disease.numberOfPeopleSelfReported > Disease.numberOfPeopleSelfReportedToStartTesting
+    val ActivationCondition = (context:Context) =>
+      Disease.activateTesting == "y" && Disease.numberOfPeopleSelfReported > Disease.numberOfPeopleSelfReportedToStartTesting
 
     val FirstTimeExecution = (context:Context) => {
       TestingStartedAt = context.getCurrentStep
