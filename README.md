@@ -18,7 +18,7 @@ https://bharatsim.readthedocs.io/en/latest/setup.html
 ## Some information on some of the Directories
 
 ### inputcsv 
-directory contains all the csv files that represent the synthetic population. The files present here can be used to create the graph for the model. The information in these csv files is in the following format. 
+This directory contains all the csv files that represent the input synthetic population. The information in these csv files is in the following format. 
 
 | Agent_ID | Age | essential_worker | HouseID | school_id | WorkPlaceID | HospitalID | RoadID |
 |----------|-----|------------------|---------|-----------|-------------|------------|--------|
@@ -30,8 +30,7 @@ directory contains all the csv files that represent the synthetic population. Th
 
 ### csv
  
-You will have to create this directory at the same level as the inputcsv.
-The output files in this directory will have the following format:
+This directory needs to be created and all output files are put here. The output files in this directory will have the following format:
 
 | Time     | Susceptible | Asymptomatic | Presymptomatic | MildlyInfected | SeverelyInfected | Recovered | Hospitalized | Dead | Infected | EligibleForTargetedTest | TestedByTargetedTest | EligibleForContactTracing | TestedByContactTracing | EligibleForRandomTest | TestedByRandomTest | RTPCRTestsConducted | RATTestsConducted | TotalTestsConducted | TestPositivityRate | NumberOfPositiveTests | CaseFatalityRate |
 |----------|-------------|--------------|----------------|----------------|------------------|-----------|--------------|------|----------|-------------------------|----------------------|---------------------------|------------------------|-----------------------|--------------------|---------------------|-------------------|---------------------|--------------------|-----------------------|------------------|
@@ -40,16 +39,6 @@ The output files in this directory will have the following format:
 | 0.5      | 9990        | 10           | 0              | 0              | 0                | 0         | 0            | 0    | 10       | 0                       | 0                    | 0                         | 0                      | 0                     | 0                  | 0                   | 0                 | 0                   | 0                  | 0                     | 0                |
 | 0.666667 | 9990        | 9            | 0              | 0              | 0                | 1         | 0            | 0    | 9        | 0                       | 0                    | 0                         | 0                      | 0                     | 0                  | 0                   | 0                 | 0                   | 0                  | 0                     | 0                |
 
-### EPID_csv
-
-You will have to create a directory by this name at the same level as input csv.
-This directory contains the output in the following format.
-
-| PersonID | LastTestTick | TestResult | FinalInfectionStatus |
-|----------|--------------|------------|----------------------|
-| 1364     | 23           | FALSE      | Recovered            |
-| 6794     | 154          | FALSE      | Susceptible          |
-| 9067     | 138          | FALSE      | Susceptible          |
 
 ## Running the Simulation
 
@@ -83,7 +72,7 @@ The assembly command allows for us to create a JAR file. This can be done by wri
 assembly
 ```
 ### Running the Jar file
-The JAR File can be found in `target/scala-2.13`, and is named such that it has "assembly" in its string. 
+The created JAR File can be found in `target/scala-2.13`, and is named such that it has "assembly" in its string. 
 
 To run the JAR file, you might need to create a new directory which has the following tree:
 
