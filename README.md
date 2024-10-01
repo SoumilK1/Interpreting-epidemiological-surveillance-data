@@ -40,29 +40,41 @@ This directory needs to be created and all output files are put here. The output
 | 0.666667 | 9990        | 9            | 0              | 0              | 0                | 1         | 0            | 0    | 9        | 0                       | 0                    | 0                         | 0                      | 0                     | 0                  | 0                   | 0                 | 0                   | 0                  | 0                     | 0                |
 
 
+
 ## Running the Simulation
 
 To run the simulation, type the following command on the sbt shell in your intellij
 
 ```
-run args(0) args(1) args(2) args(3) args(4) args(5) args(6) args(7)
+java -jar abc.jar <initialInfectedFraction> <fractionOfPeopleSelfReportedToStartTesting> <numberOfDailyTests> <RATTestSensitivity> <RATTestFraction> <RTPCRTestSensitivity> <RTPCRTestFraction> <DoesContactTracingHappen> <DoesRandomTestingHappen> <colleagueFraction> <neighbourFraction> <basalFraction> <EPID_required> <filename> <lambdaS> <activateTesting> <activateQuarantine> <do2400ticks>
 ```
 
-`initialInfectedFraction = args(0)` (initial fraction of seed individuals who are infected)
+### Argument Descriptions:
+1. **initialInfectedFraction** (`Double`): Fraction of the population that is initially infected.
+2. **fractionOfPeopleSelfReportedToStartTesting** (`Double`): Fraction of people who will self-report and start testing for the disease.
+3. **numberOfDailyTests** (`Int`): The number of daily tests to be conducted.
+4. **RATTestSensitivity** (`Double`): Sensitivity of the Rapid Antigen Tests (RAT).
+5. **RATTestFraction** (`Double`): Fraction of tests conducted using RAT.
+6. **RTPCRTestSensitivity** (`Double`): Sensitivity of the RT-PCR tests.
+7. **RTPCRTestFraction** (`Double`): Fraction of tests conducted using RT-PCR.
+8. **DoesContactTracingHappen** (`String`): Whether contact tracing is active (`y` for yes, `n` for no).
+9. **DoesRandomTestingHappen** (`String`): Whether random testing is active (`y` for yes, `n` for no).
+10. **colleagueFraction** (`Double`): Fraction of contacts within the workplace.
+11. **neighbourFraction** (`Double`): Fraction of contacts within the neighborhood.
+12. **basalFraction** (`Double`): Baseline transmission fraction.
+13. **EPID_required** (`String`): This is an additional variable for outputting a format. This is not used in our simulations.  
+14. **filename** (`String`): Output filename to store the results.
+15. **lambdaS** (`Double`): The rate of disease spread in the population.
+16. **activateTesting** (`String`): Whether testing is activated (`y` for yes, `n` for no).
+17. **activateQuarantine** (`String`): Whether quarantine is activated (`y` for yes, `n` for no).
+18. **do2400ticks** (`String`): Whether the simulation runs for 2400 ticks (`y` for yes, `n` for no).
 
-`Disease.numberOfDailyTests = args(1)` (Number of Tests per day)
+### Example Command
+```
+java -jar abc.jar 0.02 0.5 1000 0.85 0.6 0.95 0.4 "y" "y" 0.3 0.2 0.1 "n" output.csv 0.75 "y" "y" "y"
+```
 
-`Disease.RATTestSensitivity = args(2)` (Decimal)
-
-`Disease.RATTestFraction = args(3)` (Decimal)
-
-`Disease.RTPCRTestSensitivity = args(4)`(Decimal)
-
-`Disease.RTPCRTestFraction = args(5)`(Decimal)
-
-`Disease.DoesContactTracingHappen = args(6)`("y" in case contact tracing should happen, "n" in case it should not happen)
-
-`filename = args(7)`(Name of file that you want to give)
+This command runs the simulation with 2% initially infected, 50% of the population self-reporting, 1000 daily tests, 85% RAT sensitivity, 60% RAT test fraction, 95% RT-PCR sensitivity, and boolean values (`y` or `n`) for the relevant options. The results will be saved in `output.csv`.
 
 ## Assembly
 
@@ -83,35 +95,14 @@ To run the JAR file, you might need to create a new directory which has the foll
 ├── EPID_csv
 ├── csv
 └── <JARFILENAME>.jar
-```
-to run the JAR file you need to run the following command on your terminal
 
 ```
-java -jar <JARFILENAME>.jar args(0) args(1) args(2) args(3) args(4) args(5) args(6) args(7)
-```
-
-For example, we have:
-
-```
-java -jar EPI.jar 0.1 100 0.7 0.3 0.98 0.7 "y" my_file
-
-```
-**Note**: make sure that you write args(6) within inverted commas
 
 ## Information on the code
 Compartments
 
 ![](./Eight-Compartmental-Model.png)
 
-
-Thresholds
------------
-
-- Total number of ticks per day = 400
-
-- The number of ticks per day = 2
-
-- Total Population = 10,000
 
 
 Description
