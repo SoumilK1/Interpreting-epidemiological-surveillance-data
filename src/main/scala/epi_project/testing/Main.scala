@@ -31,7 +31,7 @@ object Main extends LazyLogging {
   var testing_begins_at:Double = 0.001
   val total_population = 100000
 
-  var filename = "dummy_run_2Meow-newhggh"
+  var filename = "dummy_run"
 
   println("before", Disease.numberOfDailyTests,Disease.RATTestSensitivity,Disease.RATTestFraction,
     Disease.RTPCRTestSensitivity,Disease.RTPCRTestFraction)
