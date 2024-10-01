@@ -1,4 +1,6 @@
-# Master Repo - COVID-19-Epidemiology Semester Project
+# README
+
+This is the repository accompanying Interpreting epidemiological surveillance data: A modelling study based on Pune City. 
 
 ## General Information 
 
