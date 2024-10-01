@@ -48,7 +48,7 @@ To run the simulation, type the following command on the sbt shell in your intel
 run args(0) args(1) args(2) args(3) args(4) args(5) args(6) args(7)
 ```
 
-`testing_begins_at = args(0)` (fraction of recovered at which testing begins)
+`initialInfectedFraction = args(0)` (initial fraction of seed individuals who are infected)
 
 `Disease.numberOfDailyTests = args(1)` (Number of Tests per day)
 
