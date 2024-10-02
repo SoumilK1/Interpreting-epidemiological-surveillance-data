@@ -11,22 +11,28 @@ https://bharatsim.readthedocs.io/en/latest/
 Information on setting up the development environment can be found here:
 
 https://bharatsim.readthedocs.io/en/latest/setup.html
+ 
+## Data
 
-
-
-
-## Some information on some of the Directories
+- all data for the manuscript is present in the simulation_data folder. Each testing and public health response scenario is present in a different folder.
+- Contact tracing data from Pune city, used to calculate the summary data, gathered by the Pune Knowledge Cluster is available on https://www.pkc.org.in/pkc-focus-area/health/covid-19-pune-clinical-database/
+## Information on the directories
 
 ### inputcsv 
 This directory contains all the csv files that represent the input synthetic population. The information in these csv files is in the following format. 
 
-| Agent_ID | Age | essential_worker | HouseID | school_id | WorkPlaceID | HospitalID | RoadID |
-|----------|-----|------------------|---------|-----------|-------------|------------|--------|
-| 1        | 57  | 0                | 1281    | 42        | 1           | 32         | 129    |
-| 2        | 55  | 0                | 2463    | 16        | 1           | 61         | 247    |
-| 3        | 35  | 0                | 1687    | 222       | 1           | 42         | 169    |
-| 4        | 87  | 0                | 1193    | 250       | 2           | 29         | 120    |
-| 5        | 27  | 0                | 964     | 237       | 1           | 24         | 97     |
+| Agent_ID | Age | essential_worker | HouseID | WorkPlaceID | HospitalID | CemeteryID | Neighbourhood_ID |
+|----------|-----|------------------|---------|-------------|------------|------------|------------------|
+| 1        | 13  | 0                | 1008    | 619         | 1          | 1          | 11               |
+| 2        | 41  | 0                | 10198   | 2084        | 3          | 1          | 100              |
+| 3        | 57  | 0                | 17      | 1183        | 5          | 1          | 1                |
+| 4        | 58  | 0                | 19844   | 2236        | 1          | 1          | 198              |
+| 5        | 38  | 0                | 1349    | 1805        | 5          | 1          | 15               |
+| 6        | 54  | 0                | 17668   | 1601        | 2          | 1          | 175              |
+| 7        | 13  | 0                | 20570   | 1078        | 3          | 1          | 205              |
+| 8        | 26  | 0                | 17483   | 1452        | 2          | 1          | 173              |
+| 9        | 25  | 0                | 9054    | 776         | 5          | 1          | 90               |
+
 
 ### csv
  
