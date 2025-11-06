@@ -74,7 +74,7 @@ java -jar abc.jar <initialInfectedFraction> <fractionOfPeopleSelfReportedToStart
 16. **activateTesting** (`String`): Whether testing is activated (`y` for yes, `n` for no).
 17. **activateQuarantine** (`String`): Whether quarantine is activated (`y` for yes, `n` for no).
 18. **do2400ticks** (`String`): Whether the simulation runs for 2400 ticks (`y` for yes, `n` for no).
-
+19. **C_qParameter** (`Double`): What is the C_q value for the force of infection? 
 ### Example Command
 ```
 java -jar abc.jar 0.02 0.5 1000 0.85 0.6 0.95 0.4 "y" "y" 0.3 0.2 0.1 "n" output.csv 0.75 "y" "y" "y"
@@ -226,6 +226,7 @@ Once testing is done, the following flags are updated:-
 [comment]: <> (  recover or die.)
 
 [comment]: <> (- Dead people are buried in a cemetery.)
+
 
 
 
