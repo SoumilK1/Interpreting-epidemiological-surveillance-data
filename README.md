@@ -52,7 +52,7 @@ This directory needs to be created and all output files are put here. The output
 To run the simulation, type the following command on the sbt shell in your intellij
 
 ```
-java -jar abc.jar <initialInfectedFraction> <fractionOfPeopleSelfReportedToStartTesting> <numberOfDailyTests> <RATTestSensitivity> <RATTestFraction> <RTPCRTestSensitivity> <RTPCRTestFraction> <DoesContactTracingHappen> <DoesRandomTestingHappen> <colleagueFraction> <neighbourFraction> <basalFraction> <EPID_required> <filename> <lambdaS> <activateTesting> <activateQuarantine> <do2400ticks>
+java -jar abc.jar <initialInfectedFraction> <fractionOfPeopleSelfReportedToStartTesting> <numberOfDailyTests> <RATTestSensitivity> <RATTestFraction> <RTPCRTestSensitivity> <RTPCRTestFraction> <DoesContactTracingHappen> <DoesRandomTestingHappen> <colleagueFraction> <neighbourFraction> <basalFraction> <EPID_required> <filename> <lambdaS> <activateTesting> <activateQuarantine> <do2400ticks> <c_q_parameter>
 ```
 
 ### Argument Descriptions:
@@ -77,10 +77,10 @@ java -jar abc.jar <initialInfectedFraction> <fractionOfPeopleSelfReportedToStart
 19. **C_qParameter** (`Double`): What is the C_q value for the force of infection? 
 ### Example Command
 ```
-java -jar abc.jar 0.02 0.5 1000 0.85 0.6 0.95 0.4 "y" "y" 0.3 0.2 0.1 "n" output.csv 0.75 "y" "y" "y"
+java -jar abc.jar 0.02 0.5 1000 0.85 0.6 0.95 0.4 "y" "y" 0.3 0.2 0.1 "n" output.csv 0.75 "y" "y" "y" 0.3
 ```
 
-This command runs the simulation with 2% initially infected, 50% of the population self-reporting, 1000 daily tests, 85% RAT sensitivity, 60% RAT test fraction, 95% RT-PCR sensitivity, and boolean values (`y` or `n`) for the relevant options. The results will be saved in `output.csv`.
+This command runs the simulation with 2% initially infected, 50% of the population self-reporting, 1000 daily tests, 85% RAT sensitivity, 60% RAT test fraction, 95% RT-PCR sensitivity, and boolean values (`y` or `n`) for the relevant options, c_q value of 0.3. The results will be saved in `output.csv`.
 
 ## Assembly
 
@@ -226,6 +226,7 @@ Once testing is done, the following flags are updated:-
 [comment]: <> (  recover or die.)
 
 [comment]: <> (- Dead people are buried in a cemetery.)
+
 
 
 
