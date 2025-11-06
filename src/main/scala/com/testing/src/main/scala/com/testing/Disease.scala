@@ -50,6 +50,10 @@ object Disease {
   final val mu: Double = 1.0
 
   val contactProbability:Double = 0.1
+  
+  // note this probability can be changed while giving the arguements of the simulation. 
+  var contactProbabilityForQuarantined:Double = 0.1
+
 
   var numberOfTicksInADay: Int = 6
   final val dt:Double = 1d/numberOfTicksInADay
@@ -290,3 +294,4 @@ object Disease {
  typeOfTestGiven = 2 -> RAT
 
  */
+

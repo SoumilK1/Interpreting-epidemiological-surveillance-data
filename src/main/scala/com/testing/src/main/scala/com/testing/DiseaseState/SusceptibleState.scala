@@ -108,9 +108,13 @@ case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
     val contact_traced_and_quarantined_not_to_be_tested: Double = node.getConnectionCount(node.getRelation[Person]().get,("currentLocation" equ placeType) and ("beingTested" equ 4))
     val totalCount:Double = sus_or_rec + infected + Disease.contactProbability*hos
 
-    val infectedCount:Double = (infected - infected_and_quarantined - contact_traced_and_quarantined_not_to_be_tested - contact_traced_and_quarantined_to_be_tested) + Disease.contactProbability*hos +
-      Disease.contactProbability*infected_and_quarantined + Disease.contactProbability*contact_traced_and_quarantined_not_to_be_tested + Disease.contactProbability*contact_traced_and_quarantined_to_be_tested
-    //TODO: account for quarantined
+    // this is the old code, which does not account for varying probability of contact for quarantined individuals.
+    // val infectedCount:Double = (infected - infected_and_quarantined - contact_traced_and_quarantined_not_to_be_tested - contact_traced_and_quarantined_to_be_tested) + Disease.contactProbability*hos +
+    //   Disease.con*infected_and_quarantined + Disease.contactProbability*contact_traced_and_quarantined_not_to_be_tested + Disease.contactProbability*contact_traced_and_quarantined_to_be_tested
+
+    val infectedCount:Double = (infected - infected_and_quarantined - contact_traced_and_quarantined_not_to_be_tested - contact_traced_and_quarantined_to_be_tested) + Disease.contactProbability*hos + 
+    Disease.contactProbabilityForQuarantined*infected_and_quarantined + Disease.contactProbabilityForQuarantined*contact_traced_and_quarantined_not_to_be_tested + Disease.contactProbabilityForQuarantined*contact_traced_and_quarantined_to_be_tested
+    // we now have modular values for the contact probability for quarantined individuals.
 
     infectedCount/totalCount
 
@@ -169,4 +173,5 @@ case class SusceptibleState(toBeAsymptomatic:Boolean) extends State {
     to = agent => PresymptomaticState(toBeSeverelyInfected = 1- Disease.delta)
   )
 }
+
 

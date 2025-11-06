@@ -73,6 +73,9 @@ object Main extends LazyLogging {
     Disease.activateTesting = args(15)
     Disease.activateQuarantine = args(16)
     Disease.do2400ticks = args(17)
+    Disease.contactProbabilityForQuarantined = args(18).toDouble 
+// added the c_q as an argument for sensitivity testing 
+
     println("Number of ticks in the Simulation: "+Disease.getNumberOfTicksInTheSimulation)
 
 ////////
@@ -725,4 +728,5 @@ object Main extends LazyLogging {
 
 
 }
+
 
