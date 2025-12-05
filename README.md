@@ -1,7 +1,7 @@
 # README
 
 This is the repository accompanying Interpreting epidemiological surveillance data: A modelling study based on Pune City. 
-https://www.medrxiv.org/content/10.1101/2024.09.13.24313615v1 
+https://www.nature.com/articles/s41598-025-30023-3 
 ## General Information 
 
 An introduction to the framework, BharatSim, can be found in the following website:
@@ -226,6 +226,7 @@ Once testing is done, the following flags are updated:-
 [comment]: <> (  recover or die.)
 
 [comment]: <> (- Dead people are buried in a cemetery.)
+
 
 
 
